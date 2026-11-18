@@ -81,8 +81,9 @@ first store build the owner needs:
 1. The publisher is Lattice AI, LLC (organization accounts, D-U-N-S 143-463731), the same as BJJ with Joel: an Apple
    Developer Program organization membership (enrollment in progress; the Team ID goes in `eas.json`) and a Google Play
    Console organization account. Store copyright: `2026 Lattice AI, LLC`. Support address: `hello@latticetech.ai`.
-2. `npx eas-cli init` to create the EAS project, then `MUXCLOUD_MOBILE_EAS_PROJECT_ID` set for builds (push tokens
-   need it).
+2. The EAS project is `@joel-christner/mux` (ID `695bdade-ea51-48f9-9348-56acb235f711`, the default in
+   `app.config.ts`; override with `MUXCLOUD_MOBILE_EAS_PROJECT_ID`). Expo holds the `GOOGLE_SERVICES_JSON` file variable
+   and the Android FCM V1 key. CLI access uses an `EXPO_TOKEN` access token kept outside Git.
 3. The app registered in App Store Connect and Play Console under bundle identifier and package `ai.usemux.app`
    (reverse of the usemux.ai domain plus `.app`, the same pattern as `com.bjjwithjoel.app`; override with
    `MUXCLOUD_MOBILE_BUNDLE_ID`). The EAS owner is `joel-christner` (override with `MUXCLOUD_MOBILE_EAS_OWNER`).

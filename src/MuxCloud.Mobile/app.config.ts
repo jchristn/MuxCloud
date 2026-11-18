@@ -5,13 +5,14 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 // ---------------------------------------------------------------------------------------------------------------
 // MAINTAINER: before the first store build
 //   - BUNDLE_ID: iOS bundle identifier and Android application id. Override with MUXCLOUD_MOBILE_BUNDLE_ID.
-//   - EAS_PROJECT_ID: from `npx eas-cli init`. Push tokens need it; without it the app runs and push is off.
+//   - EAS_PROJECT_ID: the Expo project @joel-christner/mux. Override with MUXCLOUD_MOBILE_EAS_PROJECT_ID.
 //   - GOOGLE_SERVICES_JSON: Firebase config for Android push (project mux-ai-52eb1). EAS builds read it from the EAS
 //     file variable GOOGLE_SERVICES_JSON; local builds use ./google-services.json when present (git-ignored).
 //   - The Apple team id and store credentials live in eas.json / EAS credentials, never here.
 // ---------------------------------------------------------------------------------------------------------------
 const BUNDLE_ID = process.env.MUXCLOUD_MOBILE_BUNDLE_ID ?? 'ai.usemux.app';
-const EAS_PROJECT_ID: string | undefined = process.env.MUXCLOUD_MOBILE_EAS_PROJECT_ID;
+// Expo project @joel-christner/mux.
+const EAS_PROJECT_ID: string = process.env.MUXCLOUD_MOBILE_EAS_PROJECT_ID ?? '695bdade-ea51-48f9-9348-56acb235f711';
 const LOCAL_GOOGLE_SERVICES = join(__dirname, 'google-services.json');
 const GOOGLE_SERVICES_JSON: string | undefined =
   process.env.GOOGLE_SERVICES_JSON ?? (existsSync(LOCAL_GOOGLE_SERVICES) ? './google-services.json' : undefined);
@@ -25,7 +26,7 @@ const FACE_ID_USAGE = 'Mux uses Face ID to unlock the app.';
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Mux',
-  slug: 'muxcloud-mobile',
+  slug: 'mux',
   owner: process.env.MUXCLOUD_MOBILE_EAS_OWNER ?? 'joel-christner',
   platforms: ['ios', 'android'],
   // Stores accept only numeric versions; the alpha label stays in extra.releaseVersion.
