@@ -5,7 +5,7 @@ namespace MuxCloud.Core.Services.Interfaces
     using MuxCloud.Core.Models;
 
     /// <summary>
-    /// Payment provider boundary (for example Stripe). Version 0.1.0 ships only <see cref="Implementations.NullBillingProvider"/>.
+    /// Payment provider boundary (for example Stripe). Version 2.0.0 ships only <see cref="Implementations.NullBillingProvider"/>.
     /// </summary>
     public interface IBillingProvider
     {
