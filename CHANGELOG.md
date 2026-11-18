@@ -3,6 +3,11 @@
 All notable changes to Mux Cloud are recorded here. Versions follow [Semantic Versioning](https://semver.org).
 Every 0.x release is alpha.
 
+## MuxCloud.Protocol 2.0.0
+
+- First stable release of the tunnel wire contract on NuGet, versioned in step with mux 2.0.0 and independently of
+  the rest of MuxCloud. Tunnel protocol version 1. (0.1.0-alpha was published briefly before it.)
+
 ## 0.1.0-alpha (unreleased)
 
 - `MuxCloud.Protocol`: the tunnel wire contract (envelope and payload models, handshake proof, close and error
