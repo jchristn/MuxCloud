@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <AssemblyName>MuxCloud.Server</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SyslogLogging" Version="2.4.1" />
+    <PackageReference Include="Watson" Version="7.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MuxCloud.Core\MuxCloud.Core.csproj" />
+    <ProjectReference Include="..\MuxCloud.Email\MuxCloud.Email.csproj" />
+    <ProjectReference Include="..\MuxCloud.Protocol\MuxCloud.Protocol.csproj" />
+  </ItemGroup>
+
+  <!-- The built dashboard (src/MuxCloud.Dashboard/dist) is copied next to the server as ./dashboard when it exists. -->
+  <ItemGroup Condition="Exists('..\MuxCloud.Dashboard\dist\index.html')">
+    <Content Include="..\MuxCloud.Dashboard\dist\**\*" LinkBase="dashboard" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

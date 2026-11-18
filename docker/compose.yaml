@@ -1,0 +1,89 @@
+# Mux Cloud: the server (REST API, tunnel, relay, events, and the dashboard on one origin) and PostgreSQL.
+# Secrets come from the environment or a .env file next to this file:
+#   MUXCLOUD_DB_PASSWORD        database password (required)
+#   MUXCLOUD_AUTH_SIGNING_KEY   64+ random characters; generated into muxcloud.json when unset
+#   MUXCLOUD_ADMIN_PASSWORD     seed administrator password (first boot only)
+#   MUXCLOUD_MAILGUN_API_KEY    Mailgun key when Email.Provider is Mailgun
+# Profiles "mysql" and "sqlserver" start those engines instead; point MUXCLOUD_DB_TYPE and MUXCLOUD_DB_SERVER at them.
+
+name: muxcloud
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: muxcloud
+      POSTGRES_USER: muxcloud
+      POSTGRES_PASSWORD: ${MUXCLOUD_DB_PASSWORD:?set MUXCLOUD_DB_PASSWORD}
+    volumes:
+      - muxcloud-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U muxcloud -d muxcloud"]
+      interval: 5s
+      timeout: 5s
+      retries: 2
+      start_period: 20s
+
+  mysql:
+    image: mysql:8.4
+    profiles: ["mysql"]
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: muxcloud
+      MYSQL_USER: muxcloud
+      MYSQL_PASSWORD: ${MUXCLOUD_DB_PASSWORD:?set MUXCLOUD_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MUXCLOUD_DB_PASSWORD:?set MUXCLOUD_DB_PASSWORD}
+    volumes:
+      - muxcloud-mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 2
+      start_period: 40s
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    profiles: ["sqlserver"]
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MUXCLOUD_DB_PASSWORD:?set MUXCLOUD_DB_PASSWORD}
+    volumes:
+      - muxcloud-sqlserver:/var/opt/mssql
+
+  muxcloud-server:
+    build:
+      context: ..
+      dockerfile: docker/server/Dockerfile
+    image: jchristn77/muxcloud-server:v0.1.0-alpha
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${MUXCLOUD_PORT:-8800}:8800"
+    environment:
+      MUXCLOUD_SETTINGS_FILE: /app/muxcloud.json
+      MUXCLOUD_DB_PASSWORD: ${MUXCLOUD_DB_PASSWORD:?set MUXCLOUD_DB_PASSWORD}
+      MUXCLOUD_AUTH_SIGNING_KEY: ${MUXCLOUD_AUTH_SIGNING_KEY:-}
+      MUXCLOUD_ADMIN_PASSWORD: ${MUXCLOUD_ADMIN_PASSWORD:-}
+      MUXCLOUD_MAILGUN_API_KEY: ${MUXCLOUD_MAILGUN_API_KEY:-}
+      MUXCLOUD_PUBLIC_URL: ${MUXCLOUD_PUBLIC_URL:-http://127.0.0.1:8800}
+    volumes:
+      - ./muxcloud.json:/app/muxcloud.json
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./email-outbox:/app/email-outbox
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8800/v1.0/api/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 2
+      start_period: 15s
+
+volumes:
+  muxcloud-postgres:
+  muxcloud-mysql:
+  muxcloud-sqlserver:

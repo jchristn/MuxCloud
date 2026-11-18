@@ -1,6 +1,7 @@
 namespace MuxCloud.Core.Settings
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Public identity and static content settings.
@@ -43,6 +44,16 @@ namespace MuxCloud.Core.Settings
         /// </summary>
         public bool TrustForwardedHeaders { get; set; } = false;
 
+        /// <summary>
+        /// Extra browser origins allowed besides <see cref="PublicUrl"/>, for example a dashboard dev server at
+        /// http://127.0.0.1:5173. Requests from these origins pass the Origin check and receive CORS headers with credentials.
+        /// </summary>
+        public List<string> AdditionalOrigins
+        {
+            get { return _AdditionalOrigins; }
+            set { _AdditionalOrigins = value ?? new List<string>(); }
+        }
+
         #endregion
 
         #region Private-Members
@@ -50,6 +61,7 @@ namespace MuxCloud.Core.Settings
         private string _PublicUrl = "http://127.0.0.1:8800";
         private string _NodeId = "node-1";
         private string _DashboardDirectory = "./dashboard";
+        private List<string> _AdditionalOrigins = new List<string>();
 
         #endregion
     }

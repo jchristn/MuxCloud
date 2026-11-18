@@ -13,6 +13,7 @@
     <ProjectReference Include="..\MuxCloud.Protocol\MuxCloud.Protocol.csproj" />
     <ProjectReference Include="..\MuxCloud.Core\MuxCloud.Core.csproj" />
     <ProjectReference Include="..\MuxCloud.Email\MuxCloud.Email.csproj" />
+    <ProjectReference Include="..\MuxCloud.Server\MuxCloud.Server.csproj" />
   </ItemGroup>
 
 </Project>

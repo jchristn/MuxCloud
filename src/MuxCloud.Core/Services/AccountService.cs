@@ -331,6 +331,23 @@ namespace MuxCloud.Core.Services
         }
 
         /// <summary>
+        /// Re-validate a session by identifier (WebSocket tickets).
+        /// </summary>
+        /// <param name="tenantId">Tenant.</param>
+        /// <param name="userId">User.</param>
+        /// <param name="sessionId">Session.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Principal, or null when the session or user is no longer active.</returns>
+        public async Task<AuthenticatedPrincipal?> ValidateSessionAsync(string tenantId, string userId, string sessionId, CancellationToken token = default)
+        {
+            AuthSession? session = await _Db.Sessions.ReadAsync(sessionId, token).ConfigureAwait(false);
+            if (session == null || session.RevokedUtc != null || session.UserId != userId || session.RefreshExpiresUtc <= DateTime.UtcNow) return null;
+            User? user = await _Db.Users.ReadAsync(tenantId, userId, token).ConfigureAwait(false);
+            if (user == null || !user.Active) return null;
+            return new AuthenticatedPrincipal { User = user, Session = session };
+        }
+
+        /// <summary>
         /// Revoke a session.
         /// </summary>
         /// <param name="session">Session.</param>

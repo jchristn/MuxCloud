@@ -25,7 +25,9 @@ namespace Test.Shared
                     ProtocolSuites.Policy(),
                     DatabaseSuites.Database(),
                     AccountSuites.Accounts(),
-                    EmailSuites.Email()
+                    EmailSuites.Email(),
+                    ServerSuites.Http(),
+                    ServerSuites.Tunnel()
                 };
             }
         }

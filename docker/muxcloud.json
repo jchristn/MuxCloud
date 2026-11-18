@@ -1,0 +1,81 @@
+{
+  "Server": {
+    "PublicUrl": "http://127.0.0.1:8800",
+    "NodeId": "node-1",
+    "DashboardDirectory": "/app/dashboard",
+    "TrustForwardedHeaders": false,
+    "AdditionalOrigins": []
+  },
+  "Rest": {
+    "Hostname": "0.0.0.0",
+    "Port": 8800,
+    "Ssl": false
+  },
+  "Database": {
+    "Type": "Postgresql",
+    "Filename": "/app/data/muxcloud.db",
+    "Server": "postgres",
+    "Port": 5432,
+    "DatabaseName": "muxcloud",
+    "Username": "muxcloud",
+    "Password": "",
+    "ConnectionString": ""
+  },
+  "Logging": {
+    "ConsoleLogging": true,
+    "FileLogging": true,
+    "LogDirectory": "/app/logs",
+    "LogFilename": "muxcloud.log",
+    "MinimumSeverity": 1,
+    "SyslogServers": []
+  },
+  "Auth": {
+    "SigningKey": "",
+    "AccessTokenMinutes": 60,
+    "RefreshTokenDays": 30,
+    "PasswordIterations": 600000,
+    "MinimumPasswordLength": 10,
+    "MaxLoginFailures": 10,
+    "LoginFailureWindowSeconds": 900,
+    "LockoutSeconds": 900,
+    "AnonymousRequestsPerHour": 30,
+    "RequireEmailVerification": true,
+    "TermsVersion": "2026-11-17"
+  },
+  "Admin": {
+    "Email": "admin@muxcloud.local",
+    "Password": ""
+  },
+  "Email": {
+    "Provider": "File",
+    "FromName": "Mux Cloud",
+    "FromAddress": "hello@latticetech.ai",
+    "SupportAddress": "hello@latticetech.ai",
+    "LogoUrl": "https://raw.githubusercontent.com/jchristn/MuxCloud/main/assets/logo-black.png",
+    "File": { "Directory": "/app/email-outbox" },
+    "Mailgun": { "Domain": "latticetech.ai", "ApiKey": "", "BaseUrl": "https://api.mailgun.net/v3/" }
+  },
+  "Tunnel": {
+    "HeartbeatSeconds": 20,
+    "MissedHeartbeats": 3,
+    "HandshakeTimeoutSeconds": 15,
+    "MaxConcurrentStreams": 32,
+    "MaxRequestBodyBytes": 8388608,
+    "FirstByteTimeoutSeconds": 30,
+    "MaxHandshakeFailures": 10,
+    "HandshakeFailureWindowSeconds": 900,
+    "DrainRetryAfterSeconds": 5
+  },
+  "RequestHistory": {
+    "Enabled": true,
+    "MaxRequestBodyBytes": 65536,
+    "MaxResponseBodyBytes": 65536,
+    "RetentionDays": 30
+  },
+  "Telemetry": {
+    "Enable": true,
+    "EnableMetrics": true,
+    "EnableTraces": true,
+    "PropagateContext": true
+  }
+}
