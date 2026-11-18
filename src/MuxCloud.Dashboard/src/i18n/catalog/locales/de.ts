@@ -2,6 +2,7 @@ import type { Catalog } from '../en';
 
 export const de: Catalog = {
   common: {
+    cloud: 'Cloud',
     appName: 'Mux Cloud',
     loading: 'Wird geladen...',
     save: 'Speichern',
@@ -84,6 +85,9 @@ export const de: Catalog = {
     skipToContent: 'Zum Inhalt springen',
   },
   auth: {
+    emailRequired: 'Gib deine E-Mail-Adresse ein.',
+    emailInvalid: 'Gib eine Adresse wie name@beispiel.de ein.',
+    passwordRequired: 'Gib dein Passwort ein.',
     tagline: 'Deine mux-Rechner, von überall.',
     loginTitle: 'Anmelden',
     loginSubtitle: 'Verwende die E-Mail-Adresse und das Passwort deines Mux Cloud-Kontos.',
@@ -141,6 +145,8 @@ export const de: Catalog = {
       'Um Werkzeugfreigaben aus der Ferne auf einem Rechner zu verhindern, setze {{setting}} in den mux-Einstellungen dieses Rechners auf false oder deaktiviere "Werkzeugfreigabe aus der Ferne erlauben" im Mux Cloud-Bereich.',
   },
   machines: {
+    lastSeenAgo: 'Zuletzt {{time}}',
+    awaitingCount: '{{count}} warten auf Freigabe',
     title: 'Rechner',
     subtitle:
       'Alle Computer, die mit diesem Konto verbunden sind, mit Live-Status. Öffne einen, um sein mux-Dashboard zu nutzen.',
@@ -225,6 +231,7 @@ export const de: Catalog = {
       'Rechner verbinden sich standardmäßig mit {{url}}. Mit der Einstellung für die Cloud-Server-URL kannst du mux auf einen anderen Server richten.',
   },
   machineDetail: {
+    chooseMachine: 'Rechner wählen',
     switchTo: 'Rechner wechseln',
     allMachines: 'Alle Rechner',
     frameTitle: 'mux-Dashboard auf {{name}}',
@@ -242,6 +249,10 @@ export const de: Catalog = {
     approvalWaiting: 'Ein Lauf wartet auf eine Werkzeugfreigabe.',
   },
   conversations: {
+    machineEmptyTitle: 'Noch keine Unterhaltungen auf {{name}}',
+    machineEmptyBody: 'Öffne den Rechner, um in seinem Dashboard eine zu beginnen.',
+    openMachine: '{{name}} öffnen',
+    noMachines: 'Verbinde einen Rechner, um seine Unterhaltungen hier zu sehen.',
     title: 'Unterhaltungen',
     subtitle: 'Unterhaltungen von allen Rechnern, die online sind. Öffne eine, um sie auf ihrem Rechner fortzusetzen.',
     machineFilter: 'Rechner',
@@ -535,6 +546,7 @@ export const de: Catalog = {
     historyEmpty: 'Gesendete Anfragen erscheinen hier.',
   },
   table: {
+    range: '{{first}}-{{last}} von {{total}}',
     showing: '{{first}}-{{last}} von {{total}}',
     showingNone: 'Keine Einträge',
     pageOf: 'Seite {{page}} von {{pages}}',

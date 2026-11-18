@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Icon } from './Icon';
 
 export interface MenuItem {
+  /** BCP 47 tag for labels in another language (language picker). */
+  lang?: string;
   label: string;
   icon?: string;
   onSelect: () => void;
@@ -19,11 +21,14 @@ export function ActionMenu({
   label,
   trigger,
   keepOpen = false,
+  triggerClassName,
 }: {
   items: MenuItem[];
   label?: string;
   trigger?: ReactNode;
   keepOpen?: boolean;
+  /** Overrides the trigger button's class (default: small button with a trigger, icon button without). */
+  triggerClassName?: string;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -102,7 +107,7 @@ export function ActionMenu({
       <button
         ref={button}
         type="button"
-        className={trigger ? 'btn btn-sm' : 'icon-btn sm'}
+        className={triggerClassName ?? (trigger ? 'btn btn-sm' : 'icon-btn sm')}
         aria-label={name}
         title={name}
         aria-haspopup="menu"
@@ -133,6 +138,7 @@ export function ActionMenu({
                     aria-checked={item.checked}
                     className={item.danger ? 'danger' : undefined}
                     disabled={item.disabled}
+                    lang={item.lang}
                     onClick={(event) => {
                       event.stopPropagation();
                       if (!keepOpen) setOpen(false);

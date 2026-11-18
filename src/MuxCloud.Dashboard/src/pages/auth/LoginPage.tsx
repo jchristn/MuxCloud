@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import { ApiError, authApi } from '../../api';
@@ -7,15 +7,18 @@ import { Banner } from '../../components/Banner';
 import { ErrorBanner } from '../../components/ErrorBanner';
 import { PasswordInput } from '../../components/PasswordInput';
 import { useAuth } from '../../context/AuthContext';
-import { AuthLayout } from './AuthLayout';
+import { AuthLayout, Field } from './AuthLayout';
+import { emailError, focusFirstInvalid, passwordError } from './validation';
 
 export function LoginPage() {
   const { t } = useTranslation();
   const { status, login, expired } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const form = useRef<HTMLFormElement>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [touched, setTouched] = useState({ email: false, password: false });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const [resent, setResent] = useState(false);
@@ -23,8 +26,16 @@ export function LoginPage() {
 
   if (status === 'authenticated') return <Navigate to={from} replace />;
 
+  const emailMsg = touched.email ? emailError(email) : null;
+  const passwordMsg = touched.password ? passwordError(password) : null;
+
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    setTouched({ email: true, password: true });
+    if (emailError(email) || passwordError(password)) {
+      setTimeout(() => focusFirstInvalid(form.current), 0);
+      return;
+    }
     setBusy(true);
     setError(null);
     setResent(false);
@@ -46,12 +57,9 @@ export function LoginPage() {
       pageTitle={t('pageTitles.login')}
       subtitle={t('auth.loginSubtitle')}
       footer={
-        <>
-          <Link to="/forgot">{t('auth.forgotLink')}</Link>
-          <span>
-            {t('auth.noAccount')} <Link to="/signup">{t('auth.createAccount')}</Link>
-          </span>
-        </>
+        <span>
+          {t('auth.noAccount')} <Link to="/signup">{t('auth.createAccount')}</Link>
+        </span>
       }
     >
       {expired && !error ? <Banner tone="info">{t('auth.sessionExpired')}</Banner> : null}
@@ -81,9 +89,8 @@ export function LoginPage() {
       ) : error ? (
         <ErrorBanner error={error} />
       ) : null}
-      <form className="form-stack" onSubmit={submit} noValidate>
-        <div className="field">
-          <label htmlFor="email">{t('common.email')}</label>
+      <form ref={form} className="form-stack" onSubmit={submit} noValidate>
+        <Field id="email" label={t('common.email')} error={emailMsg ? t(emailMsg) : null}>
           <input
             id="email"
             className="input"
@@ -91,21 +98,35 @@ export function LoginPage() {
             autoComplete="username"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
-            data-autofocus
+            onBlur={() => email && setTouched((x) => ({ ...x, email: true }))}
+            aria-invalid={!!emailMsg}
+            aria-describedby={emailMsg ? 'email-msg' : undefined}
+            autoFocus
           />
-        </div>
+        </Field>
         <div className="field">
-          <label htmlFor="password">{t('auth.password')}</label>
+          <div className="label-row">
+            <label htmlFor="password">{t('auth.password')}</label>
+            <Link to="/forgot" className="small">
+              {t('auth.forgotLink')}
+            </Link>
+          </div>
           <PasswordInput
             id="password"
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
+            aria-invalid={!!passwordMsg}
+            aria-describedby={passwordMsg ? 'password-msg' : undefined}
           />
+          {passwordMsg ? (
+            <span id="password-msg" className="field-error" role="alert">
+              {t(passwordMsg)}
+            </span>
+          ) : null}
         </div>
-        <button type="submit" className="btn btn-primary btn-block" disabled={busy || !email || !password}>
+        <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={busy}>
+          {busy ? <span className="spinner spinner-sm on-accent" aria-hidden="true" /> : null}
           {busy ? t('auth.signingIn') : t('auth.signIn')}
         </button>
       </form>

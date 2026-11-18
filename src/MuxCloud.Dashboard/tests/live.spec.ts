@@ -60,7 +60,9 @@ test.describe('live server', () => {
     await expect(page.getByRole('cell', { name: /Connected machines/ })).toBeVisible();
 
     await page.goto('/conversations');
-    await expect(page.getByText(/No machines are online/)).toBeVisible();
+    await expect(page.getByTestId('conversations-no-machines')).toContainText(
+      'Connect a machine to see its conversations here.',
+    );
 
     await page.getByRole('button', { name: 'Sign out' }).click();
     await expect(page).toHaveURL(/\/login$/);

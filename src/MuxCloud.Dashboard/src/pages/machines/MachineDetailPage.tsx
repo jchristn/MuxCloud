@@ -8,6 +8,7 @@ import { ErrorBanner } from '../../components/ErrorBanner';
 import { Icon } from '../../components/Icon';
 import { JsonViewerModal } from '../../components/JsonViewerModal';
 import { Loading } from '../../components/Spinner';
+import { EmptyState } from '../../components/DataTable';
 import { useAccountEvents } from '../../context/EventsContext';
 import { usePageTitle } from '../../context/PageTitleContext';
 import { useLocale } from '../../i18n/runtime';
@@ -76,14 +77,17 @@ export function MachineDetailPage() {
     body = (
       <div className="machine-state">
         {notFound ? (
-          <div className="panel">
-            <h2 className="section-title">{t('machineDetail.notFoundTitle')}</h2>
-            <p className="muted">{t('machineDetail.notFoundBody')}</p>
-            <div>
-              <Link className="btn" to="/machines">
-                {t('machineDetail.allMachines')}
-              </Link>
-            </div>
+          <div className="panel state-panel" data-testid="machine-not-found">
+            <EmptyState
+              icon="search"
+              title={t('machineDetail.notFoundTitle')}
+              body={t('machineDetail.notFoundBody')}
+              action={
+                <Link className="btn" to="/machines">
+                  {t('machineDetail.allMachines')}
+                </Link>
+              }
+            />
           </div>
         ) : (
           <ErrorBanner error={error} onRetry={load} />
@@ -93,29 +97,44 @@ export function MachineDetailPage() {
   } else if (machine && machine.revoked) {
     body = (
       <div className="machine-state">
-        <div className="panel">
-          <h2 className="section-title">{t('machineDetail.revokedTitle', { name: machine.name })}</h2>
-          <p className="muted">{t('machineDetail.revokedBody')}</p>
+        <div className="panel state-panel" data-testid="machine-revoked">
+          <EmptyState
+            icon="shield"
+            title={t('machineDetail.revokedTitle', { name: machine.name })}
+            body={t('machineDetail.revokedBody')}
+            action={
+              <Link className="btn" to="/machines?add=1">
+                {t('machines.addMachine')}
+              </Link>
+            }
+          />
         </div>
       </div>
     );
   } else if (machine && !machine.online) {
     body = (
       <div className="machine-state">
-        <div className="panel" data-testid="machine-offline">
-          <h2 className="section-title">{t('machineDetail.offlineTitle', { name: machine.name })}</h2>
-          <p className="muted">
-            {machine.lastSeenUtc
-              ? t('machineDetail.offlineBody', { lastSeen: formatRelativeTime(locale, machine.lastSeenUtc) })
-              : t('machineDetail.offlineNever')}
-          </p>
-          {machine.lastSeenUtc ? <p className="small muted">{formatDateTime(locale, machine.lastSeenUtc)}</p> : null}
-          <div>
-            <button type="button" className="btn" onClick={load}>
-              <Icon name="refresh" size={15} />
-              {t('machineDetail.reload')}
-            </button>
-          </div>
+        <div className="panel state-panel" data-testid="machine-offline">
+          <EmptyState
+            icon="plug"
+            title={t('machineDetail.offlineTitle', { name: machine.name })}
+            body={
+              machine.lastSeenUtc
+                ? t('machineDetail.offlineBody', { lastSeen: formatRelativeTime(locale, machine.lastSeenUtc) })
+                : t('machineDetail.offlineNever')
+            }
+            action={
+              <button
+                type="button"
+                className="btn"
+                onClick={load}
+                title={machine.lastSeenUtc ? formatDateTime(locale, machine.lastSeenUtc) : undefined}
+              >
+                <Icon name="refresh" size={15} />
+                {t('machineDetail.reload')}
+              </button>
+            }
+          />
         </div>
       </div>
     );
@@ -143,19 +162,27 @@ export function MachineDetailPage() {
         </label>
         <select
           id="machine-switcher"
-          className="select btn-sm"
-          value={id}
+          className="select select-sm machine-switcher"
+          value={machines.some((m) => m.id === id) ? id : ''}
           onChange={(e) => navigate('/machines/' + encodeURIComponent(e.target.value))}
           title={t('machineDetail.switchTo')}
         >
-          {machines.some((m) => m.id === id) ? null : <option value={id}>{machine?.name ?? id}</option>}
+          {machines.some((m) => m.id === id) ? null : (
+            <option value="" disabled>
+              {machine?.name ?? t('machineDetail.chooseMachine')}
+            </option>
+          )}
           {machines.map((m) => (
             <option key={m.id} value={m.id}>
               {(m.online ? '● ' : '○ ') + m.name}
             </option>
           ))}
         </select>
-        {machine ? <MachineStatusPill machine={machine} /> : null}
+        {machine ? (
+          <span className="machine-bar-status" title={t('machines.colStatus')}>
+            <MachineStatusPill machine={machine} />
+          </span>
+        ) : null}
         {machine?.online && machine.awaitingApproval > 0 ? (
           <span className="pill pill-warning desktop-only">{t('machineDetail.approvalWaiting')}</span>
         ) : null}

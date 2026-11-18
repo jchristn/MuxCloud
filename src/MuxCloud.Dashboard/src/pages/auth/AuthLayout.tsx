@@ -6,7 +6,7 @@ import { Logo } from '../../components/Logo';
 import { ThemeToggle } from '../../components/ThemeToggle';
 import { usePageTitle } from '../../context/PageTitleContext';
 
-/** Public auth page frame: brand, card, language and theme, legal links. */
+/** Public auth page frame: utility bar, centered branded card, legal footer. */
 export function AuthLayout({
   title,
   pageTitle,
@@ -24,31 +24,63 @@ export function AuthLayout({
   usePageTitle(pageTitle);
   return (
     <div className="auth-page">
-      <div className="auth-card">
-        <div className="auth-brand">
-          <Logo />
-          <span className="tagline">{t('auth.tagline')}</span>
-        </div>
-        <div>
-          <h1>{title}</h1>
-          {subtitle ? (
-            <p className="muted small" style={{ marginTop: 4 }}>
-              {subtitle}
-            </p>
-          ) : null}
-        </div>
-        {children}
-        {footer ? <div className="auth-links">{footer}</div> : null}
-      </div>
       <div className="auth-utility">
-        <LanguageSelector compact />
+        <LanguageSelector />
         <ThemeToggle />
       </div>
-      <div className="auth-utility muted">
+      <main className="auth-main">
+        <div className="auth-card">
+          <div className="auth-brand">
+            <span className="auth-wordmark">
+              <Logo className="auth-logo" />
+              <span className="pill pill-accent">{t('common.cloud')}</span>
+            </span>
+            <span className="tagline">{t('auth.tagline')}</span>
+          </div>
+          <div className="auth-heading">
+            <h1>{title}</h1>
+            {subtitle ? <p>{subtitle}</p> : null}
+          </div>
+          {children}
+          {footer ? <div className="auth-links">{footer}</div> : null}
+        </div>
+      </main>
+      <footer className="auth-legal">
         <Link to="/legal/terms">{t('legal.terms')}</Link>
-        <span aria-hidden="true">|</span>
+        <span aria-hidden="true">·</span>
         <Link to="/legal/privacy">{t('legal.privacy')}</Link>
-      </div>
+      </footer>
+    </div>
+  );
+}
+
+/** A labeled field with its inline error or hint, wired for screen readers. */
+export function Field({
+  id,
+  label,
+  error,
+  hint,
+  children,
+}: {
+  id: string;
+  label: string;
+  error?: string | null;
+  hint?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="field">
+      <label htmlFor={id}>{label}</label>
+      {children}
+      {error ? (
+        <span id={id + '-msg'} className="field-error" role="alert">
+          {error}
+        </span>
+      ) : hint ? (
+        <span id={id + '-msg'} className="field-hint">
+          {hint}
+        </span>
+      ) : null}
     </div>
   );
 }

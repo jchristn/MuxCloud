@@ -2,6 +2,7 @@ import type { Catalog } from '../en';
 
 export const ms: Catalog = {
   common: {
+    cloud: 'Cloud',
     appName: 'Mux Cloud',
     loading: 'Memuatkan...',
     save: 'Simpan',
@@ -84,6 +85,9 @@ export const ms: Catalog = {
     skipToContent: 'Langkau ke kandungan',
   },
   auth: {
+    emailRequired: 'Masukkan alamat e-mel anda.',
+    emailInvalid: 'Masukkan alamat e-mel seperti nama@contoh.com.',
+    passwordRequired: 'Masukkan kata laluan anda.',
     tagline: 'Mesin mux anda, dari mana-mana sahaja.',
     loginTitle: 'Log masuk',
     loginSubtitle: 'Gunakan e-mel dan kata laluan akaun Mux Cloud anda.',
@@ -139,6 +143,8 @@ export const ms: Catalog = {
       'Untuk menghentikan kelulusan alat dari jauh pada sesebuah mesin, tetapkan {{setting}} kepada false dalam tetapan mux mesin itu, atau matikan "Benarkan kelulusan alat dari jauh" dalam panel Mux Cloud mesin tersebut.',
   },
   machines: {
+    lastSeenAgo: 'Kali terakhir {{time}}',
+    awaitingCount: '{{count}} menunggu kelulusan',
     title: 'Mesin',
     subtitle:
       'Setiap komputer yang disambungkan ke akaun ini, dengan status langsung. Buka satu untuk menggunakan papan pemuka mux miliknya.',
@@ -221,6 +227,7 @@ export const ms: Catalog = {
       'Mesin menyambung ke {{url}} secara lalai. Halakan mux ke pelayan lain dengan tetapan URL pelayan awan.',
   },
   machineDetail: {
+    chooseMachine: 'Pilih mesin',
     switchTo: 'Tukar mesin',
     allMachines: 'Semua mesin',
     frameTitle: 'Papan pemuka mux pada {{name}}',
@@ -238,6 +245,10 @@ export const ms: Catalog = {
     approvalWaiting: 'Satu larian sedang menunggu kelulusan alat.',
   },
   conversations: {
+    machineEmptyTitle: 'Belum ada perbualan pada {{name}}',
+    machineEmptyBody: 'Buka mesin untuk memulakan perbualan dalam papan pemukanya.',
+    openMachine: 'Buka {{name}}',
+    noMachines: 'Sambungkan mesin untuk melihat perbualannya di sini.',
     title: 'Perbualan',
     subtitle: 'Perbualan dari setiap mesin dalam talian. Buka satu untuk meneruskannya pada mesinnya.',
     machineFilter: 'Mesin',
@@ -530,6 +541,7 @@ export const ms: Catalog = {
     historyEmpty: 'Permintaan yang anda hantar muncul di sini.',
   },
   table: {
+    range: '{{first}}-{{last}} daripada {{total}}',
     showing: 'Menunjukkan {{first}}-{{last}} daripada {{total}}',
     showingNone: 'Tiada rekod',
     pageOf: 'Halaman {{page}} daripada {{pages}}',

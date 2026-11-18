@@ -41,6 +41,7 @@ export function AuditPage() {
   const columns: Column<AuditRecord>[] = [
     {
       id: 'when',
+      mobile: 'meta',
       header: t('admin.colWhen'),
       pinned: true,
       className: 'nowrap',
@@ -48,9 +49,17 @@ export function AuditPage() {
         <span title={formatDateTime(locale, r.createdUtc)}>{formatRelativeTime(locale, r.createdUtc)}</span>
       ),
     },
-    { id: 'event', header: t('admin.colEvent'), pinned: true, className: 'mono', render: (r) => r.eventType },
+    {
+      id: 'event',
+      mobile: 'title',
+      header: t('admin.colEvent'),
+      pinned: true,
+      className: 'mono',
+      render: (r) => r.eventType,
+    },
     {
       id: 'result',
+      mobile: 'badge',
       header: t('admin.colResult'),
       render: (r) =>
         r.result ? (
@@ -59,7 +68,7 @@ export function AuditPage() {
           ''
         ),
     },
-    { id: 'principal', header: t('admin.colPrincipal'), render: (r) => r.principal ?? r.userId ?? '' },
+    { id: 'principal', mobile: 'meta', header: t('admin.colPrincipal'), render: (r) => r.principal ?? r.userId ?? '' },
     { id: 'source', header: t('admin.colSource'), className: 'mono nowrap', render: (r) => r.sourceIp ?? '' },
     { id: 'reason', header: t('admin.overrideReason'), defaultHidden: true, render: (r) => r.reason ?? '' },
   ];

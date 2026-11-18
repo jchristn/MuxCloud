@@ -141,11 +141,89 @@ test('admin overview chart, request inspector, and API explorer', async ({ page 
 test('language switch translates the shell, sets lang and dir, and persists', async ({ page }) => {
   await mockServer(page);
   await page.goto('/machines');
-  await page.locator('header').getByLabel('Language').selectOption('de');
+  await page.locator('header').getByRole('button', { name: 'Language' }).click();
+  await page.getByRole('menuitemcheckbox', { name: 'Deutsch' }).click();
   await expect(page.getByRole('heading', { name: 'Rechner' })).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('lang', 'de');
-  await page.locator('header').getByLabel('Sprache').selectOption('ar');
+  await page.locator('header').getByRole('button', { name: 'Sprache' }).click();
+  await page.getByRole('menuitemcheckbox', { name: 'العربية' }).click();
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
 });
+
+test('auth forms validate inline and keep the primary action enabled', async ({ page }) => {
+  await mockServer(page, { authenticated: false });
+  await page.goto('/login');
+  const signIn = page.getByRole('button', { name: 'Sign in' });
+  await expect(signIn).toBeEnabled();
+  await signIn.click();
+  await expect(page.getByText('Enter your email address.')).toBeVisible();
+  await expect(page.getByText('Enter your password.')).toBeVisible();
+  await expect(page.getByLabel('Email')).toBeFocused();
+  await page.getByLabel('Email').fill('not-an-email');
+  await page.getByLabel('Password', { exact: true }).click();
+  await expect(page.getByText('Enter an email address like name@example.com.')).toBeVisible();
+  await page.getByRole('button', { name: 'Show password' }).click();
+  await expect(page.getByLabel('Password', { exact: true })).toHaveAttribute('type', 'text');
+  await page.getByRole('link', { name: 'Forgot your password?' }).click();
+  await expect(page).toHaveURL(/\/forgot$/);
+  await page.getByRole('link', { name: 'Sign in' }).click();
+  await page.getByRole('link', { name: 'Create an account' }).click();
+  await expect(page).toHaveURL(/\/signup$/);
+  await expect(page.getByRole('heading', { name: 'Create your account' })).toBeVisible();
+  await page.getByLabel('Password', { exact: true }).fill('short');
+  await page.getByLabel('Confirm password').fill('different');
+  await page.getByRole('button', { name: 'Create account' }).click();
+  await expect(page.getByText('Use at least 10 characters.')).toBeVisible();
+  await expect(page.getByText('The passwords do not match.')).toBeVisible();
+});
+
+test('phones render tables as cards with compact paging', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const many = Array.from({ length: 30 }, (_, i) =>
+    machine('mch_01JDMANY' + String(i).padStart(17, '0'), 'box-' + i, i % 2 === 0),
+  );
+  await mockServer(page, { machineList: many });
+  await page.goto('/machines');
+  await expect(page.locator('.row-card').first()).toBeVisible();
+  await expect(page.locator('table.data')).toHaveCount(0);
+  await expect(page.locator('.pager-compact')).toContainText('1-25 of 30');
+  await expect(page.getByRole('combobox', { name: 'Rows per page' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Select columns' })).toHaveCount(0);
+});
+
+test('pagination is hidden when everything fits on one page', async ({ page }) => {
+  await mockServer(page);
+  await page.goto('/machines');
+  await expect(page.getByRole('cell', { name: /^studio-mac mch_/ })).toBeVisible();
+  await expect(page.locator('.pager')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Add a machine' })).toHaveCount(1);
+});
+
+for (const [width, height] of [
+  [1280, 860],
+  [768, 1024],
+  [390, 844],
+]) {
+  test(`machine frame fills the remaining height without double scrollbars at ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await mockServer(page);
+    await page.goto('/machines/' + machines[0].id);
+    const frame = page.getByTestId('machine-frame');
+    await expect(frame).toBeVisible();
+    const box = (await frame.boundingBox())!;
+    const bar = (await page.locator('.machine-bar').boundingBox())!;
+    expect(Math.round(box.y)).toBe(Math.round(bar.y + bar.height));
+    expect(Math.round(box.y + box.height)).toBe(height);
+    const scroll = await page.evaluate(() => ({
+      page: document.documentElement.scrollHeight - window.innerHeight,
+      main: (() => {
+        const m = document.querySelector('main.content') as HTMLElement;
+        return m.scrollHeight - m.clientHeight;
+      })(),
+    }));
+    expect(scroll.page).toBeLessThanOrEqual(0);
+    expect(scroll.main).toBeLessThanOrEqual(0);
+  });
+}

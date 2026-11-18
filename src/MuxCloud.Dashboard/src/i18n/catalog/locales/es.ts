@@ -2,6 +2,7 @@ import type { Catalog } from '../en';
 
 export const es: Catalog = {
   common: {
+    cloud: 'Cloud',
     appName: 'Mux Cloud',
     loading: 'Cargando...',
     save: 'Guardar',
@@ -84,6 +85,9 @@ export const es: Catalog = {
     skipToContent: 'Saltar al contenido',
   },
   auth: {
+    emailRequired: 'Escribe tu correo electrónico.',
+    emailInvalid: 'Escribe un correo como nombre@ejemplo.com.',
+    passwordRequired: 'Escribe tu contraseña.',
     tagline: 'Tus equipos con mux, desde cualquier lugar.',
     loginTitle: 'Iniciar sesión',
     loginSubtitle: 'Usa el correo y la contraseña de tu cuenta de Mux Cloud.',
@@ -139,6 +143,8 @@ export const es: Catalog = {
       'Para impedir aprobaciones remotas de herramientas en un equipo, pon {{setting}} en false en la configuración de mux de ese equipo o desactiva "Permitir aprobación remota de herramientas" en su panel de Mux Cloud.',
   },
   machines: {
+    lastSeenAgo: 'Visto {{time}}',
+    awaitingCount: '{{count}} esperando aprobación',
     title: 'Equipos',
     subtitle: 'Todos los equipos conectados a esta cuenta, con su estado en vivo. Abre uno para usar su panel de mux.',
     addMachine: 'Añadir un equipo',
@@ -221,6 +227,7 @@ export const es: Catalog = {
       'Los equipos se conectan a {{url}} de forma predeterminada. Apunta mux a otro servidor con la opción de URL del servidor en la nube.',
   },
   machineDetail: {
+    chooseMachine: 'Elige un equipo',
     switchTo: 'Cambiar de equipo',
     allMachines: 'Todos los equipos',
     frameTitle: 'Panel de mux en {{name}}',
@@ -238,6 +245,10 @@ export const es: Catalog = {
     approvalWaiting: 'Una ejecución espera la aprobación de una herramienta.',
   },
   conversations: {
+    machineEmptyTitle: 'Aún no hay conversaciones en {{name}}',
+    machineEmptyBody: 'Abre el equipo para iniciar una en su panel.',
+    openMachine: 'Abrir {{name}}',
+    noMachines: 'Conecta un equipo para ver aquí sus conversaciones.',
     title: 'Conversaciones',
     subtitle: 'Conversaciones de todos los equipos en línea. Abre una para continuarla en su equipo.',
     machineFilter: 'Equipo',
@@ -528,6 +539,7 @@ export const es: Catalog = {
     historyEmpty: 'Las solicitudes que envíes aparecen aquí.',
   },
   table: {
+    range: '{{first}}-{{last}} de {{total}}',
     showing: 'Mostrando {{first}}-{{last}} de {{total}}',
     showingNone: 'Sin registros',
     pageOf: 'Página {{page}} de {{pages}}',

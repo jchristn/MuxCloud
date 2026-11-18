@@ -2,6 +2,7 @@ import type { Catalog } from '../en';
 
 export const fr: Catalog = {
   common: {
+    cloud: 'Cloud',
     appName: 'Mux Cloud',
     loading: 'Chargement...',
     save: 'Enregistrer',
@@ -84,6 +85,9 @@ export const fr: Catalog = {
     skipToContent: 'Aller au contenu',
   },
   auth: {
+    emailRequired: 'Saisissez votre adresse e-mail.',
+    emailInvalid: 'Saisissez une adresse comme nom@exemple.com.',
+    passwordRequired: 'Saisissez votre mot de passe.',
     tagline: 'Vos machines mux, où que vous soyez.',
     loginTitle: 'Connexion',
     loginSubtitle: "Utilisez l'e-mail et le mot de passe de votre compte Mux Cloud.",
@@ -141,6 +145,8 @@ export const fr: Catalog = {
       "Pour bloquer les approbations d'outils à distance sur une machine, réglez {{setting}} sur false dans les paramètres mux de cette machine, ou désactivez « Autoriser l'approbation d'outils à distance » dans son panneau Mux Cloud.",
   },
   machines: {
+    lastSeenAgo: 'Vue {{time}}',
+    awaitingCount: "{{count}} en attente d'approbation",
     title: 'Machines',
     subtitle:
       'Tous les ordinateurs connectés à ce compte, avec leur état en direct. Ouvrez-en un pour utiliser son tableau de bord mux.',
@@ -225,6 +231,7 @@ export const fr: Catalog = {
       "Par défaut, les machines se connectent à {{url}}. Dirigez mux vers un autre serveur avec le paramètre d'URL du serveur cloud.",
   },
   machineDetail: {
+    chooseMachine: 'Choisir une machine',
     switchTo: 'Changer de machine',
     allMachines: 'Toutes les machines',
     frameTitle: 'Tableau de bord mux sur {{name}}',
@@ -242,6 +249,10 @@ export const fr: Catalog = {
     approvalWaiting: "Une exécution attend l'approbation d'un outil.",
   },
   conversations: {
+    machineEmptyTitle: 'Aucune conversation sur {{name}} pour le moment',
+    machineEmptyBody: 'Ouvrez la machine pour en démarrer une dans son tableau de bord.',
+    openMachine: 'Ouvrir {{name}}',
+    noMachines: 'Connectez une machine pour voir ses conversations ici.',
     title: 'Conversations',
     subtitle: 'Les conversations de toutes les machines en ligne. Ouvrez-en une pour la poursuivre sur sa machine.',
     machineFilter: 'Machine',
@@ -535,6 +546,7 @@ export const fr: Catalog = {
     historyEmpty: 'Les requêtes que vous envoyez apparaissent ici.',
   },
   table: {
+    range: '{{first}}-{{last}} sur {{total}}',
     showing: '{{first}}-{{last}} sur {{total}}',
     showingNone: 'Aucun enregistrement',
     pageOf: 'Page {{page}} sur {{pages}}',

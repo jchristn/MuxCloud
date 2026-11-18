@@ -2,6 +2,7 @@ import type { Catalog } from '../en';
 
 export const ar: Catalog = {
   common: {
+    cloud: 'Cloud',
     appName: 'Mux Cloud',
     loading: 'جارٍ التحميل...',
     save: 'حفظ',
@@ -84,6 +85,9 @@ export const ar: Catalog = {
     skipToContent: 'تخطَّ إلى المحتوى',
   },
   auth: {
+    emailRequired: 'أدخل بريدك الإلكتروني.',
+    emailInvalid: 'أدخل بريدًا إلكترونيًا مثل name@example.com.',
+    passwordRequired: 'أدخل كلمة المرور.',
     tagline: 'أجهزتك التي تعمل بـ mux، من أي مكان.',
     loginTitle: 'تسجيل الدخول',
     loginSubtitle: 'استخدم البريد الإلكتروني وكلمة المرور لحسابك في Mux Cloud.',
@@ -138,6 +142,8 @@ export const ar: Catalog = {
       'لإيقاف الموافقة على الأدوات عن بُعد على جهاز ما، اضبط {{setting}} على false في إعدادات mux لذلك الجهاز، أو أوقف خيار "السماح بالموافقة على الأدوات عن بُعد" في لوحة Mux Cloud الخاصة به.',
   },
   machines: {
+    lastSeenAgo: 'آخر ظهور {{time}}',
+    awaitingCount: '{{count}} بانتظار الموافقة',
     title: 'الأجهزة',
     subtitle: 'كل أجهزة الكمبيوتر المتصلة بهذا الحساب مع حالتها المباشرة. افتح جهازًا لاستخدام لوحة mux الخاصة به.',
     addMachine: 'إضافة جهاز',
@@ -218,6 +224,7 @@ export const ar: Catalog = {
     serverBody: 'تتصل الأجهزة افتراضيًا بـ {{url}}. وجّه mux إلى خادم آخر من خلال إعداد عنوان خادم السحابة.',
   },
   machineDetail: {
+    chooseMachine: 'اختر جهازًا',
     switchTo: 'تبديل الجهاز',
     allMachines: 'كل الأجهزة',
     frameTitle: 'لوحة mux على {{name}}',
@@ -235,6 +242,10 @@ export const ar: Catalog = {
     approvalWaiting: 'هناك عملية بانتظار الموافقة على أداة.',
   },
   conversations: {
+    machineEmptyTitle: 'لا توجد محادثات على {{name}} بعد',
+    machineEmptyBody: 'افتح الجهاز لبدء محادثة في لوحته.',
+    openMachine: 'فتح {{name}}',
+    noMachines: 'اربط جهازًا لرؤية محادثاته هنا.',
     title: 'المحادثات',
     subtitle: 'المحادثات من كل الأجهزة المتصلة. افتح محادثة لمتابعتها على جهازها.',
     machineFilter: 'الجهاز',
@@ -520,6 +531,7 @@ export const ar: Catalog = {
     historyEmpty: 'تظهر هنا الطلبات التي ترسلها.',
   },
   table: {
+    range: '{{first}}-{{last}} من {{total}}',
     showing: 'عرض {{first}}-{{last}} من {{total}}',
     showingNone: 'لا توجد سجلات',
     pageOf: 'الصفحة {{page}} من {{pages}}',

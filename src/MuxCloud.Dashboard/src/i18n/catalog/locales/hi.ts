@@ -2,6 +2,7 @@ import type { Catalog } from '../en';
 
 export const hi: Catalog = {
   common: {
+    cloud: 'Cloud',
     appName: 'Mux Cloud',
     loading: 'लोड हो रहा है...',
     save: 'सहेजें',
@@ -84,6 +85,9 @@ export const hi: Catalog = {
     skipToContent: 'सामग्री पर जाएँ',
   },
   auth: {
+    emailRequired: 'अपना ईमेल पता दर्ज करें।',
+    emailInvalid: 'name@example.com जैसा ईमेल पता दर्ज करें।',
+    passwordRequired: 'अपना पासवर्ड दर्ज करें।',
     tagline: 'आपकी mux मशीनें, कहीं से भी।',
     loginTitle: 'साइन इन',
     loginSubtitle: 'अपने Mux Cloud खाते का ईमेल और पासवर्ड इस्तेमाल करें।',
@@ -138,6 +142,8 @@ export const hi: Catalog = {
       'किसी मशीन पर दूर से टूल मंज़ूरी रोकने के लिए, उस मशीन की mux सेटिंग्स में {{setting}} को false करें, या उसके Mux Cloud पैनल में "दूर से टूल मंज़ूरी की अनुमति दें" बंद करें।',
   },
   machines: {
+    lastSeenAgo: 'अंतिम बार {{time}}',
+    awaitingCount: '{{count}} मंज़ूरी की प्रतीक्षा में',
     title: 'मशीनें',
     subtitle: 'इस खाते से कनेक्ट हर कंप्यूटर, लाइव स्थिति के साथ। किसी एक को खोलकर उसका mux डैशबोर्ड इस्तेमाल करें।',
     addMachine: 'मशीन जोड़ें',
@@ -218,6 +224,7 @@ export const hi: Catalog = {
     serverBody: 'मशीनें डिफ़ॉल्ट रूप से {{url}} से कनेक्ट होती हैं। क्लाउड सर्वर URL सेटिंग से mux को किसी दूसरे सर्वर की ओर करें।',
   },
   machineDetail: {
+    chooseMachine: 'मशीन चुनें',
     switchTo: 'मशीन बदलें',
     allMachines: 'सभी मशीनें',
     frameTitle: '{{name}} पर mux डैशबोर्ड',
@@ -235,6 +242,10 @@ export const hi: Catalog = {
     approvalWaiting: 'एक रन टूल की मंज़ूरी का इंतज़ार कर रहा है।',
   },
   conversations: {
+    machineEmptyTitle: '{{name}} पर अभी कोई बातचीत नहीं',
+    machineEmptyBody: 'उसके डैशबोर्ड में बातचीत शुरू करने के लिए मशीन खोलें।',
+    openMachine: '{{name}} खोलें',
+    noMachines: 'यहाँ उसकी बातचीत देखने के लिए एक मशीन कनेक्ट करें।',
     title: 'बातचीत',
     subtitle: 'हर ऑनलाइन मशीन की बातचीत। किसी एक को खोलकर उसकी मशीन पर जारी रखें।',
     machineFilter: 'मशीन',
@@ -523,6 +534,7 @@ export const hi: Catalog = {
     historyEmpty: 'आपके भेजे गए अनुरोध यहाँ दिखाई देंगे।',
   },
   table: {
+    range: '{{first}}-{{last}} / {{total}}',
     showing: '{{total}} में से {{first}}-{{last}} दिखा रहे हैं',
     showingNone: 'कोई रिकॉर्ड नहीं',
     pageOf: 'पेज {{page}} / {{pages}}',

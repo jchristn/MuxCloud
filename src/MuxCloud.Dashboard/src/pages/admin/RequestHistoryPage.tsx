@@ -132,6 +132,7 @@ export function RequestHistoryPage() {
   const columns: Column<RequestHistoryEntry>[] = [
     {
       id: 'when',
+      mobile: 'meta',
       header: t('requests.colWhen'),
       pinned: true,
       className: 'nowrap',
@@ -139,9 +140,16 @@ export function RequestHistoryPage() {
         <span title={formatDateTime(locale, r.createdUtc)}>{formatRelativeTime(locale, r.createdUtc)}</span>
       ),
     },
-    { id: 'method', header: t('requests.colMethod'), pinned: true, render: (r) => <MethodBadge method={r.method} /> },
+    {
+      id: 'method',
+      mobile: 'badge',
+      header: t('requests.colMethod'),
+      pinned: true,
+      render: (r) => <MethodBadge method={r.method} />,
+    },
     {
       id: 'path',
+      mobile: 'title',
       header: t('requests.colPath'),
       pinned: true,
       render: (r) => (
@@ -150,9 +158,15 @@ export function RequestHistoryPage() {
         </span>
       ),
     },
-    { id: 'status', header: t('requests.colStatus'), render: (r) => <StatusCodeBadge code={r.statusCode} /> },
+    {
+      id: 'status',
+      mobile: 'badge',
+      header: t('requests.colStatus'),
+      render: (r) => <StatusCodeBadge code={r.statusCode} />,
+    },
     {
       id: 'duration',
+      mobile: 'meta',
       header: t('requests.colDuration'),
       className: 'num',
       render: (r) => formatDuration(locale, r.durationMs),

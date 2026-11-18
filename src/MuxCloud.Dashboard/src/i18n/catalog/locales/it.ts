@@ -2,6 +2,7 @@ import type { Catalog } from '../en';
 
 export const it: Catalog = {
   common: {
+    cloud: 'Cloud',
     appName: 'Mux Cloud',
     loading: 'Caricamento...',
     save: 'Salva',
@@ -84,6 +85,9 @@ export const it: Catalog = {
     skipToContent: 'Vai al contenuto',
   },
   auth: {
+    emailRequired: 'Inserisci il tuo indirizzo email.',
+    emailInvalid: 'Inserisci un indirizzo come nome@esempio.com.',
+    passwordRequired: 'Inserisci la password.',
     tagline: 'Le tue macchine con mux, ovunque.',
     loginTitle: 'Accedi',
     loginSubtitle: "Usa l'email e la password del tuo account Mux Cloud.",
@@ -138,6 +142,8 @@ export const it: Catalog = {
       'Per bloccare le approvazioni remote degli strumenti su una macchina, imposta {{setting}} a false nelle impostazioni mux di quella macchina, oppure disattiva "Consenti approvazione remota degli strumenti" nel suo pannello Mux Cloud.',
   },
   machines: {
+    lastSeenAgo: 'Vista {{time}}',
+    awaitingCount: '{{count}} in attesa di approvazione',
     title: 'Macchine',
     subtitle:
       'Tutti i computer collegati a questo account, con lo stato in tempo reale. Aprine uno per usare la sua dashboard mux.',
@@ -221,6 +227,7 @@ export const it: Catalog = {
       "Per impostazione predefinita le macchine si collegano a {{url}}. Indirizza mux verso un altro server con l'impostazione URL del server cloud.",
   },
   machineDetail: {
+    chooseMachine: 'Scegli una macchina',
     switchTo: 'Cambia macchina',
     allMachines: 'Tutte le macchine',
     frameTitle: 'Dashboard mux su {{name}}',
@@ -238,6 +245,10 @@ export const it: Catalog = {
     approvalWaiting: "Un'esecuzione attende l'approvazione di uno strumento.",
   },
   conversations: {
+    machineEmptyTitle: 'Ancora nessuna conversazione su {{name}}',
+    machineEmptyBody: 'Apri la macchina per avviarne una nella sua dashboard.',
+    openMachine: 'Apri {{name}}',
+    noMachines: 'Collega una macchina per vederne qui le conversazioni.',
     title: 'Conversazioni',
     subtitle: 'Le conversazioni di tutte le macchine online. Aprine una per continuarla sulla sua macchina.',
     machineFilter: 'Macchina',
@@ -529,6 +540,7 @@ export const it: Catalog = {
     historyEmpty: 'Le richieste che invii compaiono qui.',
   },
   table: {
+    range: '{{first}}-{{last}} di {{total}}',
     showing: '{{first}}-{{last}} di {{total}}',
     showingNone: 'Nessun record',
     pageOf: 'Pagina {{page}} di {{pages}}',

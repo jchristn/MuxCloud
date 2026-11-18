@@ -2,6 +2,7 @@ import type { Catalog } from '../en';
 
 export const ru: Catalog = {
   common: {
+    cloud: 'Cloud',
     appName: 'Mux Cloud',
     loading: 'Загрузка...',
     save: 'Сохранить',
@@ -84,6 +85,9 @@ export const ru: Catalog = {
     skipToContent: 'Перейти к содержимому',
   },
   auth: {
+    emailRequired: 'Введите адрес эл. почты.',
+    emailInvalid: 'Введите адрес вида name@example.com.',
+    passwordRequired: 'Введите пароль.',
     tagline: 'Ваши машины с mux, откуда угодно.',
     loginTitle: 'Вход',
     loginSubtitle: 'Используйте адрес эл. почты и пароль своего аккаунта Mux Cloud.',
@@ -139,6 +143,8 @@ export const ru: Catalog = {
       'Чтобы запретить удалённое одобрение инструментов на машине, задайте {{setting}} значение false в настройках mux на этой машине или отключите «Разрешить удалённое одобрение инструментов» на её панели Mux Cloud.',
   },
   machines: {
+    lastSeenAgo: 'Был в сети {{time}}',
+    awaitingCount: 'Ждут одобрения: {{count}}',
     title: 'Машины',
     subtitle:
       'Все компьютеры, подключённые к этому аккаунту, с текущим состоянием. Откройте любой, чтобы работать с его панелью mux.',
@@ -222,6 +228,7 @@ export const ru: Catalog = {
       'По умолчанию машины подключаются к {{url}}. Чтобы использовать другой сервер, укажите его в настройке URL облачного сервера mux.',
   },
   machineDetail: {
+    chooseMachine: 'Выберите машину',
     switchTo: 'Сменить машину',
     allMachines: 'Все машины',
     frameTitle: 'Панель mux на {{name}}',
@@ -239,6 +246,10 @@ export const ru: Catalog = {
     approvalWaiting: 'Запуск ждёт одобрения инструмента.',
   },
   conversations: {
+    machineEmptyTitle: 'На {{name}} пока нет диалогов',
+    machineEmptyBody: 'Откройте машину, чтобы начать диалог на её панели.',
+    openMachine: 'Открыть {{name}}',
+    noMachines: 'Подключите машину, чтобы видеть здесь её диалоги.',
     title: 'Диалоги',
     subtitle: 'Диалоги со всех машин в сети. Откройте любой, чтобы продолжить его на его машине.',
     machineFilter: 'Машина',
@@ -526,6 +537,7 @@ export const ru: Catalog = {
     historyEmpty: 'Отправленные запросы появятся здесь.',
   },
   table: {
+    range: '{{first}}-{{last}} из {{total}}',
     showing: '{{first}}-{{last}} из {{total}}',
     showingNone: 'Нет записей',
     pageOf: 'Страница {{page}} из {{pages}}',

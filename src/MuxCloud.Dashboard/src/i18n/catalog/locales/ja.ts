@@ -2,6 +2,7 @@ import type { Catalog } from '../en';
 
 export const ja: Catalog = {
   common: {
+    cloud: 'Cloud',
     appName: 'Mux Cloud',
     loading: '読み込み中...',
     save: '保存',
@@ -84,6 +85,9 @@ export const ja: Catalog = {
     skipToContent: 'コンテンツへ移動',
   },
   auth: {
+    emailRequired: 'メールアドレスを入力してください。',
+    emailInvalid: 'name@example.com の形式で入力してください。',
+    passwordRequired: 'パスワードを入力してください。',
     tagline: 'あなたの mux マシンを、どこからでも。',
     loginTitle: 'サインイン',
     loginSubtitle: 'Mux Cloud アカウントのメールアドレスとパスワードを使用してください。',
@@ -140,6 +144,8 @@ export const ja: Catalog = {
       'マシンでリモートからのツール承認を止めるには、そのマシンの mux 設定で {{setting}} を false にするか、Mux Cloud パネルで「リモートからのツール承認を許可」をオフにしてください。',
   },
   machines: {
+    lastSeenAgo: '最終接続 {{time}}',
+    awaitingCount: '承認待ち {{count}} 件',
     title: 'マシン',
     subtitle:
       'このアカウントに接続されたすべてのコンピューターとライブの状態。開くとそのマシンの mux ダッシュボードを使えます。',
@@ -222,6 +228,7 @@ export const ja: Catalog = {
       'マシンは既定で {{url}} に接続します。クラウドサーバー URL の設定で mux の接続先を別のサーバーに変更できます。',
   },
   machineDetail: {
+    chooseMachine: 'マシンを選択',
     switchTo: 'マシンを切り替え',
     allMachines: 'すべてのマシン',
     frameTitle: '{{name}} の mux ダッシュボード',
@@ -239,6 +246,10 @@ export const ja: Catalog = {
     approvalWaiting: 'ツールの承認を待っている実行があります。',
   },
   conversations: {
+    machineEmptyTitle: '{{name}} にはまだ会話がありません',
+    machineEmptyBody: 'マシンを開いてダッシュボードで会話を始めましょう。',
+    openMachine: '{{name}} を開く',
+    noMachines: 'マシンを接続すると、ここに会話が表示されます。',
     title: '会話',
     subtitle: 'オンラインのすべてのマシンの会話。開くとそのマシンで続きを進められます。',
     machineFilter: 'マシン',
@@ -528,6 +539,7 @@ export const ja: Catalog = {
     historyEmpty: '送信したリクエストがここに表示されます。',
   },
   table: {
+    range: '{{first}}-{{last}} / {{total}}',
     showing: '{{total}} 件中 {{first}}-{{last}} 件を表示',
     showingNone: 'レコードはありません',
     pageOf: '{{pages}} ページ中 {{page}} ページ',

@@ -65,6 +65,7 @@ export interface MockOptions {
   authenticated?: boolean;
   machineList?: ReturnType<typeof machine>[];
   failSessionsFor?: string;
+  emptySessionsFor?: string[];
 }
 
 export interface MockHandle {
@@ -133,6 +134,7 @@ export async function mockServer(pw: Page, options: MockOptions = {}): Promise<M
       if (local === '/v1.0/api/sessions') {
         if (options.failSessionsFor === id)
           return json(route, 504, { error: 'Timeout', message: 'The machine did not answer in time.' });
+        if (options.emptySessionsFor?.includes(id)) return json(route, 200, { Items: [], Count: 0 });
         return json(route, 200, {
           Items: [
             {

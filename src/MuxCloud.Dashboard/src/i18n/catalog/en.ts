@@ -4,6 +4,7 @@
  */
 export const en = {
   common: {
+    cloud: 'Cloud',
     appName: 'Mux Cloud',
     loading: 'Loading...',
     save: 'Save',
@@ -86,6 +87,9 @@ export const en = {
     skipToContent: 'Skip to content',
   },
   auth: {
+    emailRequired: 'Enter your email address.',
+    emailInvalid: 'Enter an email address like name@example.com.',
+    passwordRequired: 'Enter your password.',
     tagline: 'Your mux machines, from anywhere.',
     loginTitle: 'Sign in',
     loginSubtitle: 'Use the email and password for your Mux Cloud account.',
@@ -140,6 +144,8 @@ export const en = {
       'To stop remote tool approvals on a machine, set {{setting}} to false in that machine\'s mux settings, or turn off "Allow remote tool approval" in its Mux Cloud panel.',
   },
   machines: {
+    lastSeenAgo: 'Last seen {{time}}',
+    awaitingCount: '{{count}} waiting for approval',
     title: 'Machines',
     subtitle: 'Every computer connected to this account, with live status. Open one to use its mux dashboard.',
     addMachine: 'Add a machine',
@@ -222,6 +228,7 @@ export const en = {
       'Machines connect to {{url}} by default. Point mux at another server with the cloud server URL setting.',
   },
   machineDetail: {
+    chooseMachine: 'Choose a machine',
     switchTo: 'Switch machine',
     allMachines: 'All machines',
     frameTitle: 'mux dashboard on {{name}}',
@@ -239,6 +246,10 @@ export const en = {
     approvalWaiting: 'A run is waiting for a tool approval.',
   },
   conversations: {
+    machineEmptyTitle: 'No conversations on {{name}} yet',
+    machineEmptyBody: 'Open the machine to start one in its dashboard.',
+    openMachine: 'Open {{name}}',
+    noMachines: 'Connect a machine to see its conversations here.',
     title: 'Conversations',
     subtitle: 'Conversations from every online machine. Open one to continue it on its machine.',
     machineFilter: 'Machine',
@@ -527,6 +538,7 @@ export const en = {
     historyEmpty: 'Requests you send appear here.',
   },
   table: {
+    range: '{{first}}-{{last}} of {{total}}',
     showing: 'Showing {{first}}-{{last}} of {{total}}',
     showingNone: 'No records',
     pageOf: 'Page {{page}} of {{pages}}',

@@ -5,6 +5,7 @@ import { authApi } from '../../api';
 import { api } from '../../apiClient';
 import { Banner } from '../../components/Banner';
 import { Loading } from '../../components/Spinner';
+import { Icon } from '../../components/Icon';
 import { AuthLayout } from './AuthLayout';
 
 export function VerifyPage() {
@@ -28,15 +29,23 @@ export function VerifyPage() {
   }, [token]);
 
   return (
-    <AuthLayout
-      title={t('auth.verifyTitle')}
-      pageTitle={t('pageTitles.verify')}
-      footer={<Link to="/login">{t('auth.goToLogin')}</Link>}
-    >
+    <AuthLayout title={t('auth.verifyTitle')} pageTitle={t('pageTitles.verify')}>
       {state === 'working' ? <Loading label={t('auth.verifyWorking')} /> : null}
-      {state === 'done' ? <Banner tone="success">{t('auth.verifySuccess', { email })}</Banner> : null}
+      {state === 'done' ? (
+        <div className="auth-success">
+          <span className="empty-icon empty-icon-success" aria-hidden="true">
+            <Icon name="check" size={26} />
+          </span>
+          <p>{t('auth.verifySuccess', { email })}</p>
+        </div>
+      ) : null}
       {state === 'failed' ? (
         <Banner tone="danger">{token ? t('auth.verifyFailed') : t('auth.verifyMissing')}</Banner>
+      ) : null}
+      {state !== 'working' ? (
+        <Link className={'btn btn-block btn-lg' + (state === 'done' ? ' btn-primary' : '')} to="/login">
+          {t('auth.goToLogin')}
+        </Link>
       ) : null}
     </AuthLayout>
   );

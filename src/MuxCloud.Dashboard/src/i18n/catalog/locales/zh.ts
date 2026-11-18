@@ -2,6 +2,7 @@ import type { Catalog } from '../en';
 
 export const zh: Catalog = {
   common: {
+    cloud: 'Cloud',
     appName: 'Mux Cloud',
     loading: '正在加载...',
     save: '保存',
@@ -84,6 +85,9 @@ export const zh: Catalog = {
     skipToContent: '跳到主要内容',
   },
   auth: {
+    emailRequired: '请输入邮箱地址。',
+    emailInvalid: '请输入类似 name@example.com 的邮箱地址。',
+    passwordRequired: '请输入密码。',
     tagline: '随时随地使用你的 mux 机器。',
     loginTitle: '登录',
     loginSubtitle: '使用你的 Mux Cloud 账户邮箱和密码。',
@@ -138,6 +142,8 @@ export const zh: Catalog = {
       '要在某台机器上禁止远程批准工具，请在该机器的 mux 设置中将 {{setting}} 设为 false，或在其 Mux Cloud 面板中关闭“允许远程批准工具”。',
   },
   machines: {
+    lastSeenAgo: '最后在线 {{time}}',
+    awaitingCount: '{{count}} 个等待批准',
     title: '机器',
     subtitle: '连接到此账户的所有计算机及其实时状态。打开一台即可使用它的 mux 控制台。',
     addMachine: '添加机器',
@@ -217,6 +223,7 @@ export const zh: Catalog = {
     serverBody: '机器默认连接到 {{url}}。可以通过云服务器 URL 设置让 mux 连接其他服务器。',
   },
   machineDetail: {
+    chooseMachine: '选择机器',
     switchTo: '切换机器',
     allMachines: '所有机器',
     frameTitle: '{{name}} 上的 mux 控制台',
@@ -233,6 +240,10 @@ export const zh: Catalog = {
     approvalWaiting: '有一个任务正在等待工具批准。',
   },
   conversations: {
+    machineEmptyTitle: '{{name}} 上还没有对话',
+    machineEmptyBody: '打开该机器，在它的控制台中开始对话。',
+    openMachine: '打开 {{name}}',
+    noMachines: '连接一台机器即可在此查看其对话。',
     title: '对话',
     subtitle: '所有在线机器上的对话。打开一个即可在其机器上继续。',
     machineFilter: '机器',
@@ -516,6 +527,7 @@ export const zh: Catalog = {
     historyEmpty: '你发送的请求会显示在这里。',
   },
   table: {
+    range: '{{first}}-{{last}} / {{total}}',
     showing: '第 {{first}}-{{last}} 条，共 {{total}} 条',
     showingNone: '无记录',
     pageOf: '第 {{page}} 页，共 {{pages}} 页',

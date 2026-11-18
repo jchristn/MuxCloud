@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { ApiError, machinesApi, relayApi } from '../../api';
 import { api } from '../../apiClient';
-import { Banner } from '../../components/Banner';
 import { DataTable, EmptyState, type Column } from '../../components/DataTable';
 import { ErrorBanner } from '../../components/ErrorBanner';
 import { Icon } from '../../components/Icon';
@@ -21,6 +20,7 @@ import {
   type MachineLoadResult,
 } from '../../lib/conversations';
 import { formatDateTime, formatList, formatNumber, formatRelativeTime } from '../../lib/format';
+import { machineColorIndex } from '../../lib/machines';
 import type { Machine } from '../../types';
 
 export function ConversationsPage() {
@@ -82,16 +82,28 @@ export function ConversationsPage() {
   const open = (row: ConversationRow) =>
     navigate('/machines/' + encodeURIComponent(row.machineId) + '?session=' + encodeURIComponent(row.session.Id));
 
+  const machineCell = (machineId: string, machineName: string) => (
+    <span className="machine-tag" title={machineId}>
+      <span className={'machine-dot machine-dot-' + machineColorIndex(machineId)} aria-hidden="true" />
+      <span className="truncate">{machineName}</span>
+    </span>
+  );
+
   const columns: Column<ConversationRow>[] = [
     {
       id: 'title',
       header: t('conversations.colTitle'),
       pinned: true,
+      mobile: 'title',
       sortValue: (r) => (r.session.Title ?? '').toLowerCase(),
       render: (r) => (
-        <div>
+        <div className="cell-stack">
           <div className="cell-title truncate">{r.session.Title || t('conversations.untitled')}</div>
-          <div className="cell-sub mono">{r.session.Id}</div>
+          {r.session.WorkingDirectory ? (
+            <div className="cell-sub mono truncate" title={r.session.WorkingDirectory}>
+              {r.session.WorkingDirectory}
+            </div>
+          ) : null}
         </div>
       ),
     },
@@ -99,37 +111,49 @@ export function ConversationsPage() {
       id: 'machine',
       header: t('conversations.colMachine'),
       pinned: true,
+      mobile: 'badge',
       sortValue: (r) => r.machineName.toLowerCase(),
-      render: (r) => r.machineName,
+      render: (r) => machineCell(r.machineId, r.machineName),
     },
     {
       id: 'model',
       header: t('conversations.colModel'),
+      mobile: 'meta',
       sortValue: (r) => r.session.Model ?? '',
       className: 'mono nowrap',
-      render: (r) => r.session.Model ?? '',
+      render: (r) => <span className="truncate">{r.session.Model ?? ''}</span>,
+    },
+    {
+      id: 'messages',
+      header: t('conversations.colMessages'),
+      hideBelow: 'lg',
+      className: 'num',
+      sortValue: (r) => r.session.MessageCount ?? 0,
+      render: (r) => formatNumber(locale, r.session.MessageCount ?? 0),
+    },
+    {
+      id: 'updated',
+      header: t('conversations.colUpdated'),
+      className: 'nowrap',
+      mobile: 'meta',
+      sortValue: (r) => r.session.UpdatedUtc ?? r.session.CreatedUtc ?? '',
+      render: (r) => {
+        const when = r.session.UpdatedUtc ?? r.session.CreatedUtc;
+        return when ? <span title={formatDateTime(locale, when)}>{formatRelativeTime(locale, when)}</span> : '';
+      },
+    },
+    {
+      id: 'folder',
+      header: t('conversations.colFolder'),
+      defaultHidden: true,
+      className: 'mono',
+      render: (r) => <span className="truncate">{r.session.WorkingDirectory ?? ''}</span>,
     },
     {
       id: 'endpoint',
       header: t('conversations.colEndpoint'),
       defaultHidden: true,
       render: (r) => r.session.EndpointName ?? '',
-    },
-    {
-      id: 'messages',
-      header: t('conversations.colMessages'),
-      className: 'num',
-      sortValue: (r) => r.session.MessageCount ?? 0,
-      render: (r) => formatNumber(locale, r.session.MessageCount ?? 0),
-    },
-    {
-      id: 'folder',
-      header: t('conversations.colFolder'),
-      render: (r) => (
-        <span className="mono truncate" title={r.session.WorkingDirectory}>
-          {r.session.WorkingDirectory ?? ''}
-        </span>
-      ),
     },
     {
       id: 'labels',
@@ -145,24 +169,101 @@ export function ConversationsPage() {
         </span>
       ),
     },
-    {
-      id: 'updated',
-      header: t('conversations.colUpdated'),
-      className: 'nowrap',
-      sortValue: (r) => r.session.UpdatedUtc ?? r.session.CreatedUtc ?? '',
-      render: (r) => {
-        const when = r.session.UpdatedUtc ?? r.session.CreatedUtc;
-        return when ? <span title={formatDateTime(locale, when)}>{formatRelativeTime(locale, when)}</span> : '';
-      },
-    },
+    { id: 'id', header: t('common.id'), defaultHidden: true, className: 'mono nowrap', render: (r) => r.session.Id },
   ];
 
+  const filteredMachine = online.find((m) => m.id === machineFilter);
+  const noMachines = !loading && !error && machines.filter((m) => !m.revoked).length === 0;
   let empty;
-  if (!loading && online.length === 0)
-    empty = <EmptyState title={t('conversations.emptyTitle')} body={t('conversations.noOnline')} />;
+  if (noMachines)
+    empty = (
+      <EmptyState
+        icon="server"
+        title={t('conversations.emptyTitle')}
+        body={t('conversations.noMachines')}
+        action={
+          <Link className="btn btn-primary" to="/machines?add=1">
+            <Icon name="plus" size={16} />
+            {t('machines.addMachine')}
+          </Link>
+        }
+      />
+    );
+  else if (!loading && online.length === 0)
+    empty = (
+      <EmptyState
+        icon="plug"
+        title={t('conversations.emptyTitle')}
+        body={t('conversations.noOnline')}
+        action={
+          <Link className="btn" to="/machines">
+            {t('machineDetail.allMachines')}
+          </Link>
+        }
+      />
+    );
+  else if (filteredMachine && !search.trim() && !rows.some((r) => r.machineId === filteredMachine.id))
+    empty = (
+      <EmptyState
+        icon="messages"
+        title={t('conversations.machineEmptyTitle', { name: filteredMachine.name })}
+        body={t('conversations.machineEmptyBody')}
+        action={
+          <Link className="btn btn-primary" to={'/machines/' + encodeURIComponent(filteredMachine.id)}>
+            {t('conversations.openMachine', { name: filteredMachine.name })}
+          </Link>
+        }
+      />
+    );
   else if (rows.length === 0)
-    empty = <EmptyState title={t('conversations.emptyTitle')} body={t('conversations.emptyBody')} />;
-  else empty = <EmptyState title={t('conversations.noMatches')} />;
+    empty = (
+      <EmptyState
+        icon="messages"
+        title={t('conversations.emptyTitle')}
+        body={t('conversations.emptyBody')}
+        action={
+          <button type="button" className="btn btn-primary" onClick={() => setNewOpen(true)}>
+            <Icon name="plus" size={16} />
+            {t('conversations.newConversation')}
+          </button>
+        }
+      />
+    );
+  else empty = <EmptyState icon="search" title={t('conversations.noMatches')} />;
+
+  const notices =
+    (loading && online.length > 0) || failed.length > 0 || offline.length > 0 ? (
+      <>
+        {loading && online.length > 0 ? (
+          <p className="notice">
+            <span className="spinner spinner-sm" aria-hidden="true" />
+            {t('conversations.loadingMachines', { count: online.length })}
+          </p>
+        ) : null}
+        {failed.map((f) => (
+          <p key={f.machine.id} className="notice notice-warning">
+            <Icon name="alert" size={14} />
+            <span>
+              {t('conversations.machineFailed', { name: f.machine.name })}{' '}
+              {t('errors.' + (f.errorCode ?? 'generic'), { status: 0, seconds: 0 })}
+            </span>
+          </p>
+        ))}
+        {offline.length > 0 ? (
+          <p className="notice">
+            <Icon name="info" size={14} />
+            <span>
+              {t('conversations.offlineSkipped', {
+                names: formatList(
+                  locale,
+                  offline.map((m) => m.name),
+                ),
+              })}
+            </span>
+          </p>
+        ) : null}
+      </>
+    ) : null;
 
   return (
     <div className="page">
@@ -170,83 +271,68 @@ export function ConversationsPage() {
         title={t('conversations.title')}
         subtitle={t('conversations.subtitle')}
         actions={
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setNewOpen(true)}
-            disabled={online.length === 0}
-          >
-            <Icon name="plus" size={16} />
-            {t('conversations.newConversation')}
-          </button>
+          online.length > 0 ? (
+            <button type="button" className="btn btn-primary" onClick={() => setNewOpen(true)}>
+              <Icon name="plus" size={16} />
+              {t('conversations.newConversation')}
+            </button>
+          ) : undefined
         }
       />
       {error ? <ErrorBanner error={error} onRetry={load} /> : null}
-      {loading && online.length > 0 ? (
-        <Banner tone="info">{t('conversations.loadingMachines', { count: online.length })}</Banner>
-      ) : null}
-      {failed.map((f) => (
-        <Banner key={f.machine.id} tone="warning">
-          {t('conversations.machineFailed', { name: f.machine.name })}{' '}
-          {t('errors.' + (f.errorCode ?? 'generic'), { status: 0, seconds: 0 })}
-        </Banner>
-      ))}
-      {offline.length > 0 ? (
-        <p className="small muted">
-          {t('conversations.offlineSkipped', {
-            names: formatList(
-              locale,
-              offline.map((m) => m.name),
-            ),
-          })}
-        </p>
-      ) : null}
-      <DataTable
-        tableId="conversations"
-        caption={t('conversations.title')}
-        columns={columns}
-        rows={visible}
-        rowKey={(r) => r.key}
-        loading={loading}
-        onRefresh={load}
-        onRowClick={open}
-        rowActions={(r) => [
-          { label: t('conversations.open'), icon: 'external', onSelect: () => open(r) },
-          { label: t('common.viewJson'), icon: 'braces', onSelect: () => setJson(r) },
-        ]}
-        filters={
-          <>
-            <div className="field">
-              <label htmlFor="conv-machine">{t('conversations.machineFilter')}</label>
-              <select
-                id="conv-machine"
-                className="select"
-                value={machineFilter}
-                onChange={(e) => setMachineFilter(e.target.value)}
-              >
-                <option value="">{t('conversations.allMachines')}</option>
-                {online.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="field">
-              <label htmlFor="conv-search">{t('common.search')}</label>
-              <input
-                id="conv-search"
-                className="input"
-                type="search"
-                placeholder={t('conversations.searchPlaceholder')}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-          </>
-        }
-        empty={empty}
-      />
+      {noMachines ? (
+        <section className="panel onboarding" data-testid="conversations-no-machines">
+          {empty}
+        </section>
+      ) : (
+        <DataTable
+          tableId="conversations"
+          caption={t('conversations.title')}
+          columns={columns}
+          rows={visible}
+          rowKey={(r) => r.key}
+          loading={loading}
+          onRefresh={load}
+          onRowClick={open}
+          rowActions={(r) => [
+            { label: t('conversations.open'), icon: 'external', onSelect: () => open(r) },
+            { label: t('common.viewJson'), icon: 'braces', onSelect: () => setJson(r) },
+          ]}
+          filters={
+            <>
+              <div className="field">
+                <label htmlFor="conv-machine">{t('conversations.machineFilter')}</label>
+                <select
+                  id="conv-machine"
+                  className="select"
+                  value={machineFilter}
+                  onChange={(e) => setMachineFilter(e.target.value)}
+                >
+                  <option value="">{t('conversations.allMachines')}</option>
+                  {online.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="conv-search">{t('common.search')}</label>
+                <input
+                  id="conv-search"
+                  className="input"
+                  type="search"
+                  placeholder={t('conversations.searchPlaceholder')}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+            </>
+          }
+          empty={empty}
+          notices={notices}
+        />
+      )}
       {json ? (
         <JsonViewerModal
           title={json.session.Title || json.session.Id}

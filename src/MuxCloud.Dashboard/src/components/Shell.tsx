@@ -100,12 +100,23 @@ export function Shell({ children, flush = false }: { children: ReactNode; flush?
         {t('shell.skipToContent')}
       </a>
       <aside className="sidebar">
-        <NavLink to="/machines" className="sidebar-brand" aria-label={t('common.appName')}>
-          <Logo className="brand-logo" onDark />
-          <span className="brand-name">
-            <span className="brand-cloud">{t('common.appName')}</span>
-          </span>
-        </NavLink>
+        <div className="sidebar-head">
+          <NavLink to="/machines" className="sidebar-brand" aria-label={t('common.appName')}>
+            <Logo className="brand-logo" onDark />
+            <span className="brand-name">
+              <span className="brand-cloud">{t('common.appName')}</span>
+            </span>
+          </NavLink>
+          <button
+            type="button"
+            className="icon-btn drawer-close mobile-only"
+            onClick={() => setDrawer(false)}
+            aria-label={t('nav.closeMenu')}
+            title={t('nav.closeMenu')}
+          >
+            <Icon name="x" />
+          </button>
+        </div>
         <nav className="sidebar-nav" aria-label={t('nav.mainNavigation')}>
           {groups.map((group) => (
             <div className="nav-group" key={group.key}>
@@ -147,7 +158,7 @@ export function Shell({ children, flush = false }: { children: ReactNode; flush?
             <span className="label">{t('shell.legal')}</span>
           </a>
           <span className="mobile-only">
-            <LanguageSelector compact />
+            <LanguageSelector variant="sidebar" />
           </span>
           <span className="label">{t('shell.version', { version: '\u2066' + APP_VERSION + '\u2069' })}</span>
         </div>
@@ -183,7 +194,7 @@ export function Shell({ children, flush = false }: { children: ReactNode; flush?
           </span>
           <div className="topbar-actions">
             <span className="desktop-only">
-              <LanguageSelector compact />
+              <LanguageSelector />
             </span>
             <ThemeToggle />
             <a

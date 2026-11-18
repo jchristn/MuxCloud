@@ -33,7 +33,7 @@ export function LegalPage({ doc }: { doc: LegalDoc }) {
           </NavLink>
         ))}
         <span style={{ flex: 1 }} />
-        <LanguageSelector compact />
+        <LanguageSelector />
         <ThemeToggle />
       </div>
       <p className="small muted" style={{ marginBottom: 16 }}>

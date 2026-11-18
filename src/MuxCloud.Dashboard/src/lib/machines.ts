@@ -58,3 +58,10 @@ export function machineTotals(machines: Machine[]): MachineTotals {
     { total: 0, online: 0, activeRuns: 0, awaitingApproval: 0 },
   );
 }
+
+/** A stable palette slot for a machine, so the same machine always gets the same color dot. */
+export function machineColorIndex(machineId: string, slots = 8): number {
+  let hash = 0;
+  for (let i = 0; i < machineId.length; i++) hash = (hash * 31 + machineId.charCodeAt(i)) >>> 0;
+  return hash % slots;
+}

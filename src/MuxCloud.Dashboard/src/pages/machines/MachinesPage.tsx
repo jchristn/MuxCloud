@@ -118,15 +118,25 @@ export function MachinesPage() {
   const totals = machineTotals(data?.items ?? []);
   const n = (v: number) => formatNumber(locale, v);
 
+  const lastSeen = (m: Machine) =>
+    m.lastSeenUtc ? (
+      <span title={formatDateTime(locale, m.lastSeenUtc)}>
+        {t('machines.lastSeenAgo', { time: formatRelativeTime(locale, m.lastSeenUtc) })}
+      </span>
+    ) : (
+      t('machines.neverSeen')
+    );
+
   const columns: Column<Machine>[] = [
     {
       id: 'name',
       header: t('machines.colName'),
       pinned: true,
+      mobile: 'title',
       render: (m) => (
-        <div style={{ minWidth: 0 }}>
-          <div className="cell-title">{m.name}</div>
-          <div className="cell-sub mono">{m.id}</div>
+        <div className="cell-stack">
+          <div className="cell-title truncate">{m.name}</div>
+          <div className="cell-sub mono truncate">{m.id}</div>
         </div>
       ),
     },
@@ -134,47 +144,73 @@ export function MachinesPage() {
       id: 'status',
       header: t('machines.colStatus'),
       pinned: true,
+      mobile: 'badge',
       className: 'nowrap',
-      render: (m) => <MachineStatusPill machine={m} />,
+      render: (m) => (
+        <div className="cell-stack">
+          <MachineStatusPill machine={m} />
+          {!m.online && !m.revoked ? <div className="cell-sub">{lastSeen(m)}</div> : null}
+          {m.online && m.awaitingApproval > 0 ? (
+            <div className="cell-sub">{t('machines.awaitingCount', { count: m.awaitingApproval })}</div>
+          ) : null}
+        </div>
+      ),
     },
-    { id: 'host', header: t('machines.colHost'), className: 'mono nowrap', render: (m) => m.hostname ?? '' },
-    { id: 'os', header: t('machines.colOs'), render: (m) => m.os ?? '' },
-    { id: 'version', header: t('machines.colVersion'), className: 'mono nowrap', render: (m) => m.muxVersion ?? '' },
     {
-      id: 'lastSeen',
-      header: t('machines.colLastSeen'),
-      className: 'nowrap',
-      render: (m) =>
-        m.online ? (
-          <span className="pill pill-success">{t('machines.statusOnline')}</span>
-        ) : m.lastSeenUtc ? (
-          <span title={formatDateTime(locale, m.lastSeenUtc)}>{formatRelativeTime(locale, m.lastSeenUtc)}</span>
-        ) : (
-          t('machines.neverSeen')
-        ),
+      id: 'host',
+      header: t('machines.colHost'),
+      mobile: 'meta',
+      render: (m) => (
+        <div className="cell-stack">
+          <div className="mono truncate" title={m.hostname}>
+            {m.hostname ?? ''}
+          </div>
+          <div className="cell-sub truncate">
+            {[m.os, m.muxVersion ? 'mux ' + m.muxVersion : ''].filter(Boolean).join(' \u00b7 ')}
+          </div>
+        </div>
+      ),
     },
     {
       id: 'runs',
       header: t('machines.colActiveRuns'),
+      hideBelow: 'lg',
       className: 'num',
+      mobile: 'meta',
       render: (m) => n(m.online ? m.activeRuns : 0),
-    },
-    {
-      id: 'awaiting',
-      header: t('machines.colAwaiting'),
-      className: 'num',
-      render: (m) =>
-        m.online && m.awaitingApproval > 0 ? <span className="pill pill-warning">{n(m.awaitingApproval)}</span> : n(0),
     },
     {
       id: 'remote',
       header: t('machines.colRemoteApproval'),
+      hideBelow: 'lg',
       className: 'nowrap',
       render: (m) => (
         <span className={'pill ' + (m.remoteToolApproval ? 'pill-warning' : '')}>
           {m.remoteToolApproval ? t('machines.remoteApprovalOn') : t('machines.remoteApprovalOff')}
         </span>
       ),
+    },
+    {
+      id: 'awaiting',
+      header: t('machines.colAwaiting'),
+      defaultHidden: true,
+      className: 'num',
+      render: (m) => n(m.online ? m.awaitingApproval : 0),
+    },
+    { id: 'os', header: t('machines.colOs'), defaultHidden: true, render: (m) => m.os ?? '' },
+    {
+      id: 'version',
+      header: t('machines.colVersion'),
+      defaultHidden: true,
+      className: 'mono nowrap',
+      render: (m) => m.muxVersion ?? '',
+    },
+    {
+      id: 'lastSeen',
+      header: t('machines.colLastSeen'),
+      defaultHidden: true,
+      className: 'nowrap',
+      render: (m) => (m.online ? t('machines.statusOnline') : lastSeen(m)),
     },
     {
       id: 'secret',
@@ -200,6 +236,7 @@ export function MachinesPage() {
   ];
 
   const filtered = !!name || state !== 'all' || includeRevoked;
+  const firstRun = !loading && !error && !filtered && data !== null && data.totalCount === 0;
 
   return (
     <div className="page">
@@ -207,129 +244,141 @@ export function MachinesPage() {
         title={t('machines.title')}
         subtitle={t('machines.subtitle')}
         actions={
-          <button type="button" className="btn btn-primary" onClick={() => setDialog({ kind: 'add' })}>
-            <Icon name="plus" size={16} />
-            {t('machines.addMachine')}
-          </button>
-        }
-      />
-      <div className="kpis">
-        <Kpi label={t('machines.kpiTotal')} value={n(data?.totalCount ?? 0)} />
-        <Kpi label={t('machines.kpiOnline')} value={n(totals.online)} tone={totals.online ? 'success' : undefined} />
-        <Kpi label={t('machines.kpiActiveRuns')} value={n(totals.activeRuns)} />
-        <Kpi
-          label={t('machines.kpiAwaiting')}
-          value={n(totals.awaitingApproval)}
-          tone={totals.awaitingApproval ? 'warning' : undefined}
-        />
-      </div>
-      <DataTable
-        tableId="machines"
-        caption={t('machines.title')}
-        columns={columns}
-        rows={data?.items ?? []}
-        rowKey={(m) => m.id}
-        loading={loading}
-        error={error}
-        onRetry={load}
-        onRefresh={load}
-        onAdd={() => setDialog({ kind: 'add' })}
-        addLabel={t('machines.addMachine')}
-        onRowClick={(m) =>
-          m.revoked ? setDialog({ kind: 'json', machine: m }) : setDialog({ kind: 'rename', machine: m })
-        }
-        rowActions={(m) => [
-          {
-            label: t('machines.openDashboard'),
-            icon: 'external',
-            onSelect: () => navigate('/machines/' + encodeURIComponent(m.id)),
-            disabled: m.revoked,
-          },
-          {
-            label: t('machines.rename'),
-            icon: 'edit',
-            onSelect: () => setDialog({ kind: 'rename', machine: m }),
-            disabled: m.revoked,
-          },
-          {
-            label: t('machines.connections'),
-            icon: 'activity',
-            onSelect: () => setDialog({ kind: 'connections', machine: m }),
-          },
-          { label: t('common.viewJson'), icon: 'braces', onSelect: () => setDialog({ kind: 'json', machine: m }) },
-          {
-            label: t('machines.revoke'),
-            icon: 'shield',
-            danger: true,
-            separatorBefore: true,
-            onSelect: () => setDialog({ kind: 'revoke', machine: m }),
-            disabled: m.revoked,
-          },
-          {
-            label: t('machines.remove'),
-            icon: 'trash',
-            danger: true,
-            onSelect: () => setDialog({ kind: 'remove', machine: m }),
-          },
-        ]}
-        filters={
-          <>
-            <div className="field">
-              <label htmlFor="machine-search">{t('common.search')}</label>
-              <input
-                id="machine-search"
-                className="input"
-                type="search"
-                placeholder={t('machines.searchPlaceholder')}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="machine-state">{t('machines.stateFilter')}</label>
-              <select
-                id="machine-state"
-                className="select"
-                value={state}
-                onChange={(e) => setState(e.target.value as typeof state)}
-              >
-                <option value="all">{t('machines.stateAll')}</option>
-                <option value="online">{t('machines.stateOnline')}</option>
-                <option value="offline">{t('machines.stateOffline')}</option>
-              </select>
-            </div>
-            <label className="checkbox" style={{ alignSelf: 'center', marginTop: 18 }}>
-              <input type="checkbox" checked={includeRevoked} onChange={(e) => setIncludeRevoked(e.target.checked)} />
-              <span>{t('machines.includeRevoked')}</span>
-            </label>
-          </>
-        }
-        paging={{
-          pageNumber,
-          pageSize,
-          totalCount: data?.totalCount ?? 0,
-          onPageChange: setPageNumber,
-          onPageSizeChange: (s) => {
-            setPageSize(s);
-            setPageNumber(1);
-          },
-        }}
-        empty={
-          filtered ? (
-            <EmptyState title={t('machines.noMatches')} />
-          ) : (
-            <EmptyState
-              title={t('machines.emptyTitle')}
-              body={t('machines.emptyBody')}
-              action={
-                <button type="button" className="btn btn-primary" onClick={() => setDialog({ kind: 'add' })}>
-                  {t('machines.addMachine')}
-                </button>
-              }
-            />
+          firstRun ? undefined : (
+            <button type="button" className="btn btn-primary" onClick={() => setDialog({ kind: 'add' })}>
+              <Icon name="plus" size={16} />
+              {t('machines.addMachine')}
+            </button>
           )
         }
       />
+      {firstRun ? (
+        <section className="panel onboarding" data-testid="machines-first-run">
+          <EmptyState
+            icon="server"
+            title={t('machines.emptyTitle')}
+            body={t('machines.emptyBody')}
+            action={
+              <button type="button" className="btn btn-primary" onClick={() => setDialog({ kind: 'add' })}>
+                <Icon name="plus" size={16} />
+                {t('machines.addMachine')}
+              </button>
+            }
+          />
+        </section>
+      ) : (
+        <>
+          <div className="kpis">
+            <Kpi label={t('machines.kpiTotal')} value={n(data?.totalCount ?? 0)} />
+            <Kpi
+              label={t('machines.kpiOnline')}
+              value={n(totals.online)}
+              tone={totals.online ? 'success' : undefined}
+            />
+            <Kpi label={t('machines.kpiActiveRuns')} value={n(totals.activeRuns)} />
+            <Kpi
+              label={t('machines.kpiAwaiting')}
+              value={n(totals.awaitingApproval)}
+              tone={totals.awaitingApproval ? 'warning' : undefined}
+            />
+          </div>
+          <DataTable
+            tableId="machines"
+            caption={t('machines.title')}
+            columns={columns}
+            rows={data?.items ?? []}
+            rowKey={(m) => m.id}
+            loading={loading}
+            error={error}
+            onRetry={load}
+            onRefresh={load}
+            onRowClick={(m) =>
+              m.revoked ? setDialog({ kind: 'json', machine: m }) : setDialog({ kind: 'rename', machine: m })
+            }
+            rowActions={(m) => [
+              {
+                label: t('machines.openDashboard'),
+                icon: 'external',
+                onSelect: () => navigate('/machines/' + encodeURIComponent(m.id)),
+                disabled: m.revoked,
+              },
+              {
+                label: t('machines.rename'),
+                icon: 'edit',
+                onSelect: () => setDialog({ kind: 'rename', machine: m }),
+                disabled: m.revoked,
+              },
+              {
+                label: t('machines.connections'),
+                icon: 'activity',
+                onSelect: () => setDialog({ kind: 'connections', machine: m }),
+              },
+              { label: t('common.viewJson'), icon: 'braces', onSelect: () => setDialog({ kind: 'json', machine: m }) },
+              {
+                label: t('machines.revoke'),
+                icon: 'shield',
+                danger: true,
+                separatorBefore: true,
+                onSelect: () => setDialog({ kind: 'revoke', machine: m }),
+                disabled: m.revoked,
+              },
+              {
+                label: t('machines.remove'),
+                icon: 'trash',
+                danger: true,
+                onSelect: () => setDialog({ kind: 'remove', machine: m }),
+              },
+            ]}
+            filters={
+              <>
+                <div className="field">
+                  <label htmlFor="machine-search">{t('common.search')}</label>
+                  <input
+                    id="machine-search"
+                    className="input"
+                    type="search"
+                    placeholder={t('machines.searchPlaceholder')}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="machine-state">{t('machines.stateFilter')}</label>
+                  <select
+                    id="machine-state"
+                    className="select"
+                    value={state}
+                    onChange={(e) => setState(e.target.value as typeof state)}
+                  >
+                    <option value="all">{t('machines.stateAll')}</option>
+                    <option value="online">{t('machines.stateOnline')}</option>
+                    <option value="offline">{t('machines.stateOffline')}</option>
+                  </select>
+                </div>
+                <label className="checkbox" style={{ alignSelf: 'center', marginTop: 18 }}>
+                  <input
+                    type="checkbox"
+                    checked={includeRevoked}
+                    onChange={(e) => setIncludeRevoked(e.target.checked)}
+                  />
+                  <span>{t('machines.includeRevoked')}</span>
+                </label>
+              </>
+            }
+            paging={{
+              pageNumber,
+              pageSize,
+              totalCount: data?.totalCount ?? 0,
+              onPageChange: setPageNumber,
+              onPageSizeChange: (s) => {
+                setPageSize(s);
+                setPageNumber(1);
+              },
+            }}
+            empty={<EmptyState icon="search" title={t('machines.noMatches')} />}
+          />
+        </>
+      )}
       <RemoteControlNotice />
 
       {dialog?.kind === 'add' ? <AddMachineModal onClose={closeDialog} /> : null}
