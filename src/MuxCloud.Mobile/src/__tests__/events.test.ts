@@ -125,3 +125,12 @@ describe('machine socket', () => {
     expect(turns[1].tools).toEqual([{ id: 't1', name: 'read_file', status: 'ok' }]);
   });
 });
+
+describe('replayed run frames', () => {
+  it('keeps one tool line per tool call when a proposal is replayed', () => {
+    const turn: Turn = { key: 'live', role: 'assistant', content: '', tools: [], pending: true };
+    applyRunFrame(turn, { eventType: 'tool_call_proposed', toolCall: { id: 't1', name: 'run_process' } });
+    applyRunFrame(turn, { eventType: 'tool_call_proposed', toolCall: { id: 't1', name: 'run_process' } });
+    expect(turn.tools).toEqual([{ id: 't1', name: 'run_process', status: 'running' }]);
+  });
+});

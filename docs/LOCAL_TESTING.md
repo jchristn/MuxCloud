@@ -150,7 +150,17 @@ For a physical phone on the same network, the server has to listen on your LAN a
 MUXCLOUD_REST_HOST=0.0.0.0 MUXCLOUD_PUBLIC_URL=http://192.168.1.20:8760 ...   # your computer's LAN address
 ```
 
-and enter `http://192.168.1.20:8760` in the app. Push notifications need an EAS project and credentials, so they are
+and enter `http://192.168.1.20:8760` in the app.
+
+**Shortcut for app work.** `src/MuxCloud.Mobile/scripts/dev-stack.sh` does steps 2 and 4 for the app: `start` runs the
+cloud on `127.0.0.1:8760` (SQLite, File email, data in `$STACK_DIR`), `verify` prints the newest verification link,
+`mux NAME ...` runs the mux CLI with that machine's own `MUX_CONFIG_DIR`, and `serve NAME PORT` / `unserve NAME` keep a
+machine online or take it offline. Run `scripts/dev-stack.sh` with no arguments for the full usage, including the
+enrollment commands. Set `MUXCLOUD_REPO` and `MUX_REPO` to worktrees when other work is in progress in your checkouts.
+
+Previewing right-to-left in Expo Go: the in-app language choice cannot flip the layout direction in Expo Go, so start
+Metro with `MUXCLOUD_MOBILE_FORCE_RTL=1 npx expo start` and pick Arabic in App settings. Real builds switch from the
+in-app choice after a restart. Reviewed screenshots of the app against a local stack are in `docs/screenshots/mobile/`. Push notifications need an EAS project and credentials, so they are
 off locally; the app says "This server does not send notifications yet" until they are configured.
 
 ## 6. Cleaning up

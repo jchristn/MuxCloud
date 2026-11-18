@@ -4,7 +4,7 @@
  * i18n:check`).
  */
 export const en = {
-  common: { back: 'Back', confirm: 'Confirm', all: 'All', name: 'Name', filter: 'Filter' },
+  common: { back: 'Back', confirm: 'Confirm', all: 'All', name: 'Name', filter: 'Filter', details: 'Details', less: 'Less' },
   auth: {
     server: 'Server: {{url}}',
     changeServer: 'Change server',
@@ -13,7 +13,7 @@ export const en = {
     readPrivacy: 'Privacy Policy',
     verifyCode: 'Verification code',
     verifyCodeHint: 'Optional: paste the code from the end of the link in the email.',
-    verifyButton: 'Verify',
+    verifyButton: 'Verify', emailRequired: 'Enter your email address.',
   },
   server: {
     title: 'Mux Cloud server',
@@ -22,14 +22,14 @@ export const en = {
     connect: 'Connect',
     useDefault: 'Use app.usemux.ai',
     invalid: 'Enter a URL such as https://app.usemux.ai.',
-    notMuxCloud: 'That address answered, but it is not a Mux Cloud server.',
+    notMuxCloud: 'That address answered, but it is not a Mux Cloud server.', unreachable: 'Could not reach {{url}}. Check the address and that the server is running.',
   },
   machine: {
     lastSeen: 'Last seen {{time}}',
     awaiting: '{{count}} waiting',
     runs: '{{count}} running',
     manage: 'Manage',
-    liveReconnecting: 'Live updates are reconnecting. Pull to refresh.',
+    liveReconnecting: 'Live updates are reconnecting. Pull to refresh.', liveDown: 'Reconnecting to Mux Cloud. Machine status and approvals may be out of date.',
     offlineConversations: 'Conversations live on the machine, so they appear when it reconnects.',
     pickConversation: 'Choose a conversation',
   },
@@ -37,7 +37,7 @@ export const en = {
     placeholder: 'Message mux',
     send: 'Send',
     stop: 'Stop',
-    thinking: 'Thinking...',
+    thinking: 'Thinking...', emptyReply: 'The model finished without writing a reply.', stopped: 'Stopped.', toolStatus: { ok: 'Finished', fail: 'Failed', running: 'Running', canceled: 'Canceled' }, emptyTitle: 'Start the conversation', emptyBody: 'mux works on {{machine}} in {{folder}}. Ask a question, or describe a change to make.', defaultFolder: 'the folder mux started in',
     replying: 'mux is replying',
     showThinking: 'Show thinking',
     hideThinking: 'Hide thinking',
@@ -59,7 +59,7 @@ export const en = {
     help: '**Chat commands**\n\n- `/?`, `/help`: show this list\n- `/new`, `/clear`: start a new conversation\n- `/context`, `/stats`: the last turn\'s timing and tokens\n- `/usage`, `/endpoints`, `/models`, `/mcp`, `/prompts`, `/skills`, `/subagents`, `/pricing`, `/hooks`, `/commands`, `/keybindings`, `/settings`: open that screen\n- `/<skill> args`: run a skill',
   },
   approval: {
-    title: 'Allow mux to run {{tool}}?',
+    title: 'Allow mux to use {{tool}}?',
     aTool: 'a tool',
     onMachine: 'On {{name}}',
     approve: 'Approve',
@@ -106,7 +106,7 @@ export const en = {
     bulkDeleteTitle: 'Delete {{count}} conversations?',
     longPressHint: 'Long press for actions.',
   },
-  manage: {
+  manage: { addOne: { endpoints: 'Add an endpoint', mcp: 'Add an MCP server', prompts: 'Add a prompt', subagents: 'Add a subagent', hooks: 'Add a hook', commands: 'Add a command', keybindings: 'Add a keybinding' }, none: { endpoints: 'No endpoints yet', mcp: 'No MCP servers yet', prompts: 'No prompts yet', subagents: 'No subagents yet', hooks: 'No hooks yet', commands: 'No custom commands yet', keybindings: 'No keybindings yet' },
     configure: 'Configure',
     defaultEndpoint: 'Default endpoint',
     noDefault: 'No default endpoint yet.',

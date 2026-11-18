@@ -45,13 +45,13 @@ export default function NewConversation() {
         </View>
       </Section>
       <Section title={t('mobile.new.folder')}>
-        <Field label={t('mobile.new.folderPath')} hint={t('mobile.new.folderHint')} value={cwd} onChangeText={setCwd} autoCapitalize="none" autoCorrect={false} placeholder={t('mobile.new.folderPlaceholder')} />
+        <Field grow returnKeyType="done" blurOnSubmit label={t('mobile.new.folderPath')} hint={t('mobile.new.folderHint')} value={cwd} onChangeText={setCwd} autoCapitalize="none" autoCorrect={false} placeholder={t('mobile.new.folderPlaceholder')} />
         <View style={{ marginHorizontal: -spacing.lg }}>
           {(workspaces.data ?? []).map((w) => (
             <ListRow
               key={w.Path}
               title={w.Name || w.Path}
-              subtitle={[w.Path, w.LastUsedUtc ? formatRelativeTime(i18n.language, w.LastUsedUtc) : '', w.Source === 'home' ? t('mobile.new.home') : t('mobile.new.sessions', { count: w.SessionCount })].filter(Boolean).join(' · ')}
+              subtitle={[w.Source === 'home' ? t('mobile.new.home') : t('mobile.new.sessions', { count: w.SessionCount }), w.LastUsedUtc ? formatRelativeTime(i18n.language, w.LastUsedUtc) : '', w.Path].filter(Boolean).join(' · ')}
               selected={w.Path === cwd}
               onPress={() => setCwd(w.Path)}
             />

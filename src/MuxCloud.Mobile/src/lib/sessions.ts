@@ -28,3 +28,10 @@ export function facetsOf(sessions: MuxSessionSummary[]): string[] {
   }
   return [...set].sort();
 }
+
+/** Last path segment of a working folder ("/Users/me/src/acme-api/" becomes "acme-api"), for compact rows. */
+export function folderName(path: string | undefined): string {
+  const trimmed = (path ?? '').replace(/[\\/]+$/, '');
+  const parts = trimmed.split(/[\\/]/);
+  return parts[parts.length - 1] || trimmed;
+}

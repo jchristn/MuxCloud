@@ -1,7 +1,7 @@
 import type { MobileCatalog } from './en';
 
 export const es: MobileCatalog = {
-  common: { back: 'Atrás', confirm: 'Confirmar', all: 'Todo', name: 'Nombre', filter: 'Filtrar' },
+  common: { back: 'Atrás', confirm: 'Confirmar', all: 'Todo', name: 'Nombre', filter: 'Filtrar', details: 'Detalles', less: 'Menos' },
   auth: {
     server: 'Servidor: {{url}}',
     changeServer: 'Cambiar servidor',
@@ -10,7 +10,7 @@ export const es: MobileCatalog = {
     readPrivacy: 'Política de privacidad',
     verifyCode: 'Código de verificación',
     verifyCodeHint: 'Opcional: pega el código del final del enlace del correo.',
-    verifyButton: 'Verificar',
+    verifyButton: 'Verificar', emailRequired: 'Escribe tu dirección de correo.',
   },
   server: {
     title: 'Servidor de Mux Cloud',
@@ -19,14 +19,14 @@ export const es: MobileCatalog = {
     connect: 'Conectar',
     useDefault: 'Usar app.usemux.ai',
     invalid: 'Escribe una URL como https://app.usemux.ai.',
-    notMuxCloud: 'Esa dirección respondió, pero no es un servidor de Mux Cloud.',
+    notMuxCloud: 'Esa dirección respondió, pero no es un servidor de Mux Cloud.', unreachable: 'No se pudo conectar con {{url}}. Comprueba la dirección y que el servidor esté en marcha.',
   },
   machine: {
     lastSeen: 'Visto {{time}}',
     awaiting: '{{count}} en espera',
     runs: '{{count}} en curso',
     manage: 'Administrar',
-    liveReconnecting: 'Las actualizaciones en vivo se están reconectando. Desliza para actualizar.',
+    liveReconnecting: 'Las actualizaciones en vivo se están reconectando. Desliza para actualizar.', liveDown: 'Reconectando con Mux Cloud. El estado de las máquinas y las aprobaciones puede no estar al día.',
     offlineConversations: 'Las conversaciones están en la máquina, así que aparecerán cuando se reconecte.',
     pickConversation: 'Elige una conversación',
   },
@@ -34,7 +34,7 @@ export const es: MobileCatalog = {
     placeholder: 'Escribe a mux',
     send: 'Enviar',
     stop: 'Detener',
-    thinking: 'Pensando...',
+    thinking: 'Pensando...', emptyReply: 'El modelo terminó sin escribir una respuesta.', stopped: 'Detenido.', toolStatus: { ok: 'Terminada', fail: 'Falló', running: 'En curso', canceled: 'Cancelada' }, emptyTitle: 'Empieza la conversación', emptyBody: 'mux trabaja en {{machine}}, en {{folder}}. Haz una pregunta o describe un cambio.', defaultFolder: 'la carpeta donde se inició mux',
     replying: 'mux está respondiendo',
     showThinking: 'Mostrar razonamiento',
     hideThinking: 'Ocultar razonamiento',
@@ -56,7 +56,7 @@ export const es: MobileCatalog = {
     help: '**Comandos del chat**\n\n- `/?`, `/help`: muestra esta lista\n- `/new`, `/clear`: empieza una conversación nueva\n- `/context`, `/stats`: tiempos y tokens del último turno\n- `/usage`, `/endpoints`, `/models`, `/mcp`, `/prompts`, `/skills`, `/subagents`, `/pricing`, `/hooks`, `/commands`, `/keybindings`, `/settings`: abre esa pantalla\n- `/<skill> argumentos`: ejecuta una skill',
   },
   approval: {
-    title: '¿Permitir que mux ejecute {{tool}}?',
+    title: '¿Permitir que mux use {{tool}}?',
     aTool: 'una herramienta',
     onMachine: 'En {{name}}',
     approve: 'Aprobar',
@@ -103,7 +103,7 @@ export const es: MobileCatalog = {
     bulkDeleteTitle: '¿Eliminar {{count}} conversaciones?',
     longPressHint: 'Mantén pulsado para ver acciones.',
   },
-  manage: {
+  manage: { addOne: { endpoints: 'Añadir un endpoint', mcp: 'Añadir un servidor MCP', prompts: 'Añadir un prompt', subagents: 'Añadir un subagente', hooks: 'Añadir un hook', commands: 'Añadir un comando', keybindings: 'Añadir un atajo' }, none: { endpoints: 'Todavía no hay endpoints', mcp: 'Todavía no hay servidores MCP', prompts: 'Todavía no hay prompts', subagents: 'Todavía no hay subagentes', hooks: 'Todavía no hay hooks', commands: 'Todavía no hay comandos personalizados', keybindings: 'Todavía no hay atajos' },
     configure: 'Configurar',
     defaultEndpoint: 'Endpoint predeterminado',
     noDefault: 'Todavía no hay endpoint predeterminado.',

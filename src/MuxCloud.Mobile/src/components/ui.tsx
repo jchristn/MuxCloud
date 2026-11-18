@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   ActivityIndicator,
+  I18nManager,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -9,6 +10,7 @@ import {
   TextInput,
   View,
   type StyleProp,
+  type TextInputInstance,
   type TextInputProps,
   type TextStyle,
   type ViewStyle,
@@ -28,8 +30,10 @@ export function T({
   numberOfLines,
   selectable,
   accessibilityRole,
+  accessibilityLabel,
 }: {
   children: React.ReactNode;
+  accessibilityLabel?: string;
   variant?: TextVariant;
   style?: StyleProp<TextStyle>;
   numberOfLines?: number;
@@ -52,6 +56,7 @@ export function T({
       style={[base, variants[variant], style]}
       numberOfLines={numberOfLines}
       selectable={selectable}
+      accessibilityLabel={accessibilityLabel}
       accessibilityRole={accessibilityRole ?? (variant === 'heading' || variant === 'title' ? 'header' : 'text')}
     >
       {children}
@@ -59,7 +64,10 @@ export function T({
   );
 }
 
-/** Scrollable screen body with standard padding. */
+/** Widest a single column of content gets on tablets and large windows: lines stay readable, controls stay grouped. */
+export const CONTENT_MAX_WIDTH = 840;
+
+/** Scrollable screen body with standard padding, centered in a readable column on wide screens. */
 export function Screen({
   children,
   scroll = true,
@@ -76,7 +84,10 @@ export function Screen({
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: p.bg }}
-      contentContainerStyle={[{ padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl }, contentStyle]}
+      contentContainerStyle={[
+        { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl, width: '100%', maxWidth: CONTENT_MAX_WIDTH, alignSelf: 'center' },
+        contentStyle,
+      ]}
       keyboardShouldPersistTaps="handled"
       refreshControl={refreshControl}
     >
@@ -117,8 +128,10 @@ export function Button({
   style,
   accessibilityHint,
   compact,
+  testID,
 }: {
   title: string;
+  testID?: string;
   onPress: () => void;
   kind?: ButtonKind;
   busy?: boolean;
@@ -138,6 +151,7 @@ export function Button({
   const off = disabled || busy;
   return (
     <Pressable
+      testID={testID}
       onPress={off ? undefined : onPress}
       accessibilityRole="button"
       accessibilityState={{ disabled: !!off, busy: !!busy }}
@@ -172,21 +186,29 @@ export function Field({
   error,
   style,
   multiline,
+  grow,
   ...input
-}: TextInputProps & { label: string; hint?: string; error?: string | null }) {
+}: TextInputProps & { label: string; hint?: string; error?: string | null; /** Starts one line tall and grows with long values (paths). */ grow?: boolean }) {
   const p = useTheme();
+  const ref = useRef<TextInputInstance>(null);
   return (
     <View style={{ gap: spacing.xs }}>
-      <T variant="small" style={{ fontWeight: '600', color: p.text }}>
-        {label}
-      </T>
+      <Pressable onPress={() => ref.current?.focus()} accessible={false} hitSlop={{ top: 6, bottom: 6 }}>
+        <T variant="small" style={{ fontWeight: '600', color: p.text }}>
+          {label}
+        </T>
+      </Pressable>
       <TextInput
+        ref={ref}
         accessibilityLabel={label}
         placeholderTextColor={p.muted}
-        multiline={multiline}
+        multiline={multiline || grow}
+        scrollEnabled={grow ? false : undefined}
         style={[
           {
             minHeight: multiline ? 96 : 44,
+            paddingTop: grow ? 12 : undefined,
+            paddingBottom: grow ? 12 : undefined,
             borderWidth: 1,
             borderColor: error ? p.danger : p.line,
             borderRadius: radius.md,
@@ -196,6 +218,8 @@ export function Field({
             backgroundColor: p.panel,
             fontSize: font.body,
             textAlignVertical: multiline ? 'top' : 'center',
+            // TextInput does not follow the layout direction on its own: align typed text with the RTL layout.
+            textAlign: I18nManager.isRTL ? 'right' : 'left',
           },
           style,
         ]}
@@ -226,33 +250,64 @@ export function ToggleRow({ label, hint, value, onChange, disabled }: { label: s
   );
 }
 
-/** Choose one of a few options. */
-export function Segmented<T extends string>({ options, value, onChange, label }: { options: { value: T; label: string }[]; value: T; onChange: (v: T) => void; label?: string }) {
+/**
+ * Choose one option. `scroll` keeps long option lists (skill categories, labels) on one horizontally scrolling row
+ * instead of wrapping into many rows that push the content down.
+ */
+export function Segmented<T extends string>({
+  options,
+  value,
+  onChange,
+  label,
+  scroll,
+}: {
+  options: { value: T; label: string }[];
+  value: T;
+  onChange: (v: T) => void;
+  label?: string;
+  scroll?: boolean;
+}) {
   const p = useTheme();
+  const chips = options.map((o) => {
+    const active = o.value === value;
+    return (
+      <Pressable
+        key={o.value}
+        onPress={() => onChange(o.value)}
+        accessibilityRole="radio"
+        accessibilityState={{ selected: active }}
+        hitSlop={{ top: 4, bottom: 4 }}
+        style={{
+          minHeight: 40,
+          paddingHorizontal: spacing.md,
+          borderRadius: radius.pill,
+          borderWidth: 1,
+          borderColor: active ? p.accent : p.line,
+          backgroundColor: active ? p.accentSoft : p.panel,
+          justifyContent: 'center',
+        }}
+      >
+        <Text style={{ color: active ? p.accent : p.text, fontWeight: active ? '600' : '400' }}>{o.label}</Text>
+      </Pressable>
+    );
+  });
+  if (scroll) {
+    return (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        accessibilityRole="radiogroup"
+        accessibilityLabel={label}
+        style={{ marginHorizontal: -spacing.lg, flexGrow: 0 }}
+        contentContainerStyle={{ paddingHorizontal: spacing.lg, gap: spacing.xs }}
+      >
+        {chips}
+      </ScrollView>
+    );
+  }
   return (
     <View accessibilityRole="radiogroup" accessibilityLabel={label} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs }}>
-      {options.map((o) => {
-        const active = o.value === value;
-        return (
-          <Pressable
-            key={o.value}
-            onPress={() => onChange(o.value)}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: active }}
-            style={{
-              minHeight: 36,
-              paddingHorizontal: spacing.md,
-              borderRadius: radius.pill,
-              borderWidth: 1,
-              borderColor: active ? p.accent : p.line,
-              backgroundColor: active ? p.accentSoft : p.panel,
-              justifyContent: 'center',
-            }}
-          >
-            <Text style={{ color: active ? p.accent : p.text, fontWeight: active ? '600' : '400' }}>{o.label}</Text>
-          </Pressable>
-        );
-      })}
+      {chips}
     </View>
   );
 }

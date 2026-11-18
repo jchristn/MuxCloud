@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { formatRelativeTime } from '@dashboard/lib';
 import type { MuxApi } from '@/relay/muxApi';
 import { useAsync } from '@/state/useAsync';
-import { facetsOf, filterSessions } from '@/lib/sessions';
+import { facetsOf, filterSessions, folderName } from '@/lib/sessions';
 import type { MuxSessionSummary } from '@/types/mux';
 import { spacing } from '@/theme/palette';
 import { SessionActions } from './SessionActions';
@@ -62,6 +62,7 @@ export function ConversationList({
       <View style={{ padding: spacing.lg, gap: spacing.md }}>
         <View style={{ flexDirection: 'row', gap: spacing.sm }}>
           <Button title={t('conversations.newConversation')} onPress={onNew} disabled={!online} style={{ flex: 1 }} />
+          {online ? (
           <Button
             title={selecting ? t('common.cancel') : t('mobile.session.select')}
             kind="secondary"
@@ -70,11 +71,13 @@ export function ConversationList({
               setPicked([]);
             }}
           />
+          ) : null}
         </View>
         {selecting && picked.length > 0 ? <Button title={t('mobile.session.deleteSelected', { count: picked.length })} kind="danger" onPress={deletePicked} /> : null}
-        <Field label={t('common.search')} placeholder={t('conversations.searchPlaceholder')} value={search} onChangeText={setSearch} autoCapitalize="none" autoCorrect={false} />
-        {facets.length > 0 ? (
-          <Segmented label={t('mobile.common.filter')} value={facet} onChange={setFacet} options={[{ value: '', label: t('mobile.common.all') }, ...facets.map((f) => ({ value: f, label: f }))]} />
+        {/* Nothing to search or filter while the machine (where conversations live) is offline. */}
+        {online ? <Field label={t('common.search')} placeholder={t('conversations.searchPlaceholder')} value={search} onChangeText={setSearch} autoCapitalize="none" autoCorrect={false} /> : null}
+        {online && facets.length > 0 ? (
+          <Segmented scroll label={t('mobile.common.filter')} value={facet} onChange={setFacet} options={[{ value: '', label: t('mobile.common.all') }, ...facets.map((f) => ({ value: f, label: f }))]} />
         ) : null}
         {sessions.error ? <ErrorBox error={sessions.error} onRetry={() => void sessions.reload()} /> : null}
         {!online ? <Empty title={t('errors.MachineOffline')} body={t('mobile.machine.offlineConversations')} /> : null}
@@ -88,7 +91,7 @@ export function ConversationList({
           <ListRow
             key={s.Id}
             title={s.Title || t('conversations.untitled')}
-            subtitle={[s.Model, s.WorkingDirectory, s.UpdatedUtc ? formatRelativeTime(i18n.language, s.UpdatedUtc) : ''].filter(Boolean).join(' · ')}
+            subtitle={[s.UpdatedUtc ? formatRelativeTime(i18n.language, s.UpdatedUtc) : '', folderName(s.WorkingDirectory), s.Model].filter(Boolean).join(' · ')}
             selected={selecting ? isPicked : selectedId === s.Id}
             trailing={
               <View style={{ alignItems: 'flex-end', gap: spacing.xs }}>

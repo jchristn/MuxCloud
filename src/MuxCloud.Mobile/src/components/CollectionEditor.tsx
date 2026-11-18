@@ -34,6 +34,7 @@ export function CollectionEditor({
   onDelete,
   actions,
   addLabel,
+  emptyLabel,
 }: {
   title: string;
   intro?: string;
@@ -51,6 +52,8 @@ export function CollectionEditor({
   onDelete?: (item: Item) => Promise<void>;
   actions?: RowAction[];
   addLabel?: string;
+  /** Empty-list title; defaults to a generic phrase. */
+  emptyLabel?: string;
 }) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState<{ index: number; draft: Item } | null>(null);
@@ -109,7 +112,7 @@ export function CollectionEditor({
       <Button title={addLabel ?? t('common.add')} onPress={() => setEditing({ index: -1, draft: { ...template } })} />
       {error ? <ErrorBox error={error} onRetry={reload} /> : null}
       {loading && items === null ? <Loading /> : null}
-      {!loading && !error && list.length === 0 ? <Empty title={t('mobile.form.emptyTitle', { name: title })} /> : null}
+      {!loading && !error && list.length === 0 ? <Empty title={emptyLabel ?? t('mobile.form.emptyTitle', { name: title })} /> : null}
       <View style={{ marginHorizontal: -spacing.lg }}>
         {list.map((item, index) => (
           <ListRow

@@ -3,6 +3,7 @@ import { RefreshControl, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { formatRelativeTime, mapWithConcurrency } from '@dashboard/lib';
+import { ConnectionBanner } from '@/components/ConnectionBanner';
 import { Badge, Card, Empty, Loading, Notice, Screen, Section, T } from '@/components/ui';
 import { muxApi } from '@/relay/muxApi';
 import { useAccount } from '@/state/AccountContext';
@@ -53,6 +54,7 @@ export default function Approvals() {
   return (
     <Screen refreshControl={<RefreshControl refreshing={waiting.loading && !!waiting.data} onRefresh={() => void waiting.reload()} />}>
       <Stack.Screen options={{ title: t('mobile.approvals.title') }} />
+      <ConnectionBanner />
       <T variant="muted">{t('mobile.approvals.intro')}</T>
       {machines.some((m) => m.online && !m.remoteToolApproval) ? <Notice tone="warning" text={t('mobile.approvals.someOff')} /> : null}
       {waiting.loading && !waiting.data && pendingMachines.length > 0 ? <Loading /> : null}

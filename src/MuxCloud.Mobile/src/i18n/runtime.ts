@@ -30,6 +30,8 @@ export function initI18n(locale: string): I18n {
       resources: buildResources(),
       lng: locale,
       fallbackLng: DEFAULT_LOCALE,
+      // i18next would turn "qps-ploc" into "qps-Ploc" (a script subtag) and miss the catalog; every code is lowercase.
+      lowerCaseLng: true,
       interpolation: { escapeValue: false },
       returnNull: false,
     });

@@ -51,13 +51,14 @@ export default function AppSettings() {
         />
       </Section>
       <Section title={t('mobile.settings.language')}>
+        {/* Shown above the list: the choice was just made at the top of it, and the list is long. */}
+        {restart ? <Notice tone="warning" text={t('mobile.settings.restartForDirection')} /> : null}
         <View style={{ marginHorizontal: -spacing.lg }}>
           <ListRow title={t('mobile.settings.languageDevice')} selected={prefs.locale === null} onPress={() => chooseLocale(null)} />
           {LOCALES.filter((l) => !l.pseudo || __DEV__).map((l) => (
-            <ListRow key={l.code} title={l.nativeName} subtitle={l.englishName} selected={prefs.locale === l.code} onPress={() => chooseLocale(l.code)} />
+            <ListRow key={l.code} title={l.nativeName} subtitle={l.englishName !== l.nativeName ? l.englishName : undefined} selected={prefs.locale === l.code} onPress={() => chooseLocale(l.code)} />
           ))}
         </View>
-        {restart ? <Notice text={t('mobile.settings.restartForDirection')} /> : null}
       </Section>
       <Section title={t('mobile.settings.security')}>
         <ToggleRow label={t('mobile.settings.biometric')} hint={canBiometric ? t('mobile.settings.biometricHint') : t('mobile.settings.biometricUnavailable')} value={prefs.biometricLock} disabled={!canBiometric} onChange={(biometricLock) => update({ biometricLock })} />

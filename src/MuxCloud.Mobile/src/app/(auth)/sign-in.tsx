@@ -37,10 +37,10 @@ export default function SignIn() {
 
   return (
     <AuthFrame title={t('auth.loginTitle')} subtitle={t('auth.loginSubtitle')}>
-      <Field label={t('common.email')} value={email} onChangeText={setEmail} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="username" autoCorrect={false} />
-      <Field label={t('auth.password')} value={password} onChangeText={setPassword} secureTextEntry autoComplete="current-password" textContentType="password" onSubmitEditing={() => void submit()} />
+      <Field testID="email" label={t('common.email')} value={email} onChangeText={setEmail} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="username" autoCorrect={false} />
+      <Field testID="password" label={t('auth.password')} value={password} onChangeText={setPassword} secureTextEntry autoComplete="current-password" textContentType="password" onSubmitEditing={() => void submit()} />
       {error ? <ErrorBox error={error} /> : null}
-      <Button title={busy ? t('auth.signingIn') : t('auth.signIn')} busy={busy} onPress={() => void submit()} disabled={!email.trim() || !password} />
+      <Button testID="sign-in" title={busy ? t('auth.signingIn') : t('auth.signIn')} busy={busy} onPress={() => void submit()} disabled={!email.trim() || !password} />
       <Button title={t('auth.forgotLink')} kind="ghost" onPress={() => router.push('/forgot')} />
       <Button title={t('auth.noAccount') + ' ' + t('auth.createAccount')} kind="secondary" onPress={() => router.push('/sign-up')} />
     </AuthFrame>

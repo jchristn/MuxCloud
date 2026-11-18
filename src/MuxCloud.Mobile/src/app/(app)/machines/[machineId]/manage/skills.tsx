@@ -113,7 +113,7 @@ export default function Skills() {
       {tab === 'skills' ? (
         <>
           <Button title={t('mobile.skills.create')} onPress={() => setEditing({ name: '', body: '---\nname: \ndescription: \n---\n\n', category: '', isNew: true })} />
-          {cats.length > 0 ? <Segmented value={category} onChange={setCategory} options={[{ value: '', label: t('mobile.common.all') }, ...cats.map((c) => ({ value: c, label: c }))]} /> : null}
+          {cats.length > 0 ? <Segmented scroll value={category} onChange={setCategory} options={[{ value: '', label: t('mobile.common.all') }, ...cats.map((c) => ({ value: c, label: c }))]} /> : null}
           {skills.loading && !skills.data ? <Loading /> : null}
           {skills.error ? <ErrorBox error={skills.error} onRetry={() => void skills.reload()} /> : null}
           <View style={{ marginHorizontal: -spacing.lg }}>

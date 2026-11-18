@@ -6,7 +6,8 @@ import { formatRelativeTime, machineStatus } from '@dashboard/lib';
 import type { Machine } from '@dashboard/types';
 import { useAccount } from '@/state/AccountContext';
 import { spacing } from '@/theme/palette';
-import { MachineRow } from './MachineRow';
+import { ConnectionBanner } from './ConnectionBanner';
+import { MachineRow, shortOs } from './MachineRow';
 import { Sheet } from './Sheet';
 import { Badge, Button, Card, Notice, StatusDot, T } from './ui';
 
@@ -18,16 +19,18 @@ export function MachineHeader({ machine }: { machine: Machine }) {
   const status = machineStatus(machine);
   return (
     <View style={{ padding: spacing.lg, paddingBottom: 0, gap: spacing.sm }}>
+      <ConnectionBanner />
       <Card>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
           <StatusDot status={status} />
           <T variant="title" style={{ flex: 1 }} numberOfLines={1}>
             {machine.name}
           </T>
-          {machine.remoteToolApproval ? <Badge tone="success" label={t('machines.remoteApprovalOn')} /> : <Badge label={t('machines.remoteApprovalOff')} />}
         </View>
+        {/* Its own line: in longer languages a badge beside the name would truncate the name. */}
+        <Badge tone={machine.remoteToolApproval ? 'success' : 'neutral'} label={t('machines.colRemoteApproval') + ': ' + (machine.remoteToolApproval ? t('machines.remoteApprovalOn') : t('machines.remoteApprovalOff'))} />
         <T variant="small">
-          {[machine.online ? t('machines.statusOnline') : machine.lastSeenUtc ? t('mobile.machine.lastSeen', { time: formatRelativeTime(i18n.language, machine.lastSeenUtc) }) : t('machines.neverSeen'), machine.hostname, machine.os, machine.muxVersion ? 'mux ' + machine.muxVersion : '']
+          {[machine.online ? t('machines.statusOnline') : machine.lastSeenUtc ? t('mobile.machine.lastSeen', { time: formatRelativeTime(i18n.language, machine.lastSeenUtc) }) : t('machines.neverSeen'), machine.hostname, shortOs(machine.os), machine.muxVersion ? 'mux ' + machine.muxVersion : '']
             .filter(Boolean)
             .join(' · ')}
         </T>

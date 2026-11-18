@@ -1,3 +1,4 @@
+import '@/polyfills/intl';
 import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -33,9 +34,11 @@ function Root() {
   const locale = prefs.locale ?? deviceLocale();
   const [i18n] = useState(() => initI18n(locale));
   useEffect(() => {
+    // Wait for the saved preference: applying the device default first would undo a saved right-to-left choice.
+    if (!loaded) return;
     initI18n(locale);
     applyDirection(locale);
-  }, [locale]);
+  }, [locale, loaded]);
   if (!loaded) return null;
   return (
     <I18nextProvider i18n={i18n}>

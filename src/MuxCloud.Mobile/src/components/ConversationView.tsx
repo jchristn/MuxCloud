@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, TextInput, View, type ScrollViewInstance } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { I18nManager, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, TextInput, View, type ScrollViewInstance } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { ApiError } from '@dashboard/api';
 import { startChatStream, type ChatStreamEvent } from '@/relay/chatStream';
 import type { SseHandle } from '@/lib/sseTransport';
 import {
@@ -15,6 +15,7 @@ import {
   type PendingApproval,
   type Turn,
 } from '@/lib/transcript';
+import { folderName } from '@/lib/sessions';
 import { createMachineSocket } from '@/state/accountEvents';
 import { useAuth } from '@/state/AuthContext';
 import { useMachineApi } from '@/state/useMachineApi';
@@ -22,6 +23,7 @@ import type { MuxEndpointSummary, MuxSessionDetail } from '@/types/mux';
 import { useTheme } from '@/theme/ThemeContext';
 import { font, radius, spacing } from '@/theme/palette';
 import { ApprovalCard } from './ApprovalCard';
+import { ConnectionBanner } from './ConnectionBanner';
 import { Sheet } from './Sheet';
 import { TurnView } from './TurnView';
 import { Button, ErrorBox, ListRow, Loading, Notice, T, ToggleRow } from './ui';
@@ -54,7 +56,6 @@ const nextKey = () => 'live' + ++turnSeq;
 export function ConversationView(props: ConversationViewProps) {
   const { machineId, machineName, online, initialEndpoint, workingDirectory, onSessionCreated, onOpenScreen, onNewConversation } = props;
   const p = useTheme();
-  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { auth } = useAuth();
   const api = useMachineApi(machineId);
@@ -75,6 +76,13 @@ export function ConversationView(props: ConversationViewProps) {
   const [mirroring, setMirroring] = useState(false);
   const stream = useRef<SseHandle | null>(null);
   const liveTurn = useRef<Turn | null>(null);
+  /** Run id of the mirrored run, so a replayed run_started (after a reconnect) resets the live turn instead of adding one. */
+  const liveRunId = useRef<string | null>(null);
+  /** When this screen's own turn last finished. mux saves streamed runs without their tool calls, so reloading the
+   * transcript right after our own turn would drop the tool lines the user just watched. */
+  const ownFinishedAt = useRef(0);
+  /** Set when the user taps Stop, so the end of the run is acknowledged in the transcript. */
+  const stopRequested = useRef(false);
   const scroll = useRef<ScrollViewInstance>(null);
 
   const [propSession, setPropSession] = useState(props.sessionId);
@@ -84,7 +92,9 @@ export function ConversationView(props: ConversationViewProps) {
   }
 
   const loadDetail = useCallback(async () => {
-    if (!sessionId) {
+    // A new conversation gets its id from the run event, but mux saves it only when the turn ends: loading it while
+    // this screen is still streaming that turn would 404. The transcript is already on screen.
+    if (!sessionId || stream.current) {
       setLoading(false);
       return;
     }
@@ -95,7 +105,10 @@ export function ConversationView(props: ConversationViewProps) {
       setEndpoint((current) => current || d.EndpointName);
       setError(null);
     } catch (e) {
-      setError(e);
+      // A conversation whose first turn is still running is not saved yet (mux writes it when the turn ends). The
+      // live turn arrives over the machine socket, so a 404 here is not an error.
+      if (e instanceof ApiError && e.status === 404) setError(null);
+      else setError(e);
     } finally {
       setLoading(false);
     }
@@ -122,8 +135,11 @@ export function ConversationView(props: ConversationViewProps) {
     const socket = createMachineSocket(auth, machineId, {
       subscription: { sessionId },
       onFrame: (frame) => {
+        // Any frame that names the run (approvals, run_started, run_completed) tells Stop what to cancel.
+        if (frame.runId && !stream.current && frame.eventType !== 'run_completed') setRunId(frame.runId);
         const approval = approvalFromFrame(frame, Date.now());
         if (approval) {
+          Keyboard.dismiss();
           setApprovals((list) => (list.some((a) => a.toolCallId === approval.toolCallId) ? list : [...list, approval]));
           return;
         }
@@ -132,18 +148,35 @@ export function ConversationView(props: ConversationViewProps) {
           return;
         }
         if (frame.eventType === 'transcript_changed') {
-          if (!stream.current) void loadDetail();
+          if (!stream.current && Date.now() - ownFinishedAt.current > 5000) void loadDetail();
           return;
         }
         // While this screen streams its own turn over SSE, the same run's frames also arrive here: ignore them.
         // Only run_started and run_completed carry a runId, so a mirrored run is tracked from its start.
         if (stream.current) return;
         if (frame.eventType === 'run_started') {
+          const existing = liveTurn.current;
+          if (existing && (!frame.runId || frame.runId === liveRunId.current)) {
+            // The socket reconnected and mux replays the run from its start: begin the same turn again.
+            existing.content = '';
+            existing.thinking = undefined;
+            existing.tools = [];
+            setTurns((list) => list.map((x) => (x.key === existing.key ? { ...existing } : x)));
+            return;
+          }
           const turn: Turn = { key: nextKey(), role: 'assistant', content: '', tools: [], pending: true };
           liveTurn.current = turn;
+          liveRunId.current = frame.runId ?? null;
           setMirroring(true);
           setRunId(frame.runId ?? null);
           setTurns((list) => [...list, turn]);
+          return;
+        }
+        if (frame.eventType === 'run_completed' && !liveTurn.current) {
+          setMirroring(false);
+          setRunId(null);
+          setApprovals([]);
+          void loadDetail();
           return;
         }
         const live = liveTurn.current;
@@ -151,7 +184,12 @@ export function ConversationView(props: ConversationViewProps) {
           const finished = applyRunFrame(live, frame);
           setTurns((list) => list.map((x) => (x.key === live.key ? { ...live, tools: [...live.tools] } : x)));
           if (finished) {
+            if (stopRequested.current) {
+              stopRequested.current = false;
+              setTurns((list) => [...list, { key: nextKey(), role: 'system', content: t('mobile.chat.stopped'), tools: [], displayOnly: true }]);
+            }
             liveTurn.current = null;
+            liveRunId.current = null;
             setMirroring(false);
             setRunId(null);
             setApprovals([]);
@@ -162,9 +200,29 @@ export function ConversationView(props: ConversationViewProps) {
     });
     socket.start();
     return () => socket.stop();
-  }, [auth, machineId, sessionId, online, loadDetail]);
+  }, [auth, machineId, sessionId, online, loadDetail, t]);
 
   useEffect(() => () => stream.current?.abort(), []);
+
+  // Opening a conversation whose run is already in progress (from the approvals inbox, a notification, or another
+  // device): find that run so Stop can cancel it even before any frame names it.
+  useEffect(() => {
+    if (!sessionId || !online) return;
+    let alive = true;
+    void api
+      .runs()
+      .then((r) => {
+        const active = (r.Items ?? []).find((run) => run.SessionId === sessionId && !run.IsTerminal);
+        if (alive && active && !stream.current) {
+          setRunId(active.RunId);
+          setMirroring(true);
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [api, sessionId, online]);
 
   const decide = useCallback(
     (approval: PendingApproval, decision: 'y' | 'always' | 'n') => {
@@ -192,6 +250,7 @@ export function ConversationView(props: ConversationViewProps) {
         return;
       }
       if (event.type === 'approval') {
+        Keyboard.dismiss();
         const a = event.approval;
         setApprovals((list) =>
           list.some((x) => x.toolCallId === a.ToolCallId)
@@ -213,6 +272,7 @@ export function ConversationView(props: ConversationViewProps) {
     };
     const finish = () => {
       stream.current = null;
+      ownFinishedAt.current = Date.now();
       setBusy(false);
       setRunId(null);
       setApprovals([]);
@@ -289,6 +349,7 @@ export function ConversationView(props: ConversationViewProps) {
   };
 
   const stop = () => {
+    stopRequested.current = true;
     stream.current?.abort();
     if (runId) void api.cancelRun(runId).catch(() => undefined);
   };
@@ -330,11 +391,22 @@ export function ConversationView(props: ConversationViewProps) {
       >
         <View style={{ gap: spacing.xs }}>
           <T variant="title">{title}</T>
-          <T variant="small">{[machineName, detail?.WorkingDirectory || workingDirectory].filter(Boolean).join(' · ')}</T>
+          <T variant="small" numberOfLines={1}>{[machineName, folderName(detail?.WorkingDirectory || workingDirectory)].filter(Boolean).join(' · ')}</T>
         </View>
+        <ConnectionBanner />
         {!online ? <Notice tone="warning" text={t('machineDetail.offlineTitle', { name: machineName })} /> : null}
         {mirroring ? <Notice text={t('mobile.chat.mirroring')} /> : null}
         {loading ? <Loading /> : null}
+        {!loading && turns.length === 0 ? (
+          <View style={{ paddingVertical: spacing.xxl, gap: spacing.sm, alignItems: 'center' }}>
+            <T variant="title" style={{ textAlign: 'center' }}>
+              {t('mobile.chat.emptyTitle')}
+            </T>
+            <T variant="muted" style={{ textAlign: 'center' }}>
+              {t('mobile.chat.emptyBody', { machine: machineName, folder: folderName(workingDirectory) || t('mobile.chat.defaultFolder') })}
+            </T>
+          </View>
+        ) : null}
         {turns.map((turn) => (
           <TurnView key={turn.key} turn={turn} />
         ))}
@@ -358,14 +430,30 @@ export function ConversationView(props: ConversationViewProps) {
         ) : null}
         {error ? <ErrorBox error={error} onRetry={() => void loadDetail()} /> : null}
       </ScrollView>
-      <View style={{ borderTopColor: p.line, borderTopWidth: 1, backgroundColor: p.panel, padding: spacing.sm, paddingBottom: Math.max(insets.bottom, spacing.sm), gap: spacing.xs }}>
+      {/* The tab bar below already sits on the home indicator, so the composer adds no bottom inset of its own. */}
+      <View style={{ borderTopColor: p.line, borderTopWidth: 1, backgroundColor: p.panel, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, gap: spacing.xs }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
           <Pressable onPress={() => setPickEndpoint(true)} accessibilityRole="button" accessibilityLabel={t('mobile.chat.endpoint')} style={{ flex: 1, minHeight: 32, justifyContent: 'center' }}>
-            <T variant="small" numberOfLines={1}>
+            <T variant="small" numberOfLines={1} style={{ color: p.accent }}>
               {t('mobile.chat.endpointValue', { endpoint: endpoint || t('mobile.chat.noEndpointShort') })}
             </T>
           </Pressable>
-          <Pressable onPress={() => setPlanMode((v) => !v)} accessibilityRole="switch" accessibilityState={{ checked: planMode }} style={{ minHeight: 32, justifyContent: 'center' }}>
+          <Pressable
+            onPress={() => setPlanMode((v) => !v)}
+            accessibilityRole="switch"
+            accessibilityState={{ checked: planMode }}
+            accessibilityHint={t('mobile.chat.planModeHint')}
+            hitSlop={{ top: 6, bottom: 6, left: 8, right: 4 }}
+            style={{
+              minHeight: 32,
+              paddingHorizontal: spacing.md,
+              justifyContent: 'center',
+              borderRadius: radius.pill,
+              borderWidth: 1,
+              borderColor: planMode ? p.accent : p.line,
+              backgroundColor: planMode ? p.accentSoft : 'transparent',
+            }}
+          >
             <T variant="small" style={{ color: planMode ? p.accent : p.muted, fontWeight: '600' }}>
               {t('mobile.chat.planMode')}
             </T>
@@ -373,6 +461,7 @@ export function ConversationView(props: ConversationViewProps) {
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm }}>
           <TextInput
+            testID="composer"
             value={input}
             onChangeText={setInput}
             placeholder={online ? t('mobile.chat.placeholder') : t('errors.MachineOffline')}
@@ -392,12 +481,13 @@ export function ConversationView(props: ConversationViewProps) {
               color: p.text,
               backgroundColor: p.bg,
               fontSize: font.body,
+              textAlign: I18nManager.isRTL ? 'right' : 'left',
             }}
           />
           {busy || mirroring ? (
-            <Button title={t('mobile.chat.stop')} kind="danger" onPress={stop} />
+            <Button testID="stop" title={t('mobile.chat.stop')} kind="danger" onPress={stop} />
           ) : (
-            <Button title={t('mobile.chat.send')} onPress={() => void send()} disabled={!online || !input.trim()} />
+            <Button testID="send" title={t('mobile.chat.send')} onPress={() => void send()} disabled={!online || !input.trim()} />
           )}
         </View>
       </View>

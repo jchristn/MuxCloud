@@ -55,7 +55,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       { backgroundColor: SPLASH_BACKGROUND, image: './assets/images/splash-icon.png', imageWidth: 160 },
     ],
     ['expo-secure-store', { faceIDPermission: FACE_ID_USAGE }],
-    'expo-localization',
+    // Arabic (and the RTL pseudo-locale) mirror the layout; without this flag iOS and Android ignore forceRTL.
+    ['expo-localization', { supportsRTL: true }],
     ['expo-local-authentication', { faceIDPermission: FACE_ID_USAGE }],
     ['expo-notifications', { color: '#167a5b', icon: './assets/images/notification-icon.png' }],
     'expo-font',
@@ -69,6 +70,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     releaseVersion: VERSION,
+    // Expo Go reads this to allow I18nManager.forceRTL.
+    supportsRTL: true,
+    // QA: Expo Go reapplies direction from the manifest on every load (in-app forceRTL does not persist there), so
+    // MUXCLOUD_MOBILE_FORCE_RTL=1 npx expo start previews the right-to-left layout. Real builds use the in-app choice.
+    forcesRTL: process.env.MUXCLOUD_MOBILE_FORCE_RTL === '1' ? true : undefined,
     eas: EAS_PROJECT_ID ? { projectId: EAS_PROJECT_ID } : undefined,
   },
 });

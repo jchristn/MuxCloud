@@ -5,6 +5,11 @@ import type { Machine } from '@dashboard/types';
 import { spacing } from '@/theme/palette';
 import { Badge, ListRow, StatusDot } from './ui';
 
+/** "macOS 26.6.0 Arm64" becomes "macOS 26.6.0": the CPU architecture rarely matters at list level. */
+export function shortOs(os: string | undefined): string {
+  return (os ?? '').replace(/\s+(Arm64|X64|X86|Arm|aarch64|x86_64|amd64)$/i, '');
+}
+
 const STATUS_KEY = { online: 'machines.statusOnline', offline: 'machines.statusOffline', revoked: 'machines.statusRevoked', approval: 'machines.statusApproval' } as const;
 
 /** One machine: live status, version, last seen, active runs, and an approval badge. */
@@ -15,7 +20,7 @@ export function MachineRow({ machine, onPress, selected }: { machine: Machine; o
   return (
     <ListRow
       title={machine.name}
-      subtitle={[seen, machine.muxVersion ? 'mux ' + machine.muxVersion : '', machine.os ?? ''].filter(Boolean).join(' · ')}
+      subtitle={[seen, machine.muxVersion ? 'mux ' + machine.muxVersion : '', shortOs(machine.os)].filter(Boolean).join(' · ')}
       leading={<StatusDot status={status} />}
       selected={selected}
       onPress={onPress}

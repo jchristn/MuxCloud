@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ApiClient, healthApi } from '@dashboard/api';
+import { ApiClient, ApiError, healthApi } from '@dashboard/api';
 import { AuthFrame } from '@/components/AuthFrame';
 import { Button, ErrorBox, Field, Notice } from '@/components/ui';
 import { DEFAULT_SERVER_URL, isInsecureServer, normalizeServerUrl } from '@/storage/prefs';
@@ -28,15 +28,16 @@ export default function Server() {
       update({ serverUrl: normalized });
       router.back();
     } catch (e) {
-      setError(e);
+      if (e instanceof ApiError && e.status === 0) setProblem(t('mobile.server.unreachable', { url: normalized }));
+      else setError(e);
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <AuthFrame title={t('mobile.server.title')} subtitle={t('mobile.server.subtitle')}>
-      <Field label={t('mobile.server.url')} value={url} onChangeText={setUrl} autoCapitalize="none" autoCorrect={false} keyboardType="url" placeholder={DEFAULT_SERVER_URL} />
+    <AuthFrame title={t('mobile.server.title')} subtitle={t('mobile.server.subtitle')} showServer={false}>
+      <Field testID="server-url" label={t('mobile.server.url')} value={url} onChangeText={setUrl} autoCapitalize="none" autoCorrect={false} keyboardType="url" placeholder={DEFAULT_SERVER_URL} />
       {isInsecureServer(normalizeServerUrl(url)) ? <Notice tone="warning" text={t('mobile.auth.insecure')} /> : null}
       {problem ? <Notice tone="danger" text={problem} /> : null}
       {error ? <ErrorBox error={error} /> : null}

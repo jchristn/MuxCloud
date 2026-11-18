@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Linking, Pressable, Switch, View } from 'react-native';
+import { Linking, Switch, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Trans, useTranslation } from 'react-i18next';
 import { authApi } from '@dashboard/api';
@@ -28,6 +28,7 @@ export default function SignUp() {
 
   const submit = async () => {
     setProblem(null);
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) return setProblem(t('mobile.auth.emailRequired'));
     if (password.length < 10) return setProblem(t('auth.passwordTooShort'));
     if (password !== confirm) return setProblem(t('auth.passwordMismatch'));
     if (!accept) return setProblem(t('auth.acceptTermsRequired'));
@@ -47,7 +48,7 @@ export default function SignUp() {
     <AuthFrame title={t('auth.signupTitle')} subtitle={t('auth.signupSubtitle')}>
       <Field label={t('auth.firstName')} value={firstName} onChangeText={setFirstName} autoComplete="given-name" />
       <Field label={t('auth.lastName')} value={lastName} onChangeText={setLastName} autoComplete="family-name" />
-      <Field label={t('common.email')} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" autoComplete="email" autoCorrect={false} />
+      <Field testID="signup-email" label={t('common.email')} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" autoComplete="email" autoCorrect={false} />
       <Field label={t('auth.password')} hint={t('auth.passwordHint')} value={password} onChangeText={setPassword} secureTextEntry autoComplete="new-password" textContentType="newPassword" />
       <Field label={t('auth.confirmPassword')} value={confirm} onChangeText={setConfirm} secureTextEntry autoComplete="new-password" />
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
@@ -57,28 +58,16 @@ export default function SignUp() {
             <Trans
               i18nKey="auth.acceptTerms"
               components={{
-                terms: <T style={{ color: p.accent, textDecorationLine: 'underline' }} accessibilityRole="link">{''}</T>,
-                privacy: <T style={{ color: p.accent, textDecorationLine: 'underline' }} accessibilityRole="link">{''}</T>,
+                terms: <Text style={{ color: p.accent, textDecorationLine: 'underline' }} accessibilityRole="link" onPress={() => void Linking.openURL(TERMS_URL)} suppressHighlighting={false} />,
+                privacy: <Text style={{ color: p.accent, textDecorationLine: 'underline' }} accessibilityRole="link" onPress={() => void Linking.openURL(PRIVACY_URL)} />,
               }}
             />
           </T>
-          <View style={{ flexDirection: 'row', gap: spacing.lg, marginTop: spacing.xs }}>
-            <Pressable onPress={() => void Linking.openURL(TERMS_URL)} accessibilityRole="link" hitSlop={8}>
-              <T variant="small" style={{ color: p.accent }}>
-                {t('mobile.auth.readTerms')}
-              </T>
-            </Pressable>
-            <Pressable onPress={() => void Linking.openURL(PRIVACY_URL)} accessibilityRole="link" hitSlop={8}>
-              <T variant="small" style={{ color: p.accent }}>
-                {t('mobile.auth.readPrivacy')}
-              </T>
-            </Pressable>
-          </View>
         </View>
       </View>
       {problem ? <T style={{ color: p.danger }}>{problem}</T> : null}
       {error ? <ErrorBox error={error} /> : null}
-      <Button title={busy ? t('auth.creating') : t('auth.createButton')} busy={busy} onPress={() => void submit()} disabled={!email.trim()} />
+      <Button title={busy ? t('auth.creating') : t('auth.createButton')} busy={busy} onPress={() => void submit()} />
       <Button title={t('auth.haveAccount') + ' ' + t('auth.signIn')} kind="ghost" onPress={() => router.replace('/sign-in')} />
     </AuthFrame>
   );

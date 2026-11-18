@@ -113,9 +113,14 @@ export function applyRunFrame(turn: Turn, frame: MuxWsFrame): boolean {
     case 'assistant_thinking':
       turn.thinking = (turn.thinking ?? '') + (frame.text ?? '');
       return false;
-    case 'tool_call_proposed':
-      turn.tools.push({ id: frame.toolCall?.id ?? '', name: frame.toolCall?.name ?? '', status: 'running' });
+    case 'tool_call_proposed': {
+      // Replayed runs (after a reconnect) send the same proposal again: keep one line per tool call.
+      const id = frame.toolCall?.id ?? '';
+      const existing = id ? turn.tools.find((t) => t.id === id) : undefined;
+      if (existing) existing.status = 'running';
+      else turn.tools.push({ id, name: frame.toolCall?.name ?? '', status: 'running' });
       return false;
+    }
     case 'tool_call_completed': {
       const ok = frame.result?.success !== false;
       const line = turn.tools.find((t) => t.id === frame.toolCallId);
@@ -133,6 +138,8 @@ export function applyRunFrame(turn: Turn, frame: MuxWsFrame): boolean {
       return false;
     case 'run_completed':
       turn.pending = false;
+      // A canceled or failed run leaves its unfinished tool calls behind; they will not complete now.
+      for (const t of turn.tools) if (t.status === 'running') t.status = 'canceled';
       return true;
     default:
       return false;

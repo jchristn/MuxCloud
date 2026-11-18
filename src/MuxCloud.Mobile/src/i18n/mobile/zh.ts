@@ -1,22 +1,22 @@
 import type { MobileCatalog } from './en';
 
 export const zh: MobileCatalog = {
-  common: { back: '返回', confirm: '确认', all: '全部', name: '名称', filter: '筛选' },
-  auth: { server: '服务器：{{url}}', changeServer: '更换服务器', insecure: '此服务器使用未加密的 HTTP。你的密码和对话在传输中不受加密保护。离开自己的网络时请使用 HTTPS。', readTerms: '服务条款', readPrivacy: '隐私政策', verifyCode: '验证码', verifyCodeHint: '可选：粘贴邮件链接末尾的验证码。', verifyButton: '验证' },
-  server: { title: 'Mux Cloud 服务器', subtitle: '使用 app.usemux.ai，或你自己托管的 Mux Cloud 服务器。', url: '服务器地址', connect: '连接', useDefault: '使用 app.usemux.ai', invalid: '请输入类似 https://app.usemux.ai 的地址。', notMuxCloud: '该地址有响应，但不是 Mux Cloud 服务器。' },
-  machine: { lastSeen: '上次在线 {{time}}', awaiting: '{{count}} 个等待中', runs: '{{count}} 个运行中', manage: '管理', liveReconnecting: '实时更新正在重新连接。下拉以刷新。', offlineConversations: '对话保存在这台电脑上，重新连接后就会显示。', pickConversation: '选择一个对话' },
+  common: { back: '返回', confirm: '确认', all: '全部', name: '名称', filter: '筛选', details: '详情', less: '收起' },
+  auth: { server: '服务器：{{url}}', changeServer: '更换服务器', insecure: '此服务器使用未加密的 HTTP。你的密码和对话在传输中不受加密保护。离开自己的网络时请使用 HTTPS。', readTerms: '服务条款', readPrivacy: '隐私政策', verifyCode: '验证码', verifyCodeHint: '可选：粘贴邮件链接末尾的验证码。', verifyButton: '验证', emailRequired: '请输入你的邮箱地址。' },
+  server: { title: 'Mux Cloud 服务器', subtitle: '使用 app.usemux.ai，或你自己托管的 Mux Cloud 服务器。', url: '服务器地址', connect: '连接', useDefault: '使用 app.usemux.ai', invalid: '请输入类似 https://app.usemux.ai 的地址。', notMuxCloud: '该地址有响应，但不是 Mux Cloud 服务器。', unreachable: '无法连接 {{url}}。请检查地址，并确认服务器正在运行。' },
+  machine: { lastSeen: '上次在线 {{time}}', awaiting: '{{count}} 个等待中', runs: '{{count}} 个运行中', manage: '管理', liveReconnecting: '实时更新正在重新连接。下拉以刷新。', liveDown: '正在重新连接 Mux Cloud。电脑状态和审批可能不是最新的。', offlineConversations: '对话保存在这台电脑上，重新连接后就会显示。', pickConversation: '选择一个对话' },
   chat: {
-    placeholder: '给 mux 发消息', send: '发送', stop: '停止', thinking: '思考中...', replying: 'mux 正在回复', showThinking: '显示思考过程', hideThinking: '隐藏思考过程', tokens: '{{count}} 个令牌', endpoint: '端点', endpointValue: '端点：{{endpoint}}',
+    placeholder: '给 mux 发消息', send: '发送', stop: '停止', thinking: '思考中...', emptyReply: '模型结束了，但没有写出回复。', stopped: '已停止。', toolStatus: { ok: '已完成', fail: '失败', running: '运行中', canceled: '已取消' }, emptyTitle: '开始对话', emptyBody: 'mux 在 {{machine}} 的 {{folder}} 中工作。提出问题，或描述要做的修改。', defaultFolder: 'mux 启动时所在的文件夹', replying: 'mux 正在回复', showThinking: '显示思考过程', hideThinking: '隐藏思考过程', tokens: '{{count}} 个令牌', endpoint: '端点', endpointValue: '端点：{{endpoint}}',
     noEndpoint: '这台电脑还没有端点。请在“管理”的“端点”中添加。', noEndpointShort: '无', planMode: '计划', planModeHint: '模型先提出计划，在你执行之前不会做任何更改。', planTitle: '提议的计划', runPlan: '执行此计划',
     switched: '已切换到端点 {{endpoint}}（{{model}}）', mirroring: '在其他界面启动的运行正在这里实时显示。', mirrorAlways: '应用中始终开启实时镜像：任何地方启动的运行都会显示在这里。', unknownCommand: '未知命令：{{command}}（试试 /?）', noStats: '还没有完成的回合。',
     statsBody: '**上一回合**\n\n- 模型：`{{model}}`\n- 首个令牌用时：{{ttft}} ms\n- 流式输出：{{streaming}} ms\n- 总计：{{total}} ms\n- 令牌：输入 {{input}}，输出 {{output}}',
     help: '**聊天命令**\n\n- `/?`、`/help`：显示此列表\n- `/new`、`/clear`：开始新对话\n- `/context`、`/stats`：上一回合的用时和令牌\n- `/usage`、`/endpoints`、`/models`、`/mcp`、`/prompts`、`/skills`、`/subagents`、`/pricing`、`/hooks`、`/commands`、`/keybindings`、`/settings`：打开对应页面\n- `/<skill> 参数`：运行一个技能',
   },
-  approval: { title: '允许 mux 运行 {{tool}} 吗？', aTool: '一个工具', onMachine: '在 {{name}} 上', approve: '批准', always: '本次会话都批准', deny: '拒绝', autoIn: '{{seconds}} 秒后自动批准', noAuto: '此端点已关闭自动批准。' },
+  approval: { title: '允许 mux 使用 {{tool}} 吗？', aTool: '一个工具', onMachine: '在 {{name}} 上', approve: '批准', always: '本次会话都批准', deny: '拒绝', autoIn: '{{seconds}} 秒后自动批准', noAuto: '此端点已关闭自动批准。' },
   approvals: { tab: '审批', title: '等待审批', intro: '你的电脑上暂停等待工具审批的运行。', waiting: '等待中', empty: '没有等待中的项目', emptyBody: '当某次运行需要工具审批时，会显示在这里并发送通知。', open: '打开 {{name}} 上等待中的运行', someOff: '部分电脑关闭了远程工具审批。从这里在这些电脑上启动的运行会拒绝需要审批的工具。' },
   new: { endpoint: '端点和模型', addEndpoint: '添加端点', default: '默认', folder: '工作文件夹', folderPath: '电脑上的文件夹', folderHint: '电脑上任意已存在的文件夹。留空则使用 mux 当前运行的位置。', folderPlaceholder: '/Users/me/projects/app', home: '主文件夹', sessions: '{{count}} 个对话', start: '开始对话' },
   session: { title: '标题', rename: '重命名', labelsHint: '用逗号分隔。', tags: '标记', tagsHint: '用逗号分隔的 键=值 对。', saveMetadata: '保存标签和标记', export: '导出', share: '导出并分享', deleteTitle: '删除“{{title}}”？', deleteBody: '对话将从电脑上删除，且无法恢复。', select: '选择', deleteSelected: '删除所选的 {{count}} 个', bulkDeleteTitle: '删除 {{count}} 个对话？', longPressHint: '长按查看操作。' },
-  manage: {
+  manage: { addOne: { endpoints: '添加端点', mcp: '添加 MCP 服务器', prompts: '添加提示词', subagents: '添加子代理', hooks: '添加钩子', commands: '添加命令', keybindings: '添加快捷键' }, none: { endpoints: '还没有端点', mcp: '还没有 MCP 服务器', prompts: '还没有提示词', subagents: '还没有子代理', hooks: '还没有钩子', commands: '还没有自定义命令', keybindings: '还没有快捷键' },
     configure: '配置', defaultEndpoint: '默认端点', noDefault: '还没有默认端点。', environment: '环境', version: 'mux 版本', uptime: '运行时间', activePrompt: '当前提示词', auth: 'API 密钥', configDir: '配置文件夹', cloudIncluded: '包含 Mux Cloud',
     endpoints: '端点', endpointsIntro: '这台电脑可以使用的模型后端。', mcp: 'MCP 服务器', mcpIntro: 'mux 连接的工具服务器。', prompts: '提示词', promptsIntro: '系统提示词配置，只有一个处于启用状态。', subagents: '子代理', subagentsIntro: '主代理可以委派任务的专用代理。',
     hooks: '钩子', hooksIntro: '在代理事件发生时运行的命令。', commands: '自定义命令', commandsIntro: '运行程序的斜杠命令。', keybindings: '快捷键', keybindingsIntro: 'mux 终端界面的快捷键。',

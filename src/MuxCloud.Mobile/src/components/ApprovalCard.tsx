@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { AppState, ScrollView, View } from 'react-native';
+import { AppState, ScrollView, View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { PendingApproval } from '@/lib/transcript';
 import { useTheme } from '@/theme/ThemeContext';
@@ -15,6 +15,8 @@ export function ApprovalCard({ approval, onDecide, machineName }: { approval: Pe
   const p = useTheme();
   const { t } = useTranslation();
   const [remainingMs, setRemainingMs] = useState(approval.autoApproveSeconds * 1000);
+  const { width } = useWindowDimensions();
+  const stacked = width < 600;
   const decided = useRef(false);
   const last = useRef(0);
 
@@ -67,10 +69,11 @@ export function ApprovalCard({ approval, onDecide, machineName }: { approval: Pe
       <T variant="small">
         {approval.autoApproveSeconds > 0 ? t('mobile.approval.autoIn', { seconds: Math.ceil(remainingMs / 1000) }) : t('mobile.approval.noAuto')}
       </T>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-        <Button title={t('mobile.approval.approve')} onPress={() => decide('y')} />
-        <Button title={t('mobile.approval.always')} kind="secondary" onPress={() => decide('always')} />
-        <Button title={t('mobile.approval.deny')} kind="danger" onPress={() => decide('n')} />
+      {/* Phones stack the three choices full width (large, unambiguous targets); tablets keep them on one row. */}
+      <View style={{ flexDirection: stacked ? 'column' : 'row', gap: spacing.sm }}>
+        <Button testID="approve" title={t('mobile.approval.approve')} onPress={() => decide('y')} style={stacked ? undefined : { flex: 1 }} />
+        <Button testID="approve-always" title={t('mobile.approval.always')} kind="secondary" onPress={() => decide('always')} style={stacked ? undefined : { flex: 1 }} />
+        <Button testID="deny" title={t('mobile.approval.deny')} kind="danger" onPress={() => decide('n')} style={stacked ? undefined : { flex: 1 }} />
       </View>
     </View>
   );

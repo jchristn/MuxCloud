@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { RefreshControl, ScrollView, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { RefreshControl, ScrollView, View, type ScrollViewInstance } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -42,6 +42,10 @@ export default function Usage() {
 
   const m = (summary.data?.Metrics ?? {}) as Metrics;
   const buckets = series.data ?? [];
+  const [chartWidth, setChartWidth] = useState(0);
+  const chartScroll = useRef<ScrollViewInstance>(null);
+  const barGap = buckets.length > 60 ? 1 : 3;
+  const barWidth = chartWidth > 0 && buckets.length > 0 ? Math.max(2, Math.min(16, Math.floor((chartWidth - barGap * (buckets.length - 1)) / buckets.length))) : 10;
   const fractions = barFractions(buckets.map((b) => metricValue(b.Metrics as Metrics, metric)));
   const fmt = (v: number) => (metric === 'cost' ? formatNumber(lang, v, { style: 'currency', currency: 'USD' }) : formatNumber(lang, v));
   const reload = () => {
@@ -94,18 +98,22 @@ export default function Usage() {
       <Section title={t('mobile.usage.timeline')}>
         <Segmented value={metric} onChange={setMetric} options={(['tokens', 'calls', 'cost'] as UsageMetric[]).map((v) => ({ value: v, label: t('mobile.usage.' + v) }))} />
         {buckets.length === 0 && !series.loading ? <Empty title={t('mobile.usage.empty')} /> : null}
-        <ScrollView horizontal accessibilityLabel={t('mobile.usage.timeline')}>
-          <View style={{ flexDirection: 'row', alignItems: 'flex-end', height: 140, gap: 3, paddingVertical: spacing.sm }}>
-            {buckets.map((b, i) => (
-              <View
-                key={String(b.BucketStartUnixMs ?? i)}
-                accessible
-                accessibilityLabel={formatDateTime(lang, Number(b.BucketStartUnixMs)) + ': ' + fmt(metricValue(b.Metrics as Metrics, metric))}
-                style={{ width: 10, height: Math.max(2, fractions[i] * 120), backgroundColor: p.accent, borderRadius: 2 }}
-              />
-            ))}
-          </View>
-        </ScrollView>
+        {/* Bars share the available width (a day is 96 buckets); when they cannot fit, the chart scrolls and opens
+            at the latest bucket, where recent activity is. */}
+        <View onLayout={(e) => setChartWidth(e.nativeEvent.layout.width)}>
+          <ScrollView horizontal ref={chartScroll} onContentSizeChange={() => chartScroll.current?.scrollToEnd({ animated: false })} accessibilityLabel={t('mobile.usage.timeline')}>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end', height: 140, gap: barGap, paddingVertical: spacing.sm }}>
+              {buckets.map((b, i) => (
+                <View
+                  key={String(b.BucketStartUnixMs ?? i)}
+                  accessible
+                  accessibilityLabel={formatDateTime(lang, Number(b.BucketStartUnixMs)) + ': ' + fmt(metricValue(b.Metrics as Metrics, metric))}
+                  style={{ width: barWidth, height: Math.max(2, fractions[i] * 120), backgroundColor: fractions[i] > 0 ? p.accent : p.line, borderRadius: 2 }}
+                />
+              ))}
+            </View>
+          </ScrollView>
+        </View>
       </Section>
       <Section title={t('mobile.usage.breakdown')}>
         <Segmented value={dimension} onChange={setDimension} options={DIMENSIONS.map((d) => ({ value: d, label: t('mobile.usage.dims.' + d) }))} />

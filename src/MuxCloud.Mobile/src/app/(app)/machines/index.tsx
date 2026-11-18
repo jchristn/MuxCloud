@@ -3,6 +3,7 @@ import { RefreshControl, View } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { machineTotals } from '@dashboard/lib';
+import { ConnectionBanner } from '@/components/ConnectionBanner';
 import { MachineRow } from '@/components/MachineRow';
 import { RemoteNotice } from '@/components/RemoteNotice';
 import { Button, Card, Empty, ErrorBox, Field, Loading, Screen, Segmented, T } from '@/components/ui';
@@ -14,7 +15,7 @@ type StateFilter = 'all' | 'online' | 'offline';
 /** Every machine on the account with live online and offline state. */
 export default function Machines() {
   const { t } = useTranslation();
-  const { machines, loading, error, refresh, liveState } = useAccount();
+  const { machines, loading, error, refresh } = useAccount();
   const [search, setSearch] = useState('');
   const [state, setState] = useState<StateFilter>('all');
   const totals = machineTotals(machines);
@@ -30,6 +31,7 @@ export default function Machines() {
 
   return (
     <Screen refreshControl={<RefreshControl refreshing={loading && machines.length > 0} onRefresh={() => void refresh()} />}>
+      {machines.length > 0 || !error ? (
       <View style={{ flexDirection: 'row', gap: spacing.sm }}>
         <Card style={{ flex: 1 }}>
           <T variant="heading">{totals.online + ' / ' + totals.total}</T>
@@ -44,7 +46,9 @@ export default function Machines() {
           <T variant="small">{t('machines.kpiAwaiting')}</T>
         </Card>
       </View>
-      {liveState !== 'open' && !loading ? <T variant="small">{t('mobile.machine.liveReconnecting')}</T> : null}
+      ) : null}
+      {/* A failed load already says Mux Cloud is unreachable; the reconnect banner would repeat it. */}
+      {error ? null : <ConnectionBanner />}
       <Field label={t('common.search')} placeholder={t('machines.searchPlaceholder')} value={search} onChangeText={setSearch} autoCapitalize="none" autoCorrect={false} />
       <Segmented
         label={t('machines.stateFilter')}
@@ -58,7 +62,7 @@ export default function Machines() {
       />
       {error ? <ErrorBox error={error} onRetry={() => void refresh()} /> : null}
       {loading && machines.length === 0 ? <Loading /> : null}
-      {!loading && machines.length === 0 ? (
+      {!loading && !error && machines.length === 0 ? (
         <Empty title={t('machines.emptyTitle')} body={t('machines.emptyBody')} action={<Button title={t('machines.addMachine')} onPress={() => router.push('/account/add-machine')} />} />
       ) : null}
       {machines.length > 0 && visible.length === 0 ? <Empty title={t('machines.noMatches')} /> : null}
@@ -68,7 +72,7 @@ export default function Machines() {
         ))}
       </View>
       {machines.length > 0 ? <Button title={t('machines.addMachine')} kind="secondary" onPress={() => router.push('/account/add-machine')} /> : null}
-      <RemoteNotice />
+      <RemoteNotice collapsible />
     </Screen>
   );
 }

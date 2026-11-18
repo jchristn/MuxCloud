@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { formatDuration } from '@dashboard/lib';
+import { formatDuration } from '@/lib/duration';
 import type { Turn } from '@/lib/transcript';
 import { useTheme } from '@/theme/ThemeContext';
 import { radius, spacing } from '@/theme/palette';
@@ -44,10 +44,14 @@ export function TurnView({ turn }: { turn: Turn }) {
       ) : null}
       {turn.tools.length > 0 ? (
         <View style={{ gap: spacing.xs }}>
-          {turn.tools.map((tool) => (
-            <View key={tool.id || tool.name} style={{ flexDirection: 'row', gap: spacing.sm, alignItems: 'center' }}>
-              <T variant="small" style={{ color: tool.status === 'fail' ? p.danger : tool.status === 'running' ? p.warning : p.success }}>
-                {tool.status === 'fail' ? '✗' : tool.status === 'running' ? '…' : '✓'}
+          {turn.tools.map((tool, index) => (
+            <View key={(tool.id || tool.name) + ':' + index} style={{ flexDirection: 'row', gap: spacing.sm, alignItems: 'center' }}>
+              <T
+                variant="small"
+                accessibilityLabel={t('mobile.chat.toolStatus.' + (['ok', 'fail', 'running', 'canceled'].includes(tool.status) ? tool.status : 'ok'))}
+                style={{ color: tool.status === 'fail' ? p.danger : tool.status === 'running' ? p.warning : tool.status === 'canceled' ? p.muted : p.success }}
+              >
+                {tool.status === 'fail' ? '✗' : tool.status === 'running' ? '…' : tool.status === 'canceled' ? '–' : '✓'}
               </T>
               <T variant="mono" style={{ flex: 1 }} numberOfLines={1}>
                 {tool.name}
@@ -63,6 +67,10 @@ export function TurnView({ turn }: { turn: Turn }) {
         </View>
       ) : turn.pending ? (
         <T variant="muted">{t('mobile.chat.thinking')}</T>
+      ) : turn.tools.length === 0 ? (
+        <T variant="muted" style={{ fontStyle: 'italic' }}>
+          {t('mobile.chat.emptyReply')}
+        </T>
       ) : null}
       {turn.stats && !turn.pending ? (
         <T variant="small">

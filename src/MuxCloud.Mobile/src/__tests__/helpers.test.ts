@@ -97,3 +97,23 @@ describe('server URL and push links', () => {
     expect(routeForPush(null)).toBeNull();
   });
 });
+
+describe('folderName', () => {
+  it('keeps only the last segment of a working folder', () => {
+    const { folderName } = jest.requireActual('@/lib/sessions') as typeof import('@/lib/sessions');
+    expect(folderName('/Users/me/src/acme-api/')).toBe('acme-api');
+    expect(folderName('C:\\work\\repo')).toBe('repo');
+    expect(folderName('')).toBe('');
+    expect(folderName('/')).toBe('');
+  });
+});
+
+describe('formatDuration (Hermes-safe)', () => {
+  it('rounds before formatting', () => {
+    const { formatDuration } = jest.requireActual('@/lib/duration') as typeof import('@/lib/duration');
+    expect(formatDuration('en', 6849)).toBe('6.8 sec');
+    expect(formatDuration('en', 820)).toBe('820 ms');
+    expect(formatDuration('en', 125_000)).toBe('2 min 5 sec');
+    expect(formatDuration('en', null)).toBe('');
+  });
+});
