@@ -1,13 +1,20 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 // ---------------------------------------------------------------------------------------------------------------
 // MAINTAINER: before the first store build
 //   - BUNDLE_ID: iOS bundle identifier and Android application id. Override with MUXCLOUD_MOBILE_BUNDLE_ID.
 //   - EAS_PROJECT_ID: from `npx eas-cli init`. Push tokens need it; without it the app runs and push is off.
+//   - GOOGLE_SERVICES_JSON: Firebase config for Android push (project mux-ai-52eb1). EAS builds read it from the EAS
+//     file variable GOOGLE_SERVICES_JSON; local builds use ./google-services.json when present (git-ignored).
 //   - The Apple team id and store credentials live in eas.json / EAS credentials, never here.
 // ---------------------------------------------------------------------------------------------------------------
 const BUNDLE_ID = process.env.MUXCLOUD_MOBILE_BUNDLE_ID ?? 'ai.usemux.app';
 const EAS_PROJECT_ID: string | undefined = process.env.MUXCLOUD_MOBILE_EAS_PROJECT_ID;
+const LOCAL_GOOGLE_SERVICES = join(__dirname, 'google-services.json');
+const GOOGLE_SERVICES_JSON: string | undefined =
+  process.env.GOOGLE_SERVICES_JSON ?? (existsSync(LOCAL_GOOGLE_SERVICES) ? './google-services.json' : undefined);
 
 // Kept in step with the Mux Cloud release (no independent app versioning).
 const VERSION = '2.0.0';
@@ -41,6 +48,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     package: BUNDLE_ID,
+    ...(GOOGLE_SERVICES_JSON ? { googleServicesFile: GOOGLE_SERVICES_JSON } : null),
     versionCode: 1,
     adaptiveIcon: {
       backgroundColor: SPLASH_BACKGROUND,

@@ -22,3 +22,6 @@ results-*.json
 /user-testing/evidence/
 /installers/
 /benchmarks/results/
+
+# Firebase config for local Android builds (kept in the private ops folder, never committed)
+src/MuxCloud.Mobile/google-services.json

@@ -86,7 +86,9 @@ first store build the owner needs:
 3. The app registered in App Store Connect and Play Console under bundle identifier and package `ai.usemux.app`
    (reverse of the usemux.ai domain plus `.app`, the same pattern as `com.bjjwithjoel.app`; override with
    `MUXCLOUD_MOBILE_BUNDLE_ID`). The EAS owner is `joel-christner` (override with `MUXCLOUD_MOBILE_EAS_OWNER`).
-4. Push credentials: an APNs key in EAS for iOS and an FCM server key / service account for Android.
+4. Push credentials: an APNs key in EAS for iOS, and for Android the Firebase project `mux-ai-52eb1`:
+   `google-services.json` as the EAS file variable `GOOGLE_SERVICES_JSON` (local builds use a git-ignored
+   `./google-services.json`) plus the FCM V1 service account key in EAS credentials.
 5. The `submit` placeholders in `eas.json` filled in (Apple ID, App Store Connect app id, team id, Play service account
    key path).
 6. Store listings with the privacy policy and account-deletion URLs (`https://app.usemux.ai/legal/privacy`,
