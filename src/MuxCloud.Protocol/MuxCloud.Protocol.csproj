@@ -4,7 +4,8 @@
     <PackageId>MuxCloud.Protocol</PackageId>
     <Title>MuxCloud.Protocol</Title>
     <Description>Wire contracts for the Mux Cloud tunnel: the persistent WebSocket a mux machine keeps open to Mux Cloud, its envelope and payload models, handshake proofs, close codes, and reconnect policy.</Description>
-    <PackageTags>mux;muxcloud;tunnel;websocket;relay</PackageTags>
+    <PackageTags>mux;muxcloud;mux-cloud;ai;agent;coding-agent;llm;tunnel;websocket;relay;remote-access;protocol;hmac;aot</PackageTags>
+    <PackageReleaseNotes>0.1.0-alpha: First release. Tunnel protocol version 1: envelope and typed payloads (handshake, heartbeat, streamed HTTP relay, cancel, WebSocket channels, machine status), HMAC-SHA256 handshake and sign-out proofs, close and error codes, capabilities, header filtering, reconnect backoff, and source-generated JSON for Native AOT. See WEBSOCKETS_API.md.</PackageReleaseNotes>
     <PackageReadmeFile>PACKAGE.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <IncludeSymbols>true</IncludeSymbols>
