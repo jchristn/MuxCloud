@@ -235,8 +235,10 @@ for (const [width, height] of [
     const frame = page.getByTestId('machine-frame');
     await expect(frame).toBeVisible();
     const box = (await frame.boundingBox())!;
-    const bar = (await page.locator('.machine-bar').boundingBox())!;
+    // The machine controls live in the single topbar row, so the frame starts right under it.
+    const bar = (await page.locator('header.topbar').boundingBox())!;
     expect(Math.round(box.y)).toBe(Math.round(bar.y + bar.height));
+    await expect(page.locator('header.topbar #machine-switcher')).toBeVisible();
     expect(Math.round(box.y + box.height)).toBe(height);
     const scroll = await page.evaluate(() => ({
       page: document.documentElement.scrollHeight - window.innerHeight,

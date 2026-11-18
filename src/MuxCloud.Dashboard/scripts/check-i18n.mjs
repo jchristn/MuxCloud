@@ -1,7 +1,7 @@
 // i18n gate (I18N.md): every locale has exactly the English keys, keeps the same {{placeholders}} and <tags>, has no
 // empty values; every statically referenced key exists; no English key is unused; no hard-coded JSX text.
 // Runs on Node 22.6+ (TypeScript type stripping).
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -63,6 +63,16 @@ function walk(dir, out = []) {
 const files = walk(join(root, 'src'));
 const sources = files.map((f) => [f, readFileSync(f, 'utf8')]);
 const referenced = new Set();
+// The catalog is shared with the mobile app, so a key the app uses is not an orphan.
+const mobileSrc = join(root, '..', 'MuxCloud.Mobile', 'src');
+const mobileSources = existsSync(mobileSrc)
+  ? walk(mobileSrc)
+      .filter((f) => !f.includes('node_modules'))
+      .map((f) => readFileSync(f, 'utf8'))
+  : [];
+for (const text of mobileSources) {
+  for (const m of text.matchAll(/['"`]([a-zA-Z]+(?:\.[a-zA-Z0-9.]+)+)['"`]/g)) if (en.has(m[1])) referenced.add(m[1]);
+}
 // Literal keys: t('a.b'), i18nKey="a.b", key: 'a.b' (nav, step, and range tables), and quoted 'a.b' strings that are keys.
 for (const [, text] of sources) {
   for (const m of text.matchAll(/['"`]([a-zA-Z]+(?:\.[a-zA-Z0-9.]+)+)['"`]/g)) if (en.has(m[1])) referenced.add(m[1]);

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo-grey.png" width="300" alt="mux">
+  <img src="assets/logo-green.png" width="300" alt="mux">
 </p>
 
 <p align="center"><em>Your mux machines, from anywhere.</em></p>

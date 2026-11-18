@@ -11,6 +11,7 @@ import { Loading } from '../../components/Spinner';
 import { EmptyState } from '../../components/DataTable';
 import { useAccountEvents } from '../../context/EventsContext';
 import { usePageTitle } from '../../context/PageTitleContext';
+import { TopbarSlot } from '../../context/TopbarSlotContext';
 import { useLocale } from '../../i18n/runtime';
 import { formatDateTime, formatRelativeTime } from '../../lib/format';
 import { sortMachines } from '../../lib/machines';
@@ -152,10 +153,10 @@ export function MachineDetailPage() {
 
   return (
     <>
-      <div className="machine-bar">
+      <TopbarSlot>
         <Link to="/machines" className="btn btn-sm btn-ghost" title={t('machineDetail.allMachines')}>
           <Icon name="chevronLeft" size={15} className="flip-rtl" />
-          <span className="desktop-only">{t('machineDetail.allMachines')}</span>
+          <span className="desktop-only machine-back-label">{t('machineDetail.allMachines')}</span>
         </Link>
         <label className="sr-only" htmlFor="machine-switcher">
           {t('machineDetail.switchTo')}
@@ -183,9 +184,6 @@ export function MachineDetailPage() {
             <MachineStatusPill machine={machine} />
           </span>
         ) : null}
-        {machine?.online && machine.awaitingApproval > 0 ? (
-          <span className="pill pill-warning desktop-only">{t('machineDetail.approvalWaiting')}</span>
-        ) : null}
         <span className="topbar-spacer" />
         {machine?.online ? (
           <>
@@ -199,7 +197,7 @@ export function MachineDetailPage() {
               <Icon name="refresh" />
             </button>
             <a
-              className="icon-btn"
+              className="icon-btn desktop-only"
               href={src}
               target="_blank"
               rel="noreferrer"
@@ -213,7 +211,7 @@ export function MachineDetailPage() {
         {machine ? (
           <button
             type="button"
-            className="icon-btn"
+            className="icon-btn desktop-only"
             onClick={() => setShowJson(true)}
             aria-label={t('machineDetail.details')}
             title={t('machineDetail.details')}
@@ -221,7 +219,8 @@ export function MachineDetailPage() {
             <Icon name="info" />
           </button>
         ) : null}
-      </div>
+        <span className="topbar-divider desktop-only" aria-hidden="true" />
+      </TopbarSlot>
       {body}
       {showJson && machine ? (
         <JsonViewerModal title={machine.name} value={machine} onClose={() => setShowJson(false)} />

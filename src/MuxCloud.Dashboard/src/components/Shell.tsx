@@ -9,6 +9,7 @@ import { Icon } from './Icon';
 import { LanguageSelector } from './LanguageSelector';
 import { Logo } from './Logo';
 import { ThemeToggle } from './ThemeToggle';
+import { TopbarSlotProvider, useTopbarSlotHost } from '../context/TopbarSlotContext';
 
 export const APP_VERSION = '2.0.0';
 const GITHUB_URL = 'https://github.com/jchristn/MuxCloud';
@@ -82,7 +83,16 @@ function LiveStatus() {
 
 /** Authenticated layout: grouped sidebar, topbar with context and utilities, scrollable workspace. */
 export function Shell({ children, flush = false }: { children: ReactNode; flush?: boolean }) {
+  return (
+    <TopbarSlotProvider>
+      <ShellFrame flush={flush}>{children}</ShellFrame>
+    </TopbarSlotProvider>
+  );
+}
+
+function ShellFrame({ children, flush }: { children: ReactNode; flush: boolean }) {
   const { t } = useTranslation();
+  const { setSlot, custom } = useTopbarSlotHost();
   const { user, logout } = useAuth();
   const title = useCurrentTitle();
   const navigate = useNavigate();
@@ -165,7 +175,7 @@ export function Shell({ children, flush = false }: { children: ReactNode; flush?
       </aside>
       {drawer ? <div className="drawer-backdrop" onClick={() => setDrawer(false)} /> : null}
       <div className="main">
-        <header className="topbar">
+        <header className={'topbar' + (custom ? ' topbar-compact' : '')}>
           <button
             type="button"
             className="icon-btn mobile-only"
@@ -184,9 +194,15 @@ export function Shell({ children, flush = false }: { children: ReactNode; flush?
           >
             <Icon name={collapsed ? 'chevronsRight' : 'chevronsLeft'} className="flip-rtl" />
           </button>
-          <div className="topbar-title">{title}</div>
-          <LiveStatus />
-          <span className="topbar-spacer" />
+          {collapsed ? (
+            <NavLink to="/machines" className="topbar-brand desktop-only" aria-label={t('common.appName')}>
+              <Logo className="topbar-logo" wordmark />
+            </NavLink>
+          ) : null}
+          {custom ? null : <div className="topbar-title">{title}</div>}
+          {custom ? null : <LiveStatus />}
+          <div className="topbar-slot" ref={setSlot} />
+          {custom ? null : <span className="topbar-spacer" />}
           <span className="principal" title={user ? t('shell.signedInAs', { email: user.email }) : undefined}>
             <Icon name="user" size={16} />
             <span className="email">{user?.email}</span>
@@ -198,7 +214,7 @@ export function Shell({ children, flush = false }: { children: ReactNode; flush?
             </span>
             <ThemeToggle />
             <a
-              className="icon-btn desktop-only"
+              className="icon-btn desktop-only topbar-github"
               href={GITHUB_URL}
               target="_blank"
               rel="noreferrer"
