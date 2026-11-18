@@ -20,6 +20,12 @@ Every 0.x release is alpha.
   the user, removed with the user), and Expo push for `approval_requested` and `run_completed` machine status pushes,
   behind `IPushSender`, `Push.Enabled`, the `mobile.access` entitlement, and `MUXCLOUD_EXPO_ACCESS_TOKEN`. Devices Expo
   reports as `DeviceNotRegistered` are removed. Schema migration 2 adds the `devices` table on all four engines.
+- `POST /v1.0/api/machines/sign-out`: a machine signs itself out with a sign-out proof (`mux-signout:` HMAC over the
+  machine secret, `MachineSignOutRequest` in `MuxCloud.Protocol`), which revokes it and closes its tunnel with `4403`.
+  Signing in again from the same machine restores it.
+- A real end-to-end suite (`scripts/e2e-real.sh`): the server, a scripted model, two real mux hubs, and Playwright
+  driving the dashboard and each machine's own dashboard through the relay. See `docs/LOCAL_TESTING.md`.
+- Clicking a machine in the machine list opens it; Rename moved to the row menu.
 - Admin responses match the dashboard: audit records carry `principal`, overrides return `limit` and `expiresUtc`
   (always present).
 - Dashboard HTML is served with a strict Content-Security-Policy (`script-src 'self'`, `frame-ancestors 'self'`);
