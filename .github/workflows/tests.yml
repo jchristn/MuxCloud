@@ -1,0 +1,70 @@
+name: Tests
+
+# Every push to every branch and every pull request runs every test project: the Touchstone console runner
+# under both target frameworks, and the xUnit v3 and NUnit adapters, on Linux, Windows, and macOS.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: "1"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+
+jobs:
+  test:
+    name: Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up .NET (8.0 + 10.0)
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('src/**/*.csproj', 'src/**/Directory.*.props') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore src/MuxCloud.sln
+
+      - name: Build
+        run: dotnet build src/MuxCloud.sln --configuration Release --no-restore
+
+      - name: Console runner (net8.0)
+        run: dotnet run --project src/Test.Automated/Test.Automated.csproj --configuration Release --framework net8.0 --no-build -- --results results-net8.0.json
+
+      - name: Console runner (net10.0)
+        run: dotnet run --project src/Test.Automated/Test.Automated.csproj --configuration Release --framework net10.0 --no-build -- --results results-net10.0.json
+
+      - name: xUnit v3
+        run: dotnet test src/Test.Xunit3/Test.Xunit3.csproj --configuration Release --no-build
+
+      - name: NUnit
+        run: dotnet test src/Test.Nunit/Test.Nunit.csproj --configuration Release --no-build
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: touchstone-results-${{ matrix.os }}
+          path: results-*.json
+          if-no-files-found: ignore

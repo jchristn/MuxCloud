@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/.expo/
+.git/
+.github/
+logs/
+data/
+email-outbox/
+user-testing/
+*.md
+!README.md

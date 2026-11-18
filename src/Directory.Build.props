@@ -1,0 +1,26 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Version>0.1.0-alpha</Version>
+    <Authors>jchristn</Authors>
+    <Company>Lattice AI, LLC</Company>
+    <Copyright>(c)2026 Joel Christner</Copyright>
+    <PackageProjectUrl>https://github.com/jchristn/MuxCloud</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jchristn/MuxCloud</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- No blanket warning suppression. Warnings are errors and are fixed at the call site. -->
+  </PropertyGroup>
+
+</Project>
