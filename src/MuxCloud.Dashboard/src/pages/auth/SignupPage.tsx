@@ -68,11 +68,14 @@ export function SignupPage() {
         title={t('auth.checkEmailTitle')}
         pageTitle={t('pageTitles.signup')}
         footer={<Link to="/login">{t('auth.goToLogin')}</Link>}
-      >
-        <div className="auth-success">
+        centered
+        icon={
           <span className="empty-icon" aria-hidden="true">
             <Icon name="mail" size={26} />
           </span>
+        }
+      >
+        <div className="auth-success">
           <p>{t('auth.checkEmailBody', { email: done })}</p>
         </div>
         {resent ? (

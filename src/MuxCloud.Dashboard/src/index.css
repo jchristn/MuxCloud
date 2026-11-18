@@ -1452,6 +1452,12 @@ table.data th.select-cell {
   font-size: var(--text-sm);
 }
 
+.auth-heading-centered {
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
 .auth-links {
   padding-top: var(--space-4);
   border-top: 1px solid var(--color-border);

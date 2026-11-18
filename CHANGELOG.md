@@ -16,7 +16,7 @@ briefly before it) and `jchristn77/muxcloud-server:v2.0.0` is on Docker Hub for 
   Postgresql, Mysql, and SqlServer with tracked migrations and an idempotent seed, PBKDF2-SHA256 passwords, AES-256-GCM
   access tokens and machine secrets, rotating refresh tokens with reuse detection, lockout, entitlements, enrollment,
   and audit.
-- `MuxCloud.Email`: Mailgun (from hello@latticetech.ai), File, and Disabled providers, a dark-mode-aware layout, and
+- `MuxCloud.Email`: Mailgun (from no-reply@usemux.ai through the mg.usemux.ai domain), File, and Disabled providers, a dark-mode-aware layout, and
   eight templates.
 - `MuxCloud.Server`: the REST API, cookie and bearer auth with Origin enforcement, WebSocket tickets, the machine tunnel
   endpoint, the `/m/{machineId}` relay with streamed responses and relayed WebSockets, the account events socket,

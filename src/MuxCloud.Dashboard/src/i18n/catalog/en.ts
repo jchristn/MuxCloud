@@ -119,6 +119,7 @@ export const en = {
     notVerifiedTitle: 'Verify your email first',
     notVerifiedBody: 'Open the link we emailed to {{email}}, or send a new one.',
     verifyTitle: 'Verifying your email',
+    verifiedTitle: 'Email verified',
     verifyWorking: 'Confirming your address...',
     verifySuccess: 'Your email {{email}} is verified. You can sign in now.',
     verifyFailed: 'This verification link is invalid or has expired.',

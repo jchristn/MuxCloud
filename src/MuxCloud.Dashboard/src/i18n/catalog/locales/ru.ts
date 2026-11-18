@@ -118,6 +118,7 @@ export const ru: Catalog = {
     notVerifiedTitle: 'Сначала подтвердите адрес эл. почты',
     notVerifiedBody: 'Откройте ссылку, отправленную на {{email}}, или запросите новую.',
     verifyTitle: 'Подтверждение адреса',
+    verifiedTitle: 'Эл. почта подтверждена',
     verifyWorking: 'Подтверждаем ваш адрес...',
     verifySuccess: 'Адрес {{email}} подтверждён. Теперь можно войти.',
     verifyFailed: 'Эта ссылка для подтверждения недействительна или устарела.',

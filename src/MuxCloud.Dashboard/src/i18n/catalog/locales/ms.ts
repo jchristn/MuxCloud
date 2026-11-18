@@ -118,6 +118,7 @@ export const ms: Catalog = {
     notVerifiedTitle: 'Sahkan e-mel anda dahulu',
     notVerifiedBody: 'Buka pautan yang kami hantar ke {{email}}, atau minta pautan baharu.',
     verifyTitle: 'Mengesahkan e-mel anda',
+    verifiedTitle: 'E-mel disahkan',
     verifyWorking: 'Mengesahkan alamat anda...',
     verifySuccess: 'E-mel anda {{email}} telah disahkan. Anda boleh log masuk sekarang.',
     verifyFailed: 'Pautan pengesahan ini tidak sah atau telah tamat tempoh.',

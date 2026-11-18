@@ -118,6 +118,7 @@ export const ja: Catalog = {
     notVerifiedTitle: '先にメールアドレスを確認してください',
     notVerifiedBody: '{{email}} に送信したリンクを開くか、新しいリンクを送信してください。',
     verifyTitle: 'メールアドレスを確認中',
+    verifiedTitle: 'メール確認済み',
     verifyWorking: 'アドレスを確認しています...',
     verifySuccess: 'メールアドレス {{email}} を確認しました。サインインできます。',
     verifyFailed: 'この確認リンクは無効か、有効期限が切れています。',

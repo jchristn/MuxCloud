@@ -284,10 +284,10 @@ Expo plus React Native plus expo-router, structured after Armada.Mobile:
 - **Providers:**
   - `Disabled`.
   - `File`: writes rendered messages to a folder, for development and tests.
-  - `Mailgun`: SendWithMailgun 1.2.1, `MailgunSender.SendAsync(to, from, subject, body, isHtml, token)`, sending domain `latticetech.ai`, base URL configurable for the US or EU region.
+  - `Mailgun`: SendWithMailgun 1.2.1, `MailgunSender.SendAsync(to, from, subject, body, isHtml, token)`, sending domain `mg.usemux.ai`, base URL configurable for the US or EU region.
   - The API key comes from `MUXCLOUD_MAILGUN_API_KEY`, never from the checked-in settings.
   - SendWithMailgun sends one body format per message, so HTML is sent. The plain-text rendering is kept for the File provider and tests.
-- **Sender:** `"Mux Cloud" <hello@latticetech.ai>`. The support contact in every footer and in the legal pages is `hello@latticetech.ai`.
+- **Sender:** `"Mux Cloud" <no-reply@usemux.ai>` through the Mailgun domain `mg.usemux.ai` (changed 2026-11-18; DMARC on usemux.ai and latticetech.ai is quarantine, so the From domain must match the sending domain). The support contact in every footer and in the legal pages is `hello@latticetech.ai`.
 - **Layout:** follows TrellisKit's `StandardEmailLayout`, built with HtmlPageBuilder 1.2.0.
   - A complete, inline-styled HTML document: a preheader, then a card at most 600 px wide that is fluid down to 360 px.
   - Inside the card: the Mux logo (an absolute URL to the repo's `assets/`), an H1 heading, then content blocks.
@@ -414,7 +414,7 @@ Defaults I will use unless you say otherwise:
 
 6. **Protocol package location.** `MuxCloud.Protocol` lives here and is published to NuGet, and Mux consumes the package. For local development, an MSBuild property switches Mux to a `ProjectReference` at `../MuxCloud`.
 7. **Hosting.** `https://app.usemux.ai` serves the dashboard, REST API, relay, tunnel, and events on one origin. There is no staging environment. It runs on a single node for version 1, with Postgres in production, behind a TLS-terminating reverse proxy that supports WebSocket upgrades. Still open, needed before deployment but not before building: the hosting provider.
-8. **Email.** Mailgun through SendWithMailgun from `hello@latticetech.ai` (sending domain `latticetech.ai`), as in Xeno and BjjWithJoel. The File provider is used for development.
+8. **Email.** Mailgun through SendWithMailgun from `no-reply@usemux.ai` (sending domain `mg.usemux.ai`), as in Xeno and BjjWithJoel. The File provider is used for development.
 9. **MFA.** TOTP comes after version 1.
 10. **Mux version.** The branch name suggests 2.0.0. Per VERSIONING.md I will not change Mux's version number until you explicitly ask.
 11. **Cross-machine conversation view** on the web dashboard. In version 1. It costs one fan-out per online machine.

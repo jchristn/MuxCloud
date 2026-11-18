@@ -13,12 +13,18 @@ export function AuthLayout({
   subtitle,
   children,
   footer,
+  icon,
+  centered = false,
 }: {
   title: string;
   pageTitle: string;
   subtitle?: string;
   children: ReactNode;
   footer?: ReactNode;
+  /** Shown above a centered heading on confirmation screens. */
+  icon?: ReactNode;
+  /** Center the heading, for confirmation screens such as "Check your email". */
+  centered?: boolean;
 }) {
   const { t } = useTranslation();
   usePageTitle(pageTitle);
@@ -37,7 +43,8 @@ export function AuthLayout({
             </span>
             <span className="tagline">{t('auth.tagline')}</span>
           </div>
-          <div className="auth-heading">
+          <div className={'auth-heading' + (centered ? ' auth-heading-centered' : '')}>
+            {icon}
             <h1>{title}</h1>
             {subtitle ? <p>{subtitle}</p> : null}
           </div>

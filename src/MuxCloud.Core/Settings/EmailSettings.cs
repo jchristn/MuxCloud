@@ -25,12 +25,12 @@ namespace MuxCloud.Core.Settings
         }
 
         /// <summary>
-        /// Sender address. Default hello@latticetech.ai.
+        /// Sender address. Default no-reply@usemux.ai.
         /// </summary>
         public string FromAddress
         {
             get { return _FromAddress; }
-            set { _FromAddress = String.IsNullOrWhiteSpace(value) ? "hello@latticetech.ai" : value.Trim(); }
+            set { _FromAddress = String.IsNullOrWhiteSpace(value) ? "no-reply@usemux.ai" : value.Trim(); }
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace MuxCloud.Core.Settings
         public string LogoUrl
         {
             get { return _LogoUrl; }
-            set { _LogoUrl = String.IsNullOrWhiteSpace(value) ? "https://raw.githubusercontent.com/jchristn/MuxCloud/main/assets/logo-black.png" : value.Trim(); }
+            set { _LogoUrl = String.IsNullOrWhiteSpace(value) ? "https://app.usemux.ai/logo-green-wordmark.png" : value.Trim(); }
         }
 
         /// <summary>
@@ -74,9 +74,9 @@ namespace MuxCloud.Core.Settings
         #region Private-Members
 
         private string _FromName = "Mux Cloud";
-        private string _FromAddress = "hello@latticetech.ai";
+        private string _FromAddress = "no-reply@usemux.ai";
         private string _SupportAddress = "hello@latticetech.ai";
-        private string _LogoUrl = "https://raw.githubusercontent.com/jchristn/MuxCloud/main/assets/logo-black.png";
+        private string _LogoUrl = "https://app.usemux.ai/logo-green-wordmark.png";
         private FileEmailSettings _File = new FileEmailSettings();
         private MailgunEmailSettings _Mailgun = new MailgunEmailSettings();
 

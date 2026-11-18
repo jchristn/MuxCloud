@@ -39,9 +39,17 @@ export function ForgotPage() {
 
   return (
     <AuthLayout
-      title={t('auth.forgotTitle')}
+      title={sent ? t('auth.checkEmailTitle') : t('auth.forgotTitle')}
       pageTitle={t('pageTitles.forgot')}
       subtitle={sent ? undefined : t('auth.forgotSubtitle')}
+      centered={sent}
+      icon={
+        sent ? (
+          <span className="empty-icon" aria-hidden="true">
+            <Icon name="mail" size={26} />
+          </span>
+        ) : undefined
+      }
       footer={
         <span>
           {t('auth.haveAccount')} <Link to="/login">{t('auth.signIn')}</Link>
@@ -50,9 +58,6 @@ export function ForgotPage() {
     >
       {sent ? (
         <div className="auth-success">
-          <span className="empty-icon" aria-hidden="true">
-            <Icon name="mail" size={26} />
-          </span>
           <p>{t('auth.forgotSent')}</p>
         </div>
       ) : (

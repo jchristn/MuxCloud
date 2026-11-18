@@ -117,6 +117,7 @@ export const zh: Catalog = {
     notVerifiedTitle: '请先验证你的邮箱',
     notVerifiedBody: '打开我们发送到 {{email}} 的链接，或重新发送一个。',
     verifyTitle: '正在验证你的邮箱',
+    verifiedTitle: '邮箱已验证',
     verifyWorking: '正在确认你的地址...',
     verifySuccess: '你的邮箱 {{email}} 已验证，现在可以登录了。',
     verifyFailed: '此验证链接无效或已过期。',

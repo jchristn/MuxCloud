@@ -119,6 +119,7 @@ export const de: Catalog = {
     notVerifiedTitle: 'Bestätige zuerst deine E-Mail-Adresse',
     notVerifiedBody: 'Öffne den Link, den wir an {{email}} gesendet haben, oder fordere einen neuen an.',
     verifyTitle: 'E-Mail-Adresse wird bestätigt',
+    verifiedTitle: 'E-Mail bestätigt',
     verifyWorking: 'Deine Adresse wird bestätigt...',
     verifySuccess: 'Deine E-Mail-Adresse {{email}} ist bestätigt. Du kannst dich jetzt anmelden.',
     verifyFailed: 'Dieser Bestätigungslink ist ungültig oder abgelaufen.',

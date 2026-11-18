@@ -49,14 +49,14 @@
   "Email": {
     "Provider": "File",
     "FromName": "Mux Cloud",
-    "FromAddress": "hello@latticetech.ai",
+    "FromAddress": "no-reply@usemux.ai",
     "SupportAddress": "hello@latticetech.ai",
-    "LogoUrl": "https://raw.githubusercontent.com/jchristn/MuxCloud/main/assets/logo-black.png",
+    "LogoUrl": "https://app.usemux.ai/logo-green-wordmark.png",
     "File": {
       "Directory": "/app/email-outbox"
     },
     "Mailgun": {
-      "Domain": "latticetech.ai",
+      "Domain": "mg.usemux.ai",
       "ApiKey": "",
       "BaseUrl": "https://api.mailgun.net/v3/"
     }

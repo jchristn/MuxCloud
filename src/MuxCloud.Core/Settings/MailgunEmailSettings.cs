@@ -10,12 +10,12 @@ namespace MuxCloud.Core.Settings
         #region Public-Members
 
         /// <summary>
-        /// Sending domain. Default latticetech.ai.
+        /// Sending domain. Default mg.usemux.ai.
         /// </summary>
         public string Domain
         {
             get { return _Domain; }
-            set { _Domain = String.IsNullOrWhiteSpace(value) ? "latticetech.ai" : value.Trim(); }
+            set { _Domain = String.IsNullOrWhiteSpace(value) ? "mg.usemux.ai" : value.Trim(); }
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace MuxCloud.Core.Settings
 
         #region Private-Members
 
-        private string _Domain = "latticetech.ai";
+        private string _Domain = "mg.usemux.ai";
         private string _ApiKey = String.Empty;
         private string _BaseUrl = "https://api.mailgun.net/v3/";
 

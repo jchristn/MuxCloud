@@ -117,6 +117,7 @@ export const hi: Catalog = {
     notVerifiedTitle: 'पहले अपना ईमेल सत्यापित करें',
     notVerifiedBody: '{{email}} पर भेजा गया लिंक खोलें, या नया लिंक मँगवाएँ।',
     verifyTitle: 'आपका ईमेल सत्यापित किया जा रहा है',
+    verifiedTitle: 'ईमेल सत्यापित',
     verifyWorking: 'आपके पते की पुष्टि हो रही है...',
     verifySuccess: 'आपका ईमेल {{email}} सत्यापित हो गया है। अब आप साइन इन कर सकते हैं।',
     verifyFailed: 'यह सत्यापन लिंक अमान्य है या इसकी समय-सीमा समाप्त हो गई है।',

@@ -29,13 +29,21 @@ export function VerifyPage() {
   }, [token]);
 
   return (
-    <AuthLayout title={t('auth.verifyTitle')} pageTitle={t('pageTitles.verify')}>
-      {state === 'working' ? <Loading label={t('auth.verifyWorking')} /> : null}
-      {state === 'done' ? (
-        <div className="auth-success">
+    <AuthLayout
+      title={state === 'done' ? t('auth.verifiedTitle') : t('auth.verifyTitle')}
+      pageTitle={t('pageTitles.verify')}
+      centered={state === 'done'}
+      icon={
+        state === 'done' ? (
           <span className="empty-icon empty-icon-success" aria-hidden="true">
             <Icon name="check" size={26} />
           </span>
+        ) : undefined
+      }
+    >
+      {state === 'working' ? <Loading label={t('auth.verifyWorking')} /> : null}
+      {state === 'done' ? (
+        <div className="auth-success">
           <p>{t('auth.verifySuccess', { email })}</p>
         </div>
       ) : null}

@@ -117,6 +117,7 @@ export const ar: Catalog = {
     notVerifiedTitle: 'تحقق من بريدك الإلكتروني أولًا',
     notVerifiedBody: 'افتح الرابط الذي أرسلناه إلى {{email}}، أو اطلب رابطًا جديدًا.',
     verifyTitle: 'جارٍ التحقق من بريدك الإلكتروني',
+    verifiedTitle: 'تم التحقق من البريد الإلكتروني',
     verifyWorking: 'جارٍ تأكيد عنوانك...',
     verifySuccess: 'تم التحقق من بريدك الإلكتروني {{email}}. يمكنك تسجيل الدخول الآن.',
     verifyFailed: 'رابط التحقق هذا غير صالح أو منتهي الصلاحية.',

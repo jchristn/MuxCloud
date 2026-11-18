@@ -35,11 +35,11 @@ Settings live under `Email` in `muxcloud.json`.
 | --- | --- | --- |
 | `Provider` | `File` | `Disabled`, `File`, or `Mailgun`. Production uses `Mailgun`. Override with `MUXCLOUD_EMAIL_PROVIDER`. |
 | `FromName` | `Mux Cloud` | |
-| `FromAddress` | `hello@latticetech.ai` | |
+| `FromAddress` | `no-reply@usemux.ai` | Must be on `usemux.ai` so DMARC aligns with the `mg.usemux.ai` signature |
 | `SupportAddress` | `hello@latticetech.ai` | Shown in every footer and in security notices |
-| `LogoUrl` | `https://raw.githubusercontent.com/jchristn/MuxCloud/main/assets/logo-black.png` | Must be an absolute URL so mail clients can load it |
+| `LogoUrl` | `https://app.usemux.ai/logo-green-wordmark.png` | Must be an absolute URL so mail clients can load it |
 | `File.Directory` | `./email-outbox` | Development and tests |
-| `Mailgun.Domain` | `latticetech.ai` | Override with `MUXCLOUD_MAILGUN_DOMAIN` |
+| `Mailgun.Domain` | `mg.usemux.ai` | Override with `MUXCLOUD_MAILGUN_DOMAIN` |
 | `Mailgun.ApiKey` | empty | Secret. Set it with `MUXCLOUD_MAILGUN_API_KEY`, never in the file. |
 | `Mailgun.BaseUrl` | `https://api.mailgun.net/v3/` | Use `https://api.eu.mailgun.net/v3/` for the EU region |
 

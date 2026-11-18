@@ -118,6 +118,7 @@ export const es: Catalog = {
     notVerifiedTitle: 'Primero verifica tu correo',
     notVerifiedBody: 'Abre el enlace que enviamos a {{email}} o pide uno nuevo.',
     verifyTitle: 'Verificando tu correo',
+    verifiedTitle: 'Correo verificado',
     verifyWorking: 'Confirmando tu dirección...',
     verifySuccess: 'Tu correo {{email}} está verificado. Ya puedes iniciar sesión.',
     verifyFailed: 'Este enlace de verificación no es válido o ha caducado.',
