@@ -23,6 +23,9 @@ Every 0.x release is alpha.
 - `POST /v1.0/api/machines/sign-out`: a machine signs itself out with a sign-out proof (`mux-signout:` HMAC over the
   machine secret, `MachineSignOutRequest` in `MuxCloud.Protocol`), which revokes it and closes its tunnel with `4403`.
   Signing in again from the same machine restores it.
+- Tunnel handshake: a machine clock more than 120 seconds off closes with `4400` (mux keeps retrying and shows "check
+  this machine's clock") instead of the terminal `4401`, and a stored secret that no longer decrypts closes with `4401`
+  (sign in again) instead of `4403` (removed).
 - A real end-to-end suite (`scripts/e2e-real.sh`): the server, a scripted model, two real mux hubs, and Playwright
   driving the dashboard and each machine's own dashboard through the relay. See `docs/LOCAL_TESTING.md`.
 - Clicking a machine in the machine list opens it; Rename moved to the row menu.

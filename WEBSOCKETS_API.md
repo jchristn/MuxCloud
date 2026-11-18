@@ -61,7 +61,7 @@ Re-enrolling from the same machine (same fingerprint, same user) keeps the `mach
 
 1. The machine opens `wss://app.usemux.ai/v1.0/tunnel`. No upgrade headers are needed.
 2. Within 15 seconds it sends `tunnel.hello` as the first frame. Anything else, or nothing, closes the socket with `4400`.
-3. The cloud checks the protocol version (`4426` if unsupported), the timestamp (within 120 seconds of server time), the nonce (rejected if seen in the last 5 minutes), the machine record (`4401` if unknown, `4403` if revoked), and the proof (`4401` if wrong, compared in constant time). Failed handshakes count toward a per-IP and per-machine lockout (`4429`).
+3. The cloud checks the protocol version (`4426` if unsupported), the timestamp (`4400` if more than 120 seconds from server time, so a machine with a skewed clock keeps retrying and shows the reason), the nonce (rejected if seen in the last 5 minutes), the machine record (`4401` if unknown or if its stored secret can no longer be read, for example after `Auth.SigningKey` changed; `4403` if revoked or the user is deactivated), and the proof (`4401` if wrong, compared in constant time). Failed handshakes count toward a per-IP and per-machine lockout (`4429`).
 4. If the machine already has a live tunnel, the cloud closes the older one with `4409` and fails its in-flight streams. Cleanup of the older connection never touches the newer one: the registry entry is removed only if it still holds the older `connectionId`.
 5. The cloud sends `tunnel.welcome`. **The machine is online from this moment**, not from socket open. Account subscribers receive `machine.online`.
 6. Both sides send `tunnel.ping` every `heartbeatSeconds` (default 20). The other side answers with `tunnel.pong` echoing the nonce. Three consecutive unanswered pings mean the connection is dead: the cloud closes it with `4408` and marks the machine offline, and the machine reconnects.
@@ -210,7 +210,7 @@ A side uses a feature only if it appears in the welcome's `capabilities`.
 
 | Code | Meaning | Machine reconnects? |
 | --- | --- | --- |
-| `4400` | Bad or missing handshake | Yes, with backoff |
+| `4400` | Bad or missing handshake, or the machine's clock is more than 120 seconds off | Yes, with backoff |
 | `4401` | Unknown machine or wrong proof | No. The user signs in again. |
 | `4403` | Machine removed or revoked | No. The user signs in again. |
 | `4408` | Heartbeat timeout | Yes |

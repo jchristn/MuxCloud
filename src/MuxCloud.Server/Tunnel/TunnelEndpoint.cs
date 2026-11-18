@@ -87,6 +87,15 @@ namespace MuxCloud.Server.Tunnel
                 return;
             }
 
+            if (!TunnelProof.IsTimestampFresh(h.TimestampUtc, DateTime.UtcNow))
+            {
+                // A skewed clock is recoverable, so it closes with a non-terminal code and mux keeps retrying.
+                _Failures.RecordFailure("ip:" + ip);
+                MuxCloudTelemetry.Handshake("clock_skew");
+                await CloseAsync(session, TunnelCloseCodes.BadHandshake, "timestamp is more than " + TunnelProtocol.HandshakeSkewSeconds + " seconds from server time; check this machine's clock").ConfigureAwait(false);
+                return;
+            }
+
             Machine? machine = String.IsNullOrWhiteSpace(h.MachineId) ? null : await _Server.Database.Machines.ReadAsync(h.MachineId, token).ConfigureAwait(false);
             int code = await ValidateAsync(h, machine, token).ConfigureAwait(false);
             if (code != 0)
@@ -181,9 +190,9 @@ namespace MuxCloud.Server.Tunnel
             if (machine.RevokedUtc != null) return TunnelCloseCodes.Revoked;
             User? user = await _Server.Database.Users.ReadAsync(machine.TenantId, machine.UserId, token).ConfigureAwait(false);
             if (user == null || !user.Active) return TunnelCloseCodes.Revoked;
-            if (!TunnelProof.IsTimestampFresh(h.TimestampUtc, DateTime.UtcNow)) return TunnelCloseCodes.Unauthorized;
             string? secret = _Server.Machines.GetSecret(machine);
-            if (secret == null) return TunnelCloseCodes.Revoked;
+            // A secret that no longer decrypts (for example after Auth.SigningKey changed) is a credential problem, not a revocation.
+            if (secret == null) return TunnelCloseCodes.Unauthorized;
             if (!TunnelProof.VerifyProof(secret, machine.Id, h.TimestampUtc, h.Nonce, h.Proof)) return TunnelCloseCodes.Unauthorized;
             if (!_Replay.TryAdd(machine.Id + "|" + h.Nonce)) return TunnelCloseCodes.Unauthorized;
             return 0;

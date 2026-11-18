@@ -185,7 +185,7 @@ namespace Test.Shared.Suites
                         }
                     }
                 }),
-                Cases.Async(suite, "HandshakeFailures", "Bad first frame, wrong proof, stale time, replay, unknown and revoked machines are refused with their codes", async (CancellationToken token) =>
+                Cases.Async(suite, "HandshakeFailures", "Bad first frame, wrong proof, skewed clock (retryable), replay, unknown and revoked machines are refused with their codes", async (CancellationToken token) =>
                 {
                     await using (ServerFixture f = await ServerFixture.StartAsync(token).ConfigureAwait(false))
                     {
@@ -193,7 +193,7 @@ namespace Test.Shared.Suites
                         TestAssert.Equal((int?)TunnelCloseCodes.BadHandshake, await RejectAsync(f, enrolled, token, null, "{\"type\":\"tunnel.ping\"}").ConfigureAwait(false), "non-hello first frame");
                         TestAssert.Equal((int?)TunnelCloseCodes.Unauthorized, await RejectAsync(f, new EnrollResponse { MachineId = enrolled.MachineId, MachineSecret = TunnelProof.CreateMachineSecret() }, token, null, null).ConfigureAwait(false), "wrong secret");
                         TestAssert.Equal((int?)TunnelCloseCodes.Unauthorized, await RejectAsync(f, new EnrollResponse { MachineId = "mch_unknown", MachineSecret = enrolled.MachineSecret }, token, null, null).ConfigureAwait(false), "unknown machine");
-                        TestAssert.Equal((int?)TunnelCloseCodes.Unauthorized, await RejectAsync(f, enrolled, token, (TunnelHelloPayload h) =>
+                        TestAssert.Equal((int?)TunnelCloseCodes.BadHandshake, await RejectAsync(f, enrolled, token, (TunnelHelloPayload h) =>
                         {
                             h.TimestampUtc = TunnelProof.FormatTimestamp(DateTime.UtcNow.AddMinutes(-10));
                             h.Proof = TunnelProof.ComputeProof(enrolled.MachineSecret, enrolled.MachineId, h.TimestampUtc, h.Nonce);
