@@ -578,6 +578,14 @@ export const ms: Catalog = {
     englishGoverns: 'Dokumen ini diterbitkan dalam bahasa Inggeris. Versi bahasa Inggeris yang terpakai.',
     backToApp: 'Kembali ke Mux Cloud',
   },
+  errorPage: {
+    title: 'Sesuatu tidak kena',
+    body: 'Halaman ini mengalami ralat yang tidak dijangka. Muat semula untuk mencuba lagi.',
+    updatedTitle: 'Mux Cloud telah dikemas kini',
+    updatedBody: 'Versi yang lebih baharu tersedia. Muat semula untuk meneruskan.',
+    reload: 'Muat semula',
+    home: 'Pergi ke mesin',
+  },
   notFound: {
     title: 'Halaman tidak ditemui',
     body: 'Tiada apa-apa di alamat ini.',

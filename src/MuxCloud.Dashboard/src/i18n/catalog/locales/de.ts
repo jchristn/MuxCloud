@@ -584,6 +584,14 @@ export const de: Catalog = {
     englishGoverns: 'Diese Dokumente werden auf Englisch veröffentlicht. Die englische Fassung ist maßgeblich.',
     backToApp: 'Zurück zu Mux Cloud',
   },
+  errorPage: {
+    title: 'Etwas ist schiefgelaufen',
+    body: 'Auf dieser Seite ist ein unerwarteter Fehler aufgetreten. Laden Sie neu, um es erneut zu versuchen.',
+    updatedTitle: 'Mux Cloud wurde aktualisiert',
+    updatedBody: 'Eine neuere Version ist verfügbar. Laden Sie neu, um fortzufahren.',
+    reload: 'Neu laden',
+    home: 'Zu den Rechnern',
+  },
   notFound: {
     title: 'Seite nicht gefunden',
     body: 'Unter dieser Adresse gibt es nichts.',

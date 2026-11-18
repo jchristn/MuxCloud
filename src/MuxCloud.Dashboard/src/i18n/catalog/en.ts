@@ -575,6 +575,14 @@ export const en = {
     englishGoverns: 'These documents are published in English. The English version governs.',
     backToApp: 'Back to Mux Cloud',
   },
+  errorPage: {
+    title: 'Something went wrong',
+    body: 'This page hit an unexpected error. Reload to try again.',
+    updatedTitle: 'Mux Cloud was updated',
+    updatedBody: 'A newer version is available. Reload to continue.',
+    reload: 'Reload',
+    home: 'Go to machines',
+  },
   notFound: {
     title: 'Page not found',
     body: 'There is nothing at this address.',

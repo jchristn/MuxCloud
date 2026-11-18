@@ -576,6 +576,14 @@ export const ja: Catalog = {
     englishGoverns: 'これらの文書は英語で公開されています。英語版が優先されます。',
     backToApp: 'Mux Cloud に戻る',
   },
+  errorPage: {
+    title: '問題が発生しました',
+    body: 'このページで予期しないエラーが発生しました。再読み込みしてもう一度お試しください。',
+    updatedTitle: 'Mux Cloud が更新されました',
+    updatedBody: '新しいバージョンがあります。続けるには再読み込みしてください。',
+    reload: '再読み込み',
+    home: 'マシン一覧へ',
+  },
   notFound: {
     title: 'ページが見つかりません',
     body: 'このアドレスには何もありません。',

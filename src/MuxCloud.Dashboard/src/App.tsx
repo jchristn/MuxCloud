@@ -1,4 +1,5 @@
 import { Suspense, lazy, type ReactNode } from 'react';
+import { RouteErrorPage } from './pages/RouteErrorPage';
 import { Navigate, Outlet, RouterProvider, createBrowserRouter, useLocation, useMatch } from 'react-router';
 import { Loading } from './components/Spinner';
 import { Shell } from './components/Shell';
@@ -77,65 +78,70 @@ function PublicOnly() {
 
 const router = createBrowserRouter([
   {
-    element: <PublicOnly />,
+    errorElement: <RouteErrorPage />,
     children: [
-      { path: '/login', element: <LoginPage /> },
-      { path: '/signup', element: <SignupPage /> },
-      { path: '/verify', element: <VerifyPage /> },
-      { path: '/forgot', element: <ForgotPage /> },
-      { path: '/reset', element: <ResetPage /> },
-    ],
-  },
-  {
-    path: '/legal/terms',
-    element: (
-      <Lazy>
-        <LegalPage doc="terms" />
-      </Lazy>
-    ),
-  },
-  {
-    path: '/legal/privacy',
-    element: (
-      <Lazy>
-        <LegalPage doc="privacy" />
-      </Lazy>
-    ),
-  },
-  {
-    path: '/legal/account-deletion',
-    element: (
-      <Lazy>
-        <LegalPage doc="account-deletion" />
-      </Lazy>
-    ),
-  },
-  {
-    element: <AppLayout />,
-    children: [
-      { path: '/', element: <Navigate to="/machines" replace /> },
-      { path: '/machines', element: <MachinesPage /> },
-      { path: '/machines/:id', element: <MachineDetailPage /> },
-      { path: '/conversations', element: <ConversationsPage /> },
-      { path: '/account', element: <AccountPage /> },
-      { path: '/account/billing', element: <BillingPage /> },
       {
-        element: <AdminOnly />,
+        element: <PublicOnly />,
         children: [
-          { path: '/admin', element: <AdminOverviewPage /> },
-          { path: '/admin/users', element: <UsersPage /> },
-          { path: '/admin/machines', element: <AdminMachinesPage /> },
-          { path: '/admin/plans', element: <PlansPage /> },
-          { path: '/admin/overrides', element: <OverridesPage /> },
-          { path: '/admin/audit', element: <AuditPage /> },
-          { path: '/admin/requests', element: <RequestHistoryPage /> },
-          { path: '/admin/explorer', element: <ExplorerPage /> },
-          { path: '/admin/settings', element: <SettingsPage /> },
+          { path: '/login', element: <LoginPage /> },
+          { path: '/signup', element: <SignupPage /> },
+          { path: '/verify', element: <VerifyPage /> },
+          { path: '/forgot', element: <ForgotPage /> },
+          { path: '/reset', element: <ResetPage /> },
         ],
       },
+      {
+        path: '/legal/terms',
+        element: (
+          <Lazy>
+            <LegalPage doc="terms" />
+          </Lazy>
+        ),
+      },
+      {
+        path: '/legal/privacy',
+        element: (
+          <Lazy>
+            <LegalPage doc="privacy" />
+          </Lazy>
+        ),
+      },
+      {
+        path: '/legal/account-deletion',
+        element: (
+          <Lazy>
+            <LegalPage doc="account-deletion" />
+          </Lazy>
+        ),
+      },
+      {
+        element: <AppLayout />,
+        children: [
+          { path: '/', element: <Navigate to="/machines" replace /> },
+          { path: '/machines', element: <MachinesPage /> },
+          { path: '/machines/:id', element: <MachineDetailPage /> },
+          { path: '/conversations', element: <ConversationsPage /> },
+          { path: '/account', element: <AccountPage /> },
+          { path: '/account/billing', element: <BillingPage /> },
+          {
+            element: <AdminOnly />,
+            children: [
+              { path: '/admin', element: <AdminOverviewPage /> },
+              { path: '/admin/users', element: <UsersPage /> },
+              { path: '/admin/machines', element: <AdminMachinesPage /> },
+              { path: '/admin/plans', element: <PlansPage /> },
+              { path: '/admin/overrides', element: <OverridesPage /> },
+              { path: '/admin/audit', element: <AuditPage /> },
+              { path: '/admin/requests', element: <RequestHistoryPage /> },
+              { path: '/admin/explorer', element: <ExplorerPage /> },
+              { path: '/admin/settings', element: <SettingsPage /> },
+            ],
+          },
+        ],
+      },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
-  { path: '*', element: <NotFoundPage /> },
 ]);
 
 export function App() {

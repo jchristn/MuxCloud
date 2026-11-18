@@ -2049,6 +2049,11 @@ table.data td .truncate {
   color: var(--color-success);
 }
 
+.empty-icon-danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
 .empty-body {
   max-width: 420px;
 }

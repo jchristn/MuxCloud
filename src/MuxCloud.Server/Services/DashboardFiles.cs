@@ -85,6 +85,20 @@ namespace MuxCloud.Server.Services
             string full = Path.GetFullPath(Path.Combine(Root, relative));
             bool inside = full.StartsWith(Root + Path.DirectorySeparatorChar, StringComparison.Ordinal) || full == Root;
             bool isFile = inside && File.Exists(full);
+
+            // A missing file that looks like a static asset (under /assets/ or with a file extension) is a 404, not the
+            // SPA shell. Otherwise a browser still holding an older build would receive HTML for a module it imports.
+            if (!isFile && LooksLikeAsset(relative))
+            {
+                ctx.Response.StatusCode = 404;
+                ctx.Response.ContentType = "text/plain; charset=utf-8";
+                ctx.Response.Headers.Add("Cache-Control", "no-store");
+                ctx.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+                if (ctx.Request.Method == HttpMethod.HEAD) await ctx.Response.Send(ctx.Token).ConfigureAwait(false);
+                else await ctx.Response.Send("Not found", ctx.Token).ConfigureAwait(false);
+                return true;
+            }
+
             string file = isFile ? full : Path.Combine(Root, "index.html");
             string ext = Path.GetExtension(file);
             ctx.Response.StatusCode = 200;
@@ -108,6 +122,17 @@ namespace MuxCloud.Server.Services
 
             await ctx.Response.Send(bytes, ctx.Token).ConfigureAwait(false);
             return true;
+        }
+
+        #endregion
+
+        #region Private-Methods
+
+        private static bool LooksLikeAsset(string relative)
+        {
+            if (relative.StartsWith("assets" + Path.DirectorySeparatorChar, StringComparison.Ordinal)) return true;
+            string ext = Path.GetExtension(relative);
+            return !String.IsNullOrEmpty(ext) && _Types.ContainsKey(ext) && !ext.Equals(".html", StringComparison.OrdinalIgnoreCase);
         }
 
         #endregion

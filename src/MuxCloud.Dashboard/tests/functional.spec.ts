@@ -266,3 +266,12 @@ test('every topbar control and status pill has a tooltip', async ({ page }) => {
     expect(missing, route).toEqual([]);
   }
 });
+
+test('a chunk missing after a redeploy reloads once, then explains the update', async ({ page }) => {
+  await mockServer(page);
+  await page.route(/\/assets\/AccountPage-[^/]+\.js$/, (route) => route.fulfill({ status: 404, body: 'Not found' }));
+  await page.goto('/machines');
+  await page.getByRole('link', { name: 'Profile and security' }).first().click();
+  await expect(page.getByRole('heading', { name: 'Mux Cloud was updated' })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('button', { name: 'Reload' })).toBeVisible();
+});

@@ -56,6 +56,8 @@ namespace Test.Shared.Suites
                             HttpResponseMessage asset = await client.GetAsync("/assets/app.js", token).ConfigureAwait(false);
                             TestAssert.True(asset.Content.Headers.ContentType?.MediaType == "text/javascript" && asset.Headers.CacheControl?.MaxAge?.TotalDays > 300, "hashed asset cached");
                             TestAssert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/v1.0/api/nothing", token).ConfigureAwait(false)).StatusCode, "API paths never fall back to the SPA");
+                            TestAssert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/assets/AccountPage-old.js", token).ConfigureAwait(false)).StatusCode, "a chunk from an older build is a 404, not the SPA shell");
+                            TestAssert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/logo-missing.png", token).ConfigureAwait(false)).StatusCode, "a missing static file is a 404");
                         }
 
                         EnrollResponse enrolled = await f.EnrollAsync(TestSettings.AdminEmail, TestSettings.AdminPassword, "studio", token).ConfigureAwait(false);

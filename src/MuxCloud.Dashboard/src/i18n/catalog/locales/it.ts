@@ -577,6 +577,14 @@ export const it: Catalog = {
     englishGoverns: 'Questi documenti sono pubblicati in inglese. Prevale la versione inglese.',
     backToApp: 'Torna a Mux Cloud',
   },
+  errorPage: {
+    title: 'Qualcosa è andato storto',
+    body: 'Questa pagina ha riscontrato un errore imprevisto. Ricarica per riprovare.',
+    updatedTitle: 'Mux Cloud è stato aggiornato',
+    updatedBody: 'È disponibile una versione più recente. Ricarica per continuare.',
+    reload: 'Ricarica',
+    home: 'Vai alle macchine',
+  },
   notFound: {
     title: 'Pagina non trovata',
     body: "Non c'è nulla a questo indirizzo.",

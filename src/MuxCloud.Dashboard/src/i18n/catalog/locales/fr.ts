@@ -583,6 +583,14 @@ export const fr: Catalog = {
     englishGoverns: 'Ces documents sont publiés en anglais. La version anglaise fait foi.',
     backToApp: 'Retour à Mux Cloud',
   },
+  errorPage: {
+    title: 'Un problème est survenu',
+    body: 'Cette page a rencontré une erreur inattendue. Rechargez pour réessayer.',
+    updatedTitle: 'Mux Cloud a été mis à jour',
+    updatedBody: 'Une version plus récente est disponible. Rechargez pour continuer.',
+    reload: 'Recharger',
+    home: 'Aller aux machines',
+  },
   notFound: {
     title: 'Page introuvable',
     body: "Il n'y a rien à cette adresse.",

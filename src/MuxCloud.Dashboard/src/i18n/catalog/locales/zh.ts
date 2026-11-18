@@ -564,6 +564,14 @@ export const zh: Catalog = {
     englishGoverns: '这些文件以英文发布，以英文版本为准。',
     backToApp: '返回 Mux Cloud',
   },
+  errorPage: {
+    title: '出了点问题',
+    body: '此页面遇到意外错误。请重新加载后再试。',
+    updatedTitle: 'Mux Cloud 已更新',
+    updatedBody: '有新版本可用。请重新加载以继续。',
+    reload: '重新加载',
+    home: '前往机器列表',
+  },
   notFound: {
     title: '找不到页面',
     body: '此地址没有内容。',
