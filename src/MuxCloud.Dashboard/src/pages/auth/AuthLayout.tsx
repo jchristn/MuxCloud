@@ -38,7 +38,7 @@ export function AuthLayout({
         <div className="auth-card">
           <div className="auth-brand">
             <span className="auth-wordmark">
-              <Logo className="auth-logo" />
+              <Logo className="auth-logo" green />
               <span className="pill pill-accent">{t('common.cloud')}</span>
             </span>
             <span className="tagline">{t('auth.tagline')}</span>
