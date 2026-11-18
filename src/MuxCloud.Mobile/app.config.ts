@@ -6,7 +6,7 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 //   - EAS_PROJECT_ID: from `npx eas-cli init`. Push tokens need it; without it the app runs and push is off.
 //   - The Apple team id and store credentials live in eas.json / EAS credentials, never here.
 // ---------------------------------------------------------------------------------------------------------------
-const BUNDLE_ID = process.env.MUXCLOUD_MOBILE_BUNDLE_ID ?? 'com.joelchristner.muxcloud';
+const BUNDLE_ID = process.env.MUXCLOUD_MOBILE_BUNDLE_ID ?? 'ai.usemux.app';
 const EAS_PROJECT_ID: string | undefined = process.env.MUXCLOUD_MOBILE_EAS_PROJECT_ID;
 
 // Kept in step with the Mux Cloud release (no independent app versioning).
@@ -19,7 +19,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Mux',
   slug: 'muxcloud-mobile',
-  owner: process.env.MUXCLOUD_MOBILE_EAS_OWNER,
+  owner: process.env.MUXCLOUD_MOBILE_EAS_OWNER ?? 'joel-christner',
   platforms: ['ios', 'android'],
   // Stores accept only numeric versions; the alpha label stays in extra.releaseVersion.
   version: STORE_VERSION,

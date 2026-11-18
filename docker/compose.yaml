@@ -6,7 +6,9 @@
 #   MUXCLOUD_DB_PASSWORD              database password (required)
 #   MUXCLOUD_AUTH_SIGNING_KEY         64+ random characters (required). Keep it stable: changing it signs everyone out
 #                                     and makes every machine sign in again.
-#   MUXCLOUD_ADMIN_PASSWORD           seed administrator password (first boot only)
+#   MUXCLOUD_ADMIN_EMAIL              seed administrator email (default admin@muxcloud.local). Created at startup when no
+#                                     user has this email, so a new address adds another administrator.
+#   MUXCLOUD_ADMIN_PASSWORD           that administrator's first password (used only when it is created)
 #   MUXCLOUD_PUBLIC_URL               the public https URL, for example https://app.usemux.ai
 #   MUXCLOUD_TRUST_FORWARDED_HEADERS  true behind a load balancer or reverse proxy that sets X-Forwarded-For/-Proto
 #   MUXCLOUD_EMAIL_PROVIDER           File (default, writes to ./email-outbox) or Mailgun
@@ -92,6 +94,7 @@ services:
       MUXCLOUD_SETTINGS_FILE: /app/muxcloud.json
       MUXCLOUD_DB_PASSWORD: ${MUXCLOUD_DB_PASSWORD:?set MUXCLOUD_DB_PASSWORD}
       MUXCLOUD_AUTH_SIGNING_KEY: ${MUXCLOUD_AUTH_SIGNING_KEY:?set MUXCLOUD_AUTH_SIGNING_KEY to 64+ random characters}
+      MUXCLOUD_ADMIN_EMAIL: ${MUXCLOUD_ADMIN_EMAIL:-admin@muxcloud.local}
       MUXCLOUD_ADMIN_PASSWORD: ${MUXCLOUD_ADMIN_PASSWORD:-}
       MUXCLOUD_PUBLIC_URL: ${MUXCLOUD_PUBLIC_URL:-http://127.0.0.1:8800}
       MUXCLOUD_TRUST_FORWARDED_HEADERS: ${MUXCLOUD_TRUST_FORWARDED_HEADERS:-false}

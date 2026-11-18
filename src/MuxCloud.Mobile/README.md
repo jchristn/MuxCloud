@@ -78,11 +78,14 @@ content. Until the routes exist the app shows "This server does not send notific
 Ships through TestFlight and Google Play internal testing first, then public listings (PLAN.md decision 5). Before the
 first store build the owner needs:
 
-1. An Apple Developer Program membership and a Google Play Console account.
+1. The publisher is Lattice AI, LLC (organization accounts, D-U-N-S 143-463731), the same as BJJ with Joel: an Apple
+   Developer Program organization membership (enrollment in progress; the Team ID goes in `eas.json`) and a Google Play
+   Console organization account. Store copyright: `2026 Lattice AI, LLC`. Support address: `hello@latticetech.ai`.
 2. `npx eas-cli init` to create the EAS project, then `MUXCLOUD_MOBILE_EAS_PROJECT_ID` set for builds (push tokens
    need it).
-3. The bundle identifier confirmed (`com.joelchristner.muxcloud`, override with `MUXCLOUD_MOBILE_BUNDLE_ID`) and the
-   app registered in App Store Connect and Play Console.
+3. The app registered in App Store Connect and Play Console under bundle identifier and package `ai.usemux.app`
+   (reverse of the usemux.ai domain plus `.app`, the same pattern as `com.bjjwithjoel.app`; override with
+   `MUXCLOUD_MOBILE_BUNDLE_ID`). The EAS owner is `joel-christner` (override with `MUXCLOUD_MOBILE_EAS_OWNER`).
 4. Push credentials: an APNs key in EAS for iOS and an FCM server key / service account for Android.
 5. The `submit` placeholders in `eas.json` filled in (Apple ID, App Store Connect app id, team id, Play service account
    key path).
