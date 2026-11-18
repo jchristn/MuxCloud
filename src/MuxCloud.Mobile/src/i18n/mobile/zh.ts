@@ -1,0 +1,44 @@
+import type { MobileCatalog } from './en';
+
+export const zh: MobileCatalog = {
+  common: { back: '返回', confirm: '确认', all: '全部', name: '名称', filter: '筛选' },
+  auth: { server: '服务器：{{url}}', changeServer: '更换服务器', insecure: '此服务器使用未加密的 HTTP。你的密码和对话在传输中不受加密保护。离开自己的网络时请使用 HTTPS。', readTerms: '服务条款', readPrivacy: '隐私政策', verifyCode: '验证码', verifyCodeHint: '可选：粘贴邮件链接末尾的验证码。', verifyButton: '验证' },
+  server: { title: 'Mux Cloud 服务器', subtitle: '使用 app.usemux.ai，或你自己托管的 Mux Cloud 服务器。', url: '服务器地址', connect: '连接', useDefault: '使用 app.usemux.ai', invalid: '请输入类似 https://app.usemux.ai 的地址。', notMuxCloud: '该地址有响应，但不是 Mux Cloud 服务器。' },
+  machine: { lastSeen: '上次在线 {{time}}', awaiting: '{{count}} 个等待中', runs: '{{count}} 个运行中', manage: '管理', liveReconnecting: '实时更新正在重新连接。下拉以刷新。', offlineConversations: '对话保存在这台电脑上，重新连接后就会显示。', pickConversation: '选择一个对话' },
+  chat: {
+    placeholder: '给 mux 发消息', send: '发送', stop: '停止', thinking: '思考中...', replying: 'mux 正在回复', showThinking: '显示思考过程', hideThinking: '隐藏思考过程', tokens: '{{count}} 个令牌', endpoint: '端点', endpointValue: '端点：{{endpoint}}',
+    noEndpoint: '这台电脑还没有端点。请在“管理”的“端点”中添加。', noEndpointShort: '无', planMode: '计划', planModeHint: '模型先提出计划，在你执行之前不会做任何更改。', planTitle: '提议的计划', runPlan: '执行此计划',
+    switched: '已切换到端点 {{endpoint}}（{{model}}）', mirroring: '在其他界面启动的运行正在这里实时显示。', mirrorAlways: '应用中始终开启实时镜像：任何地方启动的运行都会显示在这里。', unknownCommand: '未知命令：{{command}}（试试 /?）', noStats: '还没有完成的回合。',
+    statsBody: '**上一回合**\n\n- 模型：`{{model}}`\n- 首个令牌用时：{{ttft}} ms\n- 流式输出：{{streaming}} ms\n- 总计：{{total}} ms\n- 令牌：输入 {{input}}，输出 {{output}}',
+    help: '**聊天命令**\n\n- `/?`、`/help`：显示此列表\n- `/new`、`/clear`：开始新对话\n- `/context`、`/stats`：上一回合的用时和令牌\n- `/usage`、`/endpoints`、`/models`、`/mcp`、`/prompts`、`/skills`、`/subagents`、`/pricing`、`/hooks`、`/commands`、`/keybindings`、`/settings`：打开对应页面\n- `/<skill> 参数`：运行一个技能',
+  },
+  approval: { title: '允许 mux 运行 {{tool}} 吗？', aTool: '一个工具', onMachine: '在 {{name}} 上', approve: '批准', always: '本次会话都批准', deny: '拒绝', autoIn: '{{seconds}} 秒后自动批准', noAuto: '此端点已关闭自动批准。' },
+  approvals: { tab: '审批', title: '等待审批', intro: '你的电脑上暂停等待工具审批的运行。', waiting: '等待中', empty: '没有等待中的项目', emptyBody: '当某次运行需要工具审批时，会显示在这里并发送通知。', open: '打开 {{name}} 上等待中的运行', someOff: '部分电脑关闭了远程工具审批。从这里在这些电脑上启动的运行会拒绝需要审批的工具。' },
+  new: { endpoint: '端点和模型', addEndpoint: '添加端点', default: '默认', folder: '工作文件夹', folderPath: '电脑上的文件夹', folderHint: '电脑上任意已存在的文件夹。留空则使用 mux 当前运行的位置。', folderPlaceholder: '/Users/me/projects/app', home: '主文件夹', sessions: '{{count}} 个对话', start: '开始对话' },
+  session: { title: '标题', rename: '重命名', labelsHint: '用逗号分隔。', tags: '标记', tagsHint: '用逗号分隔的 键=值 对。', saveMetadata: '保存标签和标记', export: '导出', share: '导出并分享', deleteTitle: '删除“{{title}}”？', deleteBody: '对话将从电脑上删除，且无法恢复。', select: '选择', deleteSelected: '删除所选的 {{count}} 个', bulkDeleteTitle: '删除 {{count}} 个对话？', longPressHint: '长按查看操作。' },
+  manage: {
+    configure: '配置', defaultEndpoint: '默认端点', noDefault: '还没有默认端点。', environment: '环境', version: 'mux 版本', uptime: '运行时间', activePrompt: '当前提示词', auth: 'API 密钥', configDir: '配置文件夹', cloudIncluded: '包含 Mux Cloud',
+    endpoints: '端点', endpointsIntro: '这台电脑可以使用的模型后端。', mcp: 'MCP 服务器', mcpIntro: 'mux 连接的工具服务器。', prompts: '提示词', promptsIntro: '系统提示词配置，只有一个处于启用状态。', subagents: '子代理', subagentsIntro: '主代理可以委派任务的专用代理。',
+    hooks: '钩子', hooksIntro: '在代理事件发生时运行的命令。', commands: '自定义命令', commandsIntro: '运行程序的斜杠命令。', keybindings: '快捷键', keybindingsIntro: 'mux 终端界面的快捷键。',
+    settings: '设置', settingsIntro: '这台电脑上的全部 mux 设置，包括 Mux Cloud。', catalog: '提示词目录', catalogIntro: 'mux 内置使用的提示词及其覆盖设置。', skills: '技能', skillsIntro: '技能和技能包。', usage: '用量', usageIntro: '调用次数、令牌、费用和延迟。',
+    pricing: '价格', pricingIntro: '每百万令牌的价格，用于计算费用。', palettes: '配色方案', palettesIntro: '这台电脑的终端、桌面应用、控制面板和 VS Code 使用的颜色。', add: '添加到{{name}}', active: '已启用', secretSet: '已保存密钥',
+    validate: '测试连接', validateOk: '已连接', validateFailed: '无法连接', validateTools: '有 {{count}} 个可用工具。', setDefault: '设为默认', activate: '启用', importModels: '导入模型', importTitle: '导入 {{count}} 个模型？', importAll: '全部导入', importFailed: '无法列出模型。', saved: '已保存。', settingsRemote: '更改会应用到这台电脑，效果与在电脑上直接操作完全相同。',
+  },
+  form: { onePerLine: '每行一项。', addItem: '添加到{{name}}', secretPlaceholder: '留空以保留已保存的值', notANumber: '请输入数字。', keyRequired: '{{field}} 为必填项。', duplicate: '“{{name}}”已存在。', deleteTitle: '删除“{{name}}”？', deleteBody: '这会将其从电脑上移除。', emptyTitle: '{{name}}中还没有内容', unnamed: '（未命名）' },
+  skills: { packs: '技能包', create: '新建技能', enable: '启用 {{name}}', invalid: '无效', mutating: '会修改文件', category: '类别', categoryHint: '留空则使用技能文件中的类别。', install: '安装', remove: '移除', installAll: '全部安装', removeAll: '全部移除' },
+  catalog: { overridden: '已覆盖', reset: '恢复默认', effective: '提示词内容', default: '默认', placeholders: '占位符：{{list}}' },
+  usage: {
+    range: '时间范围', ranges: { hour: '小时', day: '天', week: '周', month: '月', quarter: '季度', year: '年', all: '全部' }, dims: { model: '模型', endpoint: '端点', provider: '提供商', callkind: '调用类型' },
+    calls: '调用', tokens: '令牌', cost: '费用', errorRate: '错误率', timeline: '随时间变化', breakdown: '明细', failures: '失败', noFailures: '没有失败的调用。', heatmap: '令牌热力图', history: '调用记录', exportCsv: '导出 CSV', empty: '此时间范围内没有用量。', disabled: '这台电脑已关闭用量统计。请在它的设置中开启。',
+  },
+  pricing: { model: '模型', input: '输入', cached: '缓存输入', output: '输出', add: '添加模型' },
+  palettes: { system: '跟随系统', dark: '深色', light: '浅色', builtIn: '内置', custom: '自定义', longPress: '轻点以使用配色方案，长按以自定义。', saveCopy: '另存为自定义配色方案' },
+  account: { tab: '账户', title: '账户', verified: '邮箱已验证', unverified: '邮箱未验证', plan: '方案：{{plan}}', profile: '个人资料', password: '密码', currentPassword: '当前密码', changePassword: '修改密码', passwordChanged: '密码已修改，其他会话已退出登录。', sessions: '已登录的会话', thisDevice: '此设备', revoke: '退出登录', revoked: '会话已退出登录。', appSettings: '应用设置', signOut: '退出登录', deleteAccount: '删除账户', deleteBody: '你的账户、电脑和会话将从 Mux Cloud 中删除。对话仍保留在你的电脑上。此操作无法撤销。', deleteConfirm: '输入 {{word}} 以确认。', deleteWord: 'DELETE' },
+  settings: {
+    server: '服务器', serverHint: '轻点以更换。每个服务器都保留各自的登录状态。', theme: '外观', themeSystem: '系统', themeLight: '浅色', themeDark: '深色', language: '语言', languageDevice: '使用设备语言', restartForDirection: '请重新启动应用以切换布局方向。', security: '安全',
+    biometric: '使用面容 ID 或指纹锁定', biometricHint: '打开应用和返回应用时都会要求验证。', biometricUnavailable: '请先在此设备上设置面容 ID、触控 ID 或指纹。', notifications: '通知',
+    push: { unknown: '正在检查通知...', registered: '当运行需要审批或完成时，你会收到通知。', denied: 'Mux 的通知已关闭。请在系统设置中开启。', notConfigured: '此版本未配置通知。', unsupported: '此服务器暂不发送通知。', simulator: '通知需要真实设备。', failed: '无法开启通知。' },
+    about: '关于', version: '版本', operator: '运营方', contact: '联系方式',
+  },
+  lock: { title: 'Mux 已锁定', unlock: '解锁', prompt: '解锁 Mux' },
+};

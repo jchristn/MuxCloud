@@ -1,0 +1,674 @@
+{
+  "comment": "Every feature of the mux local dashboard (src/Mux.Server/DashboardTemplate.cs) mapped to a mobile screen. Parity rule: each is implemented, or not-applicable with a reason. Checked by npm run parity:check; scripts/parity.js --write adds any new dashboard view as planned.",
+  "views": [
+    "chat",
+    "commands",
+    "endpoints",
+    "home",
+    "hooks",
+    "keybindings",
+    "mcp",
+    "palettes",
+    "pricing",
+    "prompts",
+    "sessions",
+    "settings",
+    "skills",
+    "subagents",
+    "usage"
+  ],
+  "features": [
+    {
+      "id": "home.kpis",
+      "view": "home",
+      "feature": "Configuration counts (endpoints, MCP, prompts, subagents, skills, hooks, keybindings, sessions)",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/index.tsx",
+      "api": [
+        "GET /v1.0/api/overview"
+      ]
+    },
+    {
+      "id": "home.notices",
+      "view": "home",
+      "feature": "Setup notices",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/index.tsx",
+      "api": [
+        "GET /v1.0/api/overview"
+      ]
+    },
+    {
+      "id": "home.defaultEndpoint",
+      "view": "home",
+      "feature": "Default endpoint card",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/index.tsx"
+    },
+    {
+      "id": "home.environment",
+      "view": "home",
+      "feature": "Version, uptime, active prompt, auth, config folder",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/index.tsx"
+    },
+    {
+      "id": "home.recentSessions",
+      "view": "home",
+      "feature": "Recent conversations",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/index.tsx",
+      "api": [
+        "GET /v1.0/api/sessions"
+      ]
+    },
+    {
+      "id": "chat.send",
+      "view": "chat",
+      "feature": "Send a message and stream the reply (SSE)",
+      "status": "implemented",
+      "screen": "components/ConversationView.tsx",
+      "api": [
+        "POST /v1.0/api/chat/stream"
+      ]
+    },
+    {
+      "id": "chat.markdown",
+      "view": "chat",
+      "feature": "Markdown rendering of replies",
+      "status": "implemented",
+      "screen": "components/Markdown.tsx"
+    },
+    {
+      "id": "chat.thinking",
+      "view": "chat",
+      "feature": "Thinking display",
+      "status": "implemented",
+      "screen": "components/TurnView.tsx"
+    },
+    {
+      "id": "chat.tools",
+      "view": "chat",
+      "feature": "Tool call progress and timing",
+      "status": "implemented",
+      "screen": "components/TurnView.tsx"
+    },
+    {
+      "id": "chat.approval",
+      "view": "chat",
+      "feature": "Tool approval: approve, approve for session, deny, auto-approve countdown",
+      "status": "implemented",
+      "screen": "components/ApprovalCard.tsx",
+      "api": [
+        "POST /v1.0/api/chat/approve",
+        "WS approval_requested"
+      ]
+    },
+    {
+      "id": "chat.cancel",
+      "view": "chat",
+      "feature": "Stop a running turn",
+      "status": "implemented",
+      "screen": "components/ConversationView.tsx",
+      "api": [
+        "POST /v1.0/api/runs/{runId}/cancel"
+      ]
+    },
+    {
+      "id": "chat.endpointPicker",
+      "view": "chat",
+      "feature": "Endpoint and model picker, with model warm-up",
+      "status": "implemented",
+      "screen": "components/ConversationView.tsx",
+      "api": [
+        "GET /v1.0/api/endpoints",
+        "POST /v1.0/api/model/load"
+      ]
+    },
+    {
+      "id": "chat.endpointSwitch",
+      "view": "chat",
+      "feature": "Switch endpoint mid-conversation (recorded in the transcript)",
+      "status": "implemented",
+      "screen": "components/ConversationView.tsx",
+      "api": [
+        "PUT /v1.0/api/sessions"
+      ]
+    },
+    {
+      "id": "chat.workingDirectory",
+      "view": "chat",
+      "feature": "Working folder for a new conversation",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/new.tsx",
+      "api": [
+        "GET /v1.0/api/workspaces"
+      ]
+    },
+    {
+      "id": "chat.planMode",
+      "view": "chat",
+      "feature": "Plan mode and running a proposed plan",
+      "status": "implemented",
+      "screen": "components/ConversationView.tsx"
+    },
+    {
+      "id": "chat.slashCommands",
+      "view": "chat",
+      "feature": "Chat commands (/?, /new, /stats, screen shortcuts)",
+      "status": "implemented",
+      "screen": "components/ConversationView.tsx"
+    },
+    {
+      "id": "chat.skills",
+      "view": "chat",
+      "feature": "/<skill> expansion",
+      "status": "implemented",
+      "screen": "components/ConversationView.tsx",
+      "api": [
+        "POST /v1.0/api/skills/expand"
+      ]
+    },
+    {
+      "id": "chat.mirror",
+      "view": "chat",
+      "feature": "Live mirror of runs started on other surfaces",
+      "status": "implemented",
+      "screen": "components/ConversationView.tsx",
+      "api": [
+        "WS subscribe sessionId"
+      ]
+    },
+    {
+      "id": "chat.stats",
+      "view": "chat",
+      "feature": "Per-turn timing and token stats",
+      "status": "implemented",
+      "screen": "components/TurnView.tsx"
+    },
+    {
+      "id": "chat.newChat",
+      "view": "chat",
+      "feature": "New conversation",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/new.tsx"
+    },
+    {
+      "id": "chat.fileMentions",
+      "view": "chat",
+      "feature": "@file completion while typing",
+      "status": "not-applicable",
+      "api": [
+        "GET /v1.0/api/files/complete"
+      ],
+      "reason": "The mobile composer has no inline completion menu; type the path. The machine still resolves @mentions in sent text."
+    },
+    {
+      "id": "sessions.list",
+      "view": "sessions",
+      "feature": "Conversation list",
+      "status": "implemented",
+      "screen": "components/ConversationList.tsx",
+      "api": [
+        "GET /v1.0/api/sessions"
+      ]
+    },
+    {
+      "id": "sessions.search",
+      "view": "sessions",
+      "feature": "Search conversations",
+      "status": "implemented",
+      "screen": "components/ConversationList.tsx"
+    },
+    {
+      "id": "sessions.filter",
+      "view": "sessions",
+      "feature": "Filter by label and tag",
+      "status": "implemented",
+      "screen": "components/ConversationList.tsx"
+    },
+    {
+      "id": "sessions.open",
+      "view": "sessions",
+      "feature": "Open and continue a conversation",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/conversation/[sessionId].tsx",
+      "api": [
+        "GET /v1.0/api/sessions/detail"
+      ]
+    },
+    {
+      "id": "sessions.rename",
+      "view": "sessions",
+      "feature": "Rename",
+      "status": "implemented",
+      "screen": "components/SessionActions.tsx",
+      "api": [
+        "PUT /v1.0/api/sessions"
+      ]
+    },
+    {
+      "id": "sessions.labelsTags",
+      "view": "sessions",
+      "feature": "Labels and tags",
+      "status": "implemented",
+      "screen": "components/SessionActions.tsx",
+      "api": [
+        "POST /v1.0/api/sessions/{id}/metadata"
+      ]
+    },
+    {
+      "id": "sessions.export",
+      "view": "sessions",
+      "feature": "Export as Markdown or JSON",
+      "status": "implemented",
+      "screen": "components/SessionActions.tsx",
+      "api": [
+        "GET /v1.0/api/sessions/export"
+      ]
+    },
+    {
+      "id": "sessions.delete",
+      "view": "sessions",
+      "feature": "Delete",
+      "status": "implemented",
+      "screen": "components/SessionActions.tsx",
+      "api": [
+        "DELETE /v1.0/api/sessions"
+      ]
+    },
+    {
+      "id": "sessions.bulkDelete",
+      "view": "sessions",
+      "feature": "Select and delete several",
+      "status": "implemented",
+      "screen": "components/ConversationList.tsx"
+    },
+    {
+      "id": "sessions.crossMachine",
+      "view": "sessions",
+      "feature": "Conversations across machines, filter by machine",
+      "status": "implemented",
+      "screen": "app/(app)/conversations/index.tsx"
+    },
+    {
+      "id": "endpoints.list",
+      "view": "endpoints",
+      "feature": "List endpoints",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
+      "api": [
+        "GET /v1.0/api/endpoints/detail"
+      ]
+    },
+    {
+      "id": "endpoints.edit",
+      "view": "endpoints",
+      "feature": "Add and edit (all adapters, keys, headers, reasoning effort)",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
+      "api": [
+        "PUT /v1.0/api/endpoints"
+      ]
+    },
+    {
+      "id": "endpoints.delete",
+      "view": "endpoints",
+      "feature": "Delete",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
+      "api": [
+        "DELETE /v1.0/api/endpoints"
+      ]
+    },
+    {
+      "id": "endpoints.default",
+      "view": "endpoints",
+      "feature": "Make default",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx"
+    },
+    {
+      "id": "endpoints.import",
+      "view": "endpoints",
+      "feature": "Import models from an endpoint",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
+      "api": [
+        "GET /v1.0/api/endpoints/models",
+        "POST /v1.0/api/endpoints/import"
+      ]
+    },
+    {
+      "id": "mcp.edit",
+      "view": "mcp",
+      "feature": "List, add, edit, delete MCP servers",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
+      "api": [
+        "GET /v1.0/api/mcp-servers",
+        "PUT /v1.0/api/mcp-servers",
+        "DELETE /v1.0/api/mcp-servers"
+      ]
+    },
+    {
+      "id": "mcp.validate",
+      "view": "mcp",
+      "feature": "Test an MCP server connection",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
+      "api": [
+        "POST /v1.0/api/mcp-servers/validate"
+      ]
+    },
+    {
+      "id": "prompts.edit",
+      "view": "prompts",
+      "feature": "Prompt profiles: add, edit, delete",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
+      "api": [
+        "GET /v1.0/api/prompts",
+        "PUT /v1.0/api/prompts"
+      ]
+    },
+    {
+      "id": "prompts.activate",
+      "view": "prompts",
+      "feature": "Make a prompt profile active",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx"
+    },
+    {
+      "id": "prompts.catalog",
+      "view": "prompts",
+      "feature": "Prompt catalog: view defaults, override, reset",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/catalog.tsx",
+      "api": [
+        "GET /v1.0/api/prompts/catalog",
+        "PUT /v1.0/api/prompts/catalog"
+      ]
+    },
+    {
+      "id": "subagents.edit",
+      "view": "subagents",
+      "feature": "Subagents: add, edit, delete",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
+      "api": [
+        "GET /v1.0/api/subagents",
+        "PUT /v1.0/api/subagents"
+      ]
+    },
+    {
+      "id": "hooks.edit",
+      "view": "hooks",
+      "feature": "Hooks: add, edit, delete",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
+      "api": [
+        "GET /v1.0/api/hooks",
+        "PUT /v1.0/api/hooks"
+      ]
+    },
+    {
+      "id": "commands.edit",
+      "view": "commands",
+      "feature": "Custom commands: add, edit, delete",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
+      "api": [
+        "GET /v1.0/api/hooks",
+        "PUT /v1.0/api/hooks"
+      ]
+    },
+    {
+      "id": "keybindings.edit",
+      "view": "keybindings",
+      "feature": "Keybindings for the terminal UI",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
+      "api": [
+        "GET /v1.0/api/keybindings",
+        "PUT /v1.0/api/keybindings"
+      ]
+    },
+    {
+      "id": "skills.list",
+      "view": "skills",
+      "feature": "Skills with validity and category filter",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/skills.tsx",
+      "api": [
+        "GET /v1.0/api/skills",
+        "GET /v1.0/api/skills/categories"
+      ]
+    },
+    {
+      "id": "skills.enable",
+      "view": "skills",
+      "feature": "Enable and disable",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/skills.tsx",
+      "api": [
+        "PUT /v1.0/api/skills/enabled"
+      ]
+    },
+    {
+      "id": "skills.edit",
+      "view": "skills",
+      "feature": "View and edit SKILL.md, set category",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/skills.tsx",
+      "api": [
+        "GET /v1.0/api/skills/detail",
+        "PUT /v1.0/api/skills/body",
+        "PUT /v1.0/api/skills/category"
+      ]
+    },
+    {
+      "id": "skills.create",
+      "view": "skills",
+      "feature": "Create and delete skills",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/skills.tsx",
+      "api": [
+        "POST /v1.0/api/skills",
+        "DELETE /v1.0/api/skills"
+      ]
+    },
+    {
+      "id": "skills.packs",
+      "view": "skills",
+      "feature": "Browse, install, and remove skill packs",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/skills.tsx",
+      "api": [
+        "GET /v1.0/api/skills/packs",
+        "POST /v1.0/api/skills/packs/install",
+        "POST /v1.0/api/skills/packs/remove"
+      ]
+    },
+    {
+      "id": "usage.summary",
+      "view": "usage",
+      "feature": "Totals: calls, tokens, cost, error rate",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/usage.tsx",
+      "api": [
+        "GET /v1.0/api/usage/summary"
+      ]
+    },
+    {
+      "id": "usage.range",
+      "view": "usage",
+      "feature": "Range from an hour to all time",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/usage.tsx"
+    },
+    {
+      "id": "usage.timeline",
+      "view": "usage",
+      "feature": "Timeline by tokens, calls, or cost",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/usage.tsx",
+      "api": [
+        "GET /v1.0/api/usage/timeseries"
+      ]
+    },
+    {
+      "id": "usage.breakdown",
+      "view": "usage",
+      "feature": "Breakdown by model, endpoint, provider, call kind",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/usage.tsx",
+      "api": [
+        "GET /v1.0/api/usage/breakdown"
+      ]
+    },
+    {
+      "id": "usage.failures",
+      "view": "usage",
+      "feature": "Failure reasons",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/usage.tsx",
+      "api": [
+        "GET /v1.0/api/usage/errors"
+      ]
+    },
+    {
+      "id": "usage.heatmap",
+      "view": "usage",
+      "feature": "Token heatmap",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/usage.tsx",
+      "api": [
+        "GET /v1.0/api/usage/heatmap"
+      ]
+    },
+    {
+      "id": "usage.history",
+      "view": "usage",
+      "feature": "Call history and CSV export",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/usage.tsx",
+      "api": [
+        "GET /v1.0/api/usage/events"
+      ]
+    },
+    {
+      "id": "usage.filters",
+      "view": "usage",
+      "feature": "Filter by endpoint, model, label, tag",
+      "status": "not-applicable",
+      "reason": "The phone layout keeps the range and dimension pickers; per-endpoint and per-model views are in the breakdown. Fine-grained filters stay on the web dashboard, which is the same page as the local one."
+    },
+    {
+      "id": "usage.splitChart",
+      "view": "usage",
+      "feature": "Stacked tokens-by-dimension chart",
+      "status": "not-applicable",
+      "api": [
+        "GET /v1.0/api/usage/timeseries/split"
+      ],
+      "reason": "Replaced on phones by the breakdown list for the same dimension; a stacked chart is unreadable at phone width."
+    },
+    {
+      "id": "usage.pngExport",
+      "view": "usage",
+      "feature": "Export the chart as PNG",
+      "status": "not-applicable",
+      "reason": "Use the system screenshot on a phone."
+    },
+    {
+      "id": "usage.deleteEvents",
+      "view": "usage",
+      "feature": "Delete usage history",
+      "status": "not-applicable",
+      "api": [
+        "DELETE /v1.0/api/usage/events"
+      ],
+      "reason": "A destructive bulk operation kept to the web and local dashboards, which show the full history being deleted."
+    },
+    {
+      "id": "pricing.edit",
+      "view": "pricing",
+      "feature": "Model pricing table",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/pricing.tsx",
+      "api": [
+        "GET /v1.0/api/usage/pricing",
+        "PUT /v1.0/api/usage/pricing"
+      ]
+    },
+    {
+      "id": "settings.form",
+      "view": "settings",
+      "feature": "Every mux setting, including REST and Mux Cloud",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/settings.tsx",
+      "api": [
+        "GET /v1.0/api/settings",
+        "PUT /v1.0/api/settings"
+      ]
+    },
+    {
+      "id": "settings.cloud",
+      "view": "settings",
+      "feature": "Mux Cloud panel (remote tool approval switch)",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/settings.tsx"
+    },
+    {
+      "id": "settings.setupWizard",
+      "view": "settings",
+      "feature": "First-run setup wizard",
+      "status": "not-applicable",
+      "reason": "The wizard runs once on the machine itself; remote users add endpoints under Manage, Endpoints, which covers the same steps."
+    },
+    {
+      "id": "palettes.select",
+      "view": "palettes",
+      "feature": "Choose the color palette",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/palettes.tsx",
+      "api": [
+        "GET /v1.0/api/palettes",
+        "PUT /v1.0/api/palettes/active"
+      ]
+    },
+    {
+      "id": "palettes.custom",
+      "view": "palettes",
+      "feature": "Customize and delete palettes",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/palettes.tsx",
+      "api": [
+        "PUT /v1.0/api/palettes",
+        "DELETE /v1.0/api/palettes"
+      ]
+    },
+    {
+      "id": "shell.language",
+      "view": "shell",
+      "feature": "Language selector",
+      "status": "implemented",
+      "screen": "app/(app)/account/settings.tsx"
+    },
+    {
+      "id": "shell.theme",
+      "view": "shell",
+      "feature": "Light and dark theme",
+      "status": "implemented",
+      "screen": "app/(app)/account/settings.tsx"
+    },
+    {
+      "id": "shell.serverUrl",
+      "view": "shell",
+      "feature": "Copy the local server URL and API key",
+      "status": "not-applicable",
+      "reason": "The machine is reached through Mux Cloud, not its local URL; the API key stays masked exactly as the local dashboard masks it."
+    }
+  ]
+}

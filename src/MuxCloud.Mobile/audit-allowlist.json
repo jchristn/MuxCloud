@@ -1,0 +1,23 @@
+{
+  "comment": "Reviewed npm advisories that do not reach the shipped app. Each entry: the advisory, the package, where it is used, and why the app is not affected. scripts/check-audit.js fails on any advisory not listed here. Remove an entry as soon as a fixed version can be installed.",
+  "advisories": [
+    {
+      "id": "GHSA-fc5q-39xc-vjpf",
+      "package": "picomatch",
+      "severity": "high",
+      "reason": "ReDoS on crafted extglob patterns. Used only by build and test tooling (Metro, Jest, Expo CLI, typescript-eslint file matching) with glob patterns from this project's own configuration, never from user input, and not in the app bundle. No fixed release exists (4.0.7 is the latest)."
+    },
+    {
+      "id": "GHSA-g3hv-75wg-m249",
+      "package": "minimatch",
+      "severity": "moderate",
+      "reason": "Denial of service via globparts amplification. Build and test tooling only (Jest coverage, Expo fingerprinting, glob) with project-controlled patterns; not in the app bundle. The fixed major (11) is not accepted by the dependent tools' ranges."
+    },
+    {
+      "id": "GHSA-3g3m-2fjr-6pw4",
+      "package": "glob",
+      "severity": "moderate",
+      "reason": "AbortSignal cancellation bypass. Build and test tooling only (Jest, babel-plugin-istanbul) walking this project's own folders; the app never passes an AbortSignal to glob and glob is not in the app bundle."
+    }
+  ]
+}
