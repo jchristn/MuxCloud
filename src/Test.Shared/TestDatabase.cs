@@ -124,6 +124,36 @@ namespace Test.Shared
         }
 
         /// <summary>
+        /// Close idle pooled connections. Each test uses its own database, so without this every finished test would leave a
+        /// pool open and a server engine would run out of connections (PostgreSQL defaults to 100).
+        /// </summary>
+        public static void ReleasePools()
+        {
+            try
+            {
+                switch (Provider)
+                {
+                    case DatabaseTypeEnum.Postgresql:
+                        NpgsqlConnection.ClearAllPools();
+                        break;
+                    case DatabaseTypeEnum.Mysql:
+                        MySqlConnection.ClearAllPools();
+                        break;
+                    case DatabaseTypeEnum.SqlServer:
+                        SqlConnection.ClearAllPools();
+                        break;
+                    default:
+                        Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+                        break;
+                }
+            }
+            catch (Exception)
+            {
+                // Best effort.
+            }
+        }
+
+        /// <summary>
         /// Drop every database this process created (best effort).
         /// </summary>
         /// <returns>Task.</returns>

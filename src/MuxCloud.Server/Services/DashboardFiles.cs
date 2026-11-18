@@ -28,6 +28,13 @@ namespace MuxCloud.Server.Services
             get { return File.Exists(Path.Combine(Root, "index.html")); }
         }
 
+        /// <summary>
+        /// Content-Security-Policy sent with dashboard HTML. The dashboard loads no inline scripts; styles may be inline.
+        /// Relayed machine pages (/m/{machineId}/...) never get this policy, because the machine's own dashboard uses inline
+        /// scripts; they get only frame-ancestors 'self'.
+        /// </summary>
+        public const string ContentSecurityPolicy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-src 'self'; frame-ancestors 'self'";
+
         #endregion
 
         #region Private-Members
@@ -87,7 +94,8 @@ namespace MuxCloud.Server.Services
             ctx.Response.Headers.Add("X-Content-Type-Options", "nosniff");
             if (!isFile || ext.Equals(".html", StringComparison.OrdinalIgnoreCase))
             {
-                ctx.Response.Headers.Add("Content-Security-Policy", "frame-ancestors 'self'");
+                ctx.Response.Headers.Add("Content-Security-Policy", ContentSecurityPolicy);
+                ctx.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
                 ctx.Response.Headers.Add("Referrer-Policy", "same-origin");
             }
 

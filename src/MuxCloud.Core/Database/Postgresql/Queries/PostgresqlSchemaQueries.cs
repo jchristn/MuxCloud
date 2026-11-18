@@ -232,6 +232,22 @@ namespace MuxCloud.Core.Database.Postgresql.Queries
                     "    created_utc TIMESTAMPTZ NOT NULL\n" +
                     ")",
                     "CREATE INDEX IF NOT EXISTS ix_request_history_created ON request_history (created_utc)"
+                }),
+                new SchemaMigration(2, "Push devices", new List<string>
+                {
+                    "CREATE TABLE IF NOT EXISTS devices (\n" +
+                    "    id VARCHAR(64) NOT NULL PRIMARY KEY,\n" +
+                    "    tenant_id VARCHAR(64) NOT NULL,\n" +
+                    "    user_id VARCHAR(64) NOT NULL,\n" +
+                    "    expo_push_token VARCHAR(256) NOT NULL,\n" +
+                    "    platform VARCHAR(16) NOT NULL,\n" +
+                    "    name VARCHAR(100) NOT NULL,\n" +
+                    "    created_utc TIMESTAMPTZ NOT NULL,\n" +
+                    "    last_update_utc TIMESTAMPTZ NOT NULL\n" +
+                    ")",
+                    "CREATE UNIQUE INDEX IF NOT EXISTS ux_devices_token ON devices (tenant_id, user_id, expo_push_token)",
+                    "CREATE INDEX IF NOT EXISTS ix_devices_user ON devices (tenant_id, user_id)",
+                    "CREATE INDEX IF NOT EXISTS ix_devices_token ON devices (expo_push_token)"
                 })
             };
         }

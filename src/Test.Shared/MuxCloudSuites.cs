@@ -27,7 +27,9 @@ namespace Test.Shared
                     AccountSuites.Accounts(),
                     EmailSuites.Email(),
                     ServerSuites.Http(),
-                    ServerSuites.Tunnel()
+                    ServerSuites.Tunnel(),
+                    DeviceSuites.Devices(),
+                    ContractSuites.Dashboard()
                 };
             }
         }

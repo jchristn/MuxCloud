@@ -36,6 +36,11 @@ namespace MuxCloud.Core
         public const string UserPrefix = "usr_";
 
         /// <summary>
+        /// Push device identifier prefix.
+        /// </summary>
+        public const string DevicePrefix = "dev_";
+
+        /// <summary>
         /// Session identifier prefix.
         /// </summary>
         public const string SessionPrefix = "ses_";

@@ -116,6 +116,44 @@ namespace MuxCloud.Core.Responses
         }
 
         /// <summary>
+        /// Override to response.
+        /// </summary>
+        /// <param name="item">Override.</param>
+        /// <returns>Response.</returns>
+        public static EntitlementOverrideDto ToDto(EntitlementOverride item)
+        {
+            ArgumentNullException.ThrowIfNull(item);
+            return new EntitlementOverrideDto { Id = item.Id, AccountId = item.AccountId, FeatureKey = item.FeatureKey, Limit = item.LimitValue, Reason = item.Reason, ExpiresUtc = item.ExpiresUtc, CreatedUtc = item.CreatedUtc };
+        }
+
+        /// <summary>
+        /// Audit record to response.
+        /// </summary>
+        /// <param name="record">Record.</param>
+        /// <param name="principal">Who acted (email, user identifier, or system).</param>
+        /// <returns>Response.</returns>
+        public static AuditRecordDto ToDto(AuditRecord record, string principal)
+        {
+            ArgumentNullException.ThrowIfNull(record);
+            return new AuditRecordDto
+            {
+                Id = record.Id,
+                EventType = record.EventType,
+                Result = record.Result,
+                Reason = record.Reason,
+                UserId = record.UserId,
+                TenantId = record.TenantId,
+                Principal = principal ?? String.Empty,
+                ResourceType = record.ResourceType,
+                ResourceId = record.ResourceId,
+                SourceIp = record.SourceIp,
+                RequestId = record.RequestId,
+                Message = record.Message,
+                CreatedUtc = record.CreatedUtc
+            };
+        }
+
+        /// <summary>
         /// Plan to response.
         /// </summary>
         /// <param name="plan">Plan.</param>

@@ -232,6 +232,22 @@ namespace MuxCloud.Core.Database.Sqlite.Queries
                     "    created_utc TEXT NOT NULL\n" +
                     ")",
                     "CREATE INDEX IF NOT EXISTS ix_request_history_created ON request_history (created_utc)"
+                }),
+                new SchemaMigration(2, "Push devices", new List<string>
+                {
+                    "CREATE TABLE IF NOT EXISTS devices (\n" +
+                    "    id TEXT NOT NULL PRIMARY KEY,\n" +
+                    "    tenant_id TEXT NOT NULL,\n" +
+                    "    user_id TEXT NOT NULL,\n" +
+                    "    expo_push_token TEXT NOT NULL,\n" +
+                    "    platform TEXT NOT NULL,\n" +
+                    "    name TEXT NOT NULL,\n" +
+                    "    created_utc TEXT NOT NULL,\n" +
+                    "    last_update_utc TEXT NOT NULL\n" +
+                    ")",
+                    "CREATE UNIQUE INDEX IF NOT EXISTS ux_devices_token ON devices (tenant_id, user_id, expo_push_token)",
+                    "CREATE INDEX IF NOT EXISTS ix_devices_user ON devices (tenant_id, user_id)",
+                    "CREATE INDEX IF NOT EXISTS ix_devices_token ON devices (expo_push_token)"
                 })
             };
         }

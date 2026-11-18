@@ -11,3 +11,4 @@ email-outbox/
 user-testing/
 *.md
 !README.md
+!LICENSE.md

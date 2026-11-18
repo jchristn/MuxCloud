@@ -77,6 +77,34 @@ dotnet run --project src/MuxCloud.Server --framework net10.0
 
 The first run writes `muxcloud.json` with a generated signing key, uses SQLite (`muxcloud.db`), listens on `http://127.0.0.1:8800`, and logs a generated administrator password once. If `src/MuxCloud.Dashboard/dist` exists when the server builds, the dashboard is served from the same origin.
 
+## Dashboard
+
+`src/MuxCloud.Dashboard` is the web dashboard: sign up and sign in, machines with live status, each machine's own mux dashboard through the relay, conversations across machines, account and plan, and administration. React 19, Vite, React Router 7, TypeScript, and i18next.
+
+```
+cd src/MuxCloud.Dashboard
+npm install
+npm run dev        # http://127.0.0.1:5173, proxying the API to http://127.0.0.1:8800
+npm run build      # dist/, served by the server from the same origin
+npm test           # i18n gate and unit tests
+npm run test:e2e   # Playwright against a mocked API
+```
+
+The server copies `dist/` next to itself when it builds, and the Docker image builds it in its own stage. Dashboard pages get a strict Content-Security-Policy; see [src/MuxCloud.Dashboard/README.md](src/MuxCloud.Dashboard/README.md).
+
+## Mobile app
+
+`src/MuxCloud.Mobile` is the iPhone, iPad, and Android app (Expo): machines with live online state, conversations, streaming chat, tool approvals, new conversations in any folder, machine management, and push notifications for approvals and finished runs. It shares the dashboard's API client, types, and translations.
+
+```
+cd src/MuxCloud.Mobile
+npm install
+npm start          # Expo dev server; i for iOS, a for Android
+npm run verify     # typecheck, lint, i18n, parity, audit, tests
+```
+
+It talks to `https://app.usemux.ai` by default; change the server on the sign-in screen for local development. See [src/MuxCloud.Mobile/README.md](src/MuxCloud.Mobile/README.md).
+
 ## Configuration
 
 Settings live in `muxcloud.json` (path from `--config`, then `MUXCLOUD_SETTINGS_FILE`). Environment variables override the file and are never written back to it.
@@ -94,6 +122,8 @@ Settings live in `muxcloud.json` (path from `--config`, then `MUXCLOUD_SETTINGS_
 | `Admin.Email`, `Admin.Password` | `admin@muxcloud.local`, generated | `MUXCLOUD_ADMIN_EMAIL`, `MUXCLOUD_ADMIN_PASSWORD` |
 | `Email.Provider` | `File` | `MUXCLOUD_EMAIL_PROVIDER` |
 | `Email.Mailgun.ApiKey` | | `MUXCLOUD_MAILGUN_API_KEY` |
+| `Push.Enabled` | `true` | `MUXCLOUD_PUSH_ENABLED` |
+| `Push.ExpoAccessToken` | | `MUXCLOUD_EXPO_ACCESS_TOKEN` |
 | `Tunnel.*` | heartbeat 20 s, 3 missed pings, 32 streams, 8 MiB bodies, 30 s first byte | |
 
 Changing `Auth.SigningKey` signs everyone out and invalidates every machine secret, so machines must sign in again. [EMAIL.md](EMAIL.md) covers email settings.
@@ -116,7 +146,7 @@ dotnet test src/Test.Xunit3
 dotnet test src/Test.Nunit
 ```
 
-`--provider` selects `Sqlite` (default), `Postgresql`, `Mysql`, or `SqlServer`. Server engines read `MUXCLOUD_TEST_DB_HOST`, `_PORT`, `_USER`, and `_PASSWORD`, and each test gets its own database. CI runs every suite on Linux, Windows, and macOS, plus the three server engines.
+`--provider` selects `Sqlite` (default), `Postgresql`, `Mysql`, or `SqlServer`. Server engines read `MUXCLOUD_TEST_DB_HOST`, `_PORT`, `_USER`, and `_PASSWORD`, and each test gets its own database. CI runs every suite on Linux, Windows, and macOS, plus the three server engines, the dashboard (unit tests, build, Playwright), and the mobile app (typecheck, lint, tests).
 
 ## AOT support
 

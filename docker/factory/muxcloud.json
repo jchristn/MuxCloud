@@ -52,8 +52,14 @@
     "FromAddress": "hello@latticetech.ai",
     "SupportAddress": "hello@latticetech.ai",
     "LogoUrl": "https://raw.githubusercontent.com/jchristn/MuxCloud/main/assets/logo-black.png",
-    "File": { "Directory": "/app/email-outbox" },
-    "Mailgun": { "Domain": "latticetech.ai", "ApiKey": "", "BaseUrl": "https://api.mailgun.net/v3/" }
+    "File": {
+      "Directory": "/app/email-outbox"
+    },
+    "Mailgun": {
+      "Domain": "latticetech.ai",
+      "ApiKey": "",
+      "BaseUrl": "https://api.mailgun.net/v3/"
+    }
   },
   "Tunnel": {
     "HeartbeatSeconds": 20,
@@ -77,5 +83,11 @@
     "EnableMetrics": true,
     "EnableTraces": true,
     "PropagateContext": true
+  },
+  "Push": {
+    "Enabled": true,
+    "ExpoAccessToken": "",
+    "ExpoUrl": "https://exp.host/--/api/v2/push/send",
+    "MaxDevicesPerUser": 20
   }
 }

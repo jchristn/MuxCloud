@@ -107,6 +107,15 @@ namespace MuxCloud.Core.Settings
         }
 
         /// <summary>
+        /// Mobile push notifications.
+        /// </summary>
+        public PushSettings Push
+        {
+            get { return _Push; }
+            set { _Push = value ?? new PushSettings(); }
+        }
+
+        /// <summary>
         /// Setting paths currently overridden by environment variables (not persisted).
         /// </summary>
         [System.Text.Json.Serialization.JsonIgnore]
@@ -126,6 +135,7 @@ namespace MuxCloud.Core.Settings
         private TunnelSettings _Tunnel = new TunnelSettings();
         private RequestHistorySettings _RequestHistory = new RequestHistorySettings();
         private TelemetrySettings _Telemetry = new TelemetrySettings();
+        private PushSettings _Push = new PushSettings();
 
         #endregion
     }

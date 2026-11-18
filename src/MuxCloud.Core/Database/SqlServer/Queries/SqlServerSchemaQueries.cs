@@ -264,6 +264,26 @@ namespace MuxCloud.Core.Database.SqlServer.Queries
                     ")",
                     "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'ix_request_history_created')\n" +
                     "CREATE INDEX ix_request_history_created ON request_history (created_utc)"
+                }),
+                new SchemaMigration(2, "Push devices", new List<string>
+                {
+                    "IF OBJECT_ID(N'devices', N'U') IS NULL\n" +
+                    "CREATE TABLE devices (\n" +
+                    "    id NVARCHAR(64) NOT NULL PRIMARY KEY,\n" +
+                    "    tenant_id NVARCHAR(64) NOT NULL,\n" +
+                    "    user_id NVARCHAR(64) NOT NULL,\n" +
+                    "    expo_push_token NVARCHAR(256) NOT NULL,\n" +
+                    "    platform NVARCHAR(16) NOT NULL,\n" +
+                    "    name NVARCHAR(100) NOT NULL,\n" +
+                    "    created_utc DATETIME2 NOT NULL,\n" +
+                    "    last_update_utc DATETIME2 NOT NULL\n" +
+                    ")",
+                    "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'ux_devices_token')\n" +
+                    "CREATE UNIQUE INDEX ux_devices_token ON devices (tenant_id, user_id, expo_push_token)",
+                    "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'ix_devices_user')\n" +
+                    "CREATE INDEX ix_devices_user ON devices (tenant_id, user_id)",
+                    "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'ix_devices_token')\n" +
+                    "CREATE INDEX ix_devices_token ON devices (expo_push_token)"
                 })
             };
         }

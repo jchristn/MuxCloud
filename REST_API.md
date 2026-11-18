@@ -9,7 +9,7 @@ This is the reference for every REST route Mux Cloud serves. The WebSocket surfa
 | Base URL | `https://app.usemux.ai`. A local server defaults to `http://127.0.0.1:8800`. |
 | Versioning | Every REST route is under `/v1.0/api/`. There is no second route tree. |
 | Format | JSON request and response bodies, `Content-Type: application/json`, camelCase names, UTC ISO 8601 timestamps. Null properties are omitted. |
-| IDs | PrettyId k-sortable strings with a type prefix: `usr_`, `ten_`, `acct_`, `ses_`, `mch_`, `mcn_`, `pln_`, `sub_`, `eno_`, `aud_`, `req_`. |
+| IDs | PrettyId k-sortable strings with a type prefix: `usr_`, `ten_`, `acct_`, `ses_`, `mch_`, `mcn_`, `dev_`, `pln_`, `sub_`, `eno_`, `aud_`, `req_`. |
 | Errors | `{ "error": "<Code>", "message": "<human readable>" }`. `error` is a stable code clients can localize. |
 | Paging | List routes take `pageNumber` (1-based, default 1) and `pageSize` (default 25, minimum 1, maximum 1000) and return `{ "items": [...], "pageNumber": 1, "pageSize": 25, "totalCount": 248 }`. |
 | OpenAPI | `GET /openapi.json` (document) and `GET /swagger` (browser UI). |
@@ -490,6 +490,54 @@ Request history records method, path template (`/m/{machineId}/...`), status, du
 
 ---
 
+## Devices
+
+Push devices for the mobile app. All routes are authenticated and scoped to the current user's tenant and user. The Expo push token is stored but never returned.
+
+### `POST /v1.0/api/devices`
+
+Register this device for push notifications.
+
+```json
+{ "expoPushToken": "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]", "platform": "ios", "name": "Ada's iPhone" }
+```
+
+| Field | Rules |
+| --- | --- |
+| `expoPushToken` | Required. `ExponentPushToken[...]` or `ExpoPushToken[...]`, at most 256 characters. |
+| `platform` | `ios` or `android` |
+| `name` | Optional, at most 100 characters |
+
+`201` for a new device, `200` with the same device when the user already registered that token (the platform and name are updated):
+
+```json
+{ "id": "dev_01JD...", "platform": "ios", "name": "Ada's iPhone", "createdUtc": "2026-11-18T10:00:00.0000000Z" }
+```
+
+`400 BadRequest` for an invalid token, platform, or name. `409 Conflict` past `Push.MaxDevicesPerUser` (default 20).
+
+### `GET /v1.0/api/devices`
+
+`200` with the user's devices, newest first, in the same shape (no tokens).
+
+### `DELETE /v1.0/api/devices/{id}`
+
+`204`. `404 NotFound` for a device that is missing or belongs to someone else. Deleting a user deletes their devices.
+
+### Push notifications
+
+When a machine sends `machine.status` with `kind` `approval_requested` or `run_completed` (see `WEBSOCKETS_API.md`), Mux Cloud sends an Expo push (`POST https://exp.host/--/api/v2/push/send`) to each of the owner's devices:
+
+| Field | Value |
+| --- | --- |
+| `title` | The machine name |
+| `body` | "A tool is waiting for your approval." or "A run finished." |
+| `data` | `{ "machineId", "sessionId", "runId", "kind" }` |
+
+Notifications never contain conversation content, including the conversation title. They are sent only when `Push.Enabled` is true (the default) and the account has the `mobile.access` entitlement. Devices that Expo reports as `DeviceNotRegistered` are removed. Set `MUXCLOUD_EXPO_ACCESS_TOKEN` when Expo enhanced push security is on.
+
+---
+
 ## Admin
 
 Every admin route requires a user with `isAdmin: true`. Anyone else gets `403 Forbidden`.
@@ -506,11 +554,59 @@ Every admin route requires a user with `isAdmin: true`. Anyone else gets `403 Fo
 | `POST /v1.0/api/admin/plans` | Create a plan: `{ "code": "pro", "name": "Pro", "priceCents": 900, "currency": "usd", "interval": "month", "active": true, "public": true, "features": [ { "key": "machines.max", "limit": 10 } ] }` |
 | `PUT /v1.0/api/admin/plans/{id}` | Update a plan. The same body as create. |
 | `GET /v1.0/api/admin/accounts/{accountId}/overrides` | Entitlement overrides for an account |
-| `POST /v1.0/api/admin/accounts/{accountId}/overrides` | `{ "featureKey": "machines.max", "limit": null, "reason": "comp", "expiresUtc": null }` returns `201` |
+| `POST /v1.0/api/admin/accounts/{accountId}/overrides` | `{ "featureKey": "machines.max", "limit": null, "reason": "comp", "expiresUtc": null }` returns `201` with the override |
 | `DELETE /v1.0/api/admin/accounts/{accountId}/overrides/{id}` | `204` |
 | `GET /v1.0/api/admin/audit` | Paged audit records. Filter with `eventType`, `userId`, `fromUtc`, and `toUtc`. |
 | `GET /v1.0/api/admin/settings` | Effective server settings with secrets shown as `"(set)"` or `"(not set)"`, and environment-overridden fields listed in `environmentOverrides`. Read only in 0.1.0. |
 | `POST /v1.0/api/admin/email/test` | `{ "to": "ops@example.com" }` sends the admin test email. Returns `202`. |
+
+User object (the admin routes and `GET /v1.0/api/account` return the same shape):
+
+```json
+{
+  "id": "usr_...",
+  "email": "ada@example.com",
+  "firstName": "Ada",
+  "lastName": "Lovelace",
+  "emailVerified": true,
+  "isAdmin": false,
+  "active": true,
+  "tenantId": "ten_...",
+  "accountId": "acct_...",
+  "lastLoginUtc": "2026-11-18T09:00:00.0000000Z",
+  "createdUtc": "2026-11-17T18:00:00.0000000Z"
+}
+```
+
+`active: false` means the user cannot sign in and their machines cannot connect. `lastLoginUtc` is omitted until the first sign in.
+
+Audit record (`GET /v1.0/api/admin/audit` returns a page of these):
+
+```json
+{
+  "id": "aud_...",
+  "eventType": "auth.login",
+  "result": "success",
+  "reason": "",
+  "userId": "usr_...",
+  "tenantId": "ten_...",
+  "principal": "ada@example.com",
+  "resourceType": "session",
+  "resourceId": "ses_...",
+  "sourceIp": "203.0.113.7",
+  "requestId": "",
+  "message": "web",
+  "createdUtc": "2026-11-18T09:00:00.0000000Z"
+}
+```
+
+`principal` is the acting user's email when known, the user identifier when the user no longer exists, and `system` when no user was involved. `result` is `success`, `failure`, or `denied`.
+
+Entitlement override (the override routes return these; `limit` and `expiresUtc` are always present):
+
+```json
+{ "id": "eno_...", "accountId": "acct_...", "featureKey": "machines.max", "limit": null, "reason": "comp", "expiresUtc": null, "createdUtc": "2026-11-18T09:00:00.0000000Z" }
+```
 
 ### Request history
 

@@ -154,3 +154,72 @@ jobs:
           name: touchstone-results-${{ matrix.provider }}
           path: results-*.json
           if-no-files-found: ignore
+
+  dashboard:
+    name: Dashboard (lint, unit, build, Playwright)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/MuxCloud.Dashboard
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: src/MuxCloud.Dashboard/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Unit tests and i18n check
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright (mocked API)
+        run: npx playwright test
+
+      - name: Upload Playwright results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: dashboard-playwright
+          path: src/MuxCloud.Dashboard/test-results
+          if-no-files-found: ignore
+
+  mobile:
+    name: Mobile (typecheck, lint, test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/MuxCloud.Mobile
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: src/MuxCloud.Mobile/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test:ci

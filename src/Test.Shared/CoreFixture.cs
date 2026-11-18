@@ -83,6 +83,7 @@ namespace Test.Shared
         public void Dispose()
         {
             Db.Dispose();
+            TestDatabase.ReleasePools();
         }
 
         #endregion

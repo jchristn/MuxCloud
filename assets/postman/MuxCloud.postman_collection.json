@@ -1099,6 +1099,95 @@
       ]
     },
     {
+      "name": "Devices",
+      "description": "Push devices for the mobile app, scoped to the signed-in user. Notifications for approval_requested and run_completed machine status pushes carry the machine name, a generic phrase, and deep-link identifiers only.",
+      "item": [
+        {
+          "name": "Register device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/devices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "devices"
+              ]
+            },
+            "description": "Register an Expo push token. 201 for a new device, 200 with the existing device when the token is already registered. The token is never returned.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expoPushToken\": \"{{expoPushToken}}\",\n  \"platform\": \"ios\",\n  \"name\": \"Postman phone\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('deviceId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List devices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/devices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "devices"
+              ]
+            },
+            "description": "The user's devices, newest first, without tokens."
+          }
+        },
+        {
+          "name": "Delete device",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/devices/{{deviceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "devices",
+                "{{deviceId}}"
+              ]
+            },
+            "description": "Remove a device. 404 for another user's device."
+          }
+        }
+      ]
+    },
+    {
       "name": "Admin",
       "description": "System administrator only. Sign in with \"Login as admin\" first.",
       "item": [
@@ -1394,7 +1483,7 @@
                 "overrides"
               ]
             },
-            "description": "Entitlement overrides for an account."
+            "description": "Overrides for an account: {id, accountId, featureKey, limit, reason, expiresUtc, createdUtc}."
           }
         },
         {
@@ -1502,7 +1591,7 @@
                 }
               ]
             },
-            "description": "Security and admin events."
+            "description": "Security and admin events: {id, eventType, result, reason, userId, tenantId, principal, resourceType, resourceId, sourceIp, requestId, message, createdUtc}."
           }
         },
         {
@@ -1852,6 +1941,18 @@
       "value": "2026-11-18T00:00:00Z",
       "type": "string",
       "description": "Summary end"
+    },
+    {
+      "key": "expoPushToken",
+      "value": "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]",
+      "type": "string",
+      "description": "Expo push token from the device"
+    },
+    {
+      "key": "deviceId",
+      "value": "",
+      "type": "string",
+      "description": "Set by register device"
     }
   ]
 }

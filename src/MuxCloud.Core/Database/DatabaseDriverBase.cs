@@ -90,6 +90,11 @@ namespace MuxCloud.Core.Database
         public IRequestHistoryMethods RequestHistory { get; protected set; }
 
         /// <summary>
+        /// Push device methods.
+        /// </summary>
+        public IDeviceMethods Devices { get; protected set; }
+
+        /// <summary>
         /// Migration versions applied by the last <see cref="InitializeAsync"/>.
         /// </summary>
         public List<int> AppliedMigrations { get; } = new List<int>();
@@ -125,6 +130,7 @@ namespace MuxCloud.Core.Database
             EntitlementOverrides = new EntitlementOverrideMethods(Executor);
             Audit = new AuditMethods(Executor);
             RequestHistory = new RequestHistoryMethods(Executor);
+            Devices = new DeviceMethods(Executor);
         }
 
         #endregion

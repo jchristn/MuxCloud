@@ -216,6 +216,7 @@ namespace Test.Shared
         {
             await Server.StopAsync().ConfigureAwait(false);
             Server.Dispose();
+            TestDatabase.ReleasePools();
         }
 
         #endregion

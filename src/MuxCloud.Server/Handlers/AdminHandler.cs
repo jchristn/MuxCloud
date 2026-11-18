@@ -198,7 +198,7 @@ namespace MuxCloud.Server.Handlers
             Api.RequireAdmin(rc);
             string accountId = Api.PathValue(ctx, "/v1.0/api/admin/accounts/{accountId}/overrides", "accountId");
             List<EntitlementOverride> items = await _Server.Database.EntitlementOverrides.EnumerateForAccountAsync(accountId, ctx.Token).ConfigureAwait(false);
-            await Api.SendJsonAsync(ctx, rc, 200, items).ConfigureAwait(false);
+            await Api.SendJsonAsync(ctx, rc, 200, items.Select(DtoMapper.ToDto).ToList()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace MuxCloud.Server.Handlers
             await _Server.Database.EntitlementOverrides.CreateAsync(item, ctx.Token).ConfigureAwait(false);
             _Server.Entitlements.Invalidate(accountId);
             await _Server.Audit.WriteAsync("admin.override.create", "success", null, admin.User.Id, "account", accountId, rc.SourceIp, item.FeatureKey + "=" + (item.LimitValue?.ToString() ?? "unlimited"), ctx.Token).ConfigureAwait(false);
-            await Api.SendJsonAsync(ctx, rc, 201, item).ConfigureAwait(false);
+            await Api.SendJsonAsync(ctx, rc, 201, DtoMapper.ToDto(item)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -250,7 +250,14 @@ namespace MuxCloud.Server.Handlers
             Api.RequireAdmin(rc);
             AuditFilter filter = new AuditFilter { EventType = Api.Query(ctx, "eventType"), UserId = Api.Query(ctx, "userId"), FromUtc = Api.QueryUtc(ctx, "fromUtc"), ToUtc = Api.QueryUtc(ctx, "toUtc") };
             PagedResult<AuditRecord> page = await _Server.Database.Audit.EnumerateAsync(filter, Api.Page(ctx), ctx.Token).ConfigureAwait(false);
-            await Api.SendJsonAsync(ctx, rc, 200, page).ConfigureAwait(false);
+            Dictionary<string, string> principals = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (string userId in page.Items.Select(r => r.UserId).Where(u => !String.IsNullOrEmpty(u)).Distinct())
+            {
+                User? user = await _Server.Database.Users.ReadAsync(userId, ctx.Token).ConfigureAwait(false);
+                principals[userId] = user?.Email ?? userId;
+            }
+
+            await Api.SendJsonAsync(ctx, rc, 200, page.Map((AuditRecord r) => DtoMapper.ToDto(r, String.IsNullOrEmpty(r.UserId) ? "system" : principals[r.UserId]))).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -268,6 +275,7 @@ namespace MuxCloud.Server.Handlers
             copy.Database.Password = Mask(copy.Database.Password);
             copy.Database.ConnectionString = Mask(copy.Database.ConnectionString);
             copy.Email.Mailgun.ApiKey = Mask(copy.Email.Mailgun.ApiKey);
+            copy.Push.ExpoAccessToken = Mask(copy.Push.ExpoAccessToken);
             return Api.SendJsonAsync(ctx, rc, 200, new AdminSettingsResponse { Settings = copy, EnvironmentOverrides = _Server.Settings.EnvironmentOverrides.ToList() });
         }
 

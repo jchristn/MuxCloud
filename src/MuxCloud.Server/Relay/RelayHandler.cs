@@ -232,7 +232,12 @@ namespace MuxCloud.Server.Relay
 
             string contentType = String.IsNullOrEmpty(start.ContentType) ? "application/octet-stream" : start.ContentType;
             ctx.Response.ContentType = contentType;
-            if (contentType.StartsWith("text/html", StringComparison.OrdinalIgnoreCase)) ctx.Response.Headers.Add("Content-Security-Policy", "frame-ancestors 'self'");
+            if (contentType.StartsWith("text/html", StringComparison.OrdinalIgnoreCase))
+            {
+                ctx.Response.Headers.Add("Content-Security-Policy", "frame-ancestors 'self'");
+                ctx.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
+            }
+
             if (contentType.StartsWith("text/event-stream", StringComparison.OrdinalIgnoreCase)) ctx.Response.Headers.Add("X-Accel-Buffering", "no");
             ctx.Response.ChunkedTransfer = true;
         }

@@ -32,15 +32,17 @@ namespace Test.Shared.Suites
                     DatabaseSettings settings = await TestDatabase.CreateAsync(token).ConfigureAwait(false);
                     using (DatabaseDriverBase first = await DatabaseDriverFactory.CreateAndInitializeAsync(settings, token).ConfigureAwait(false))
                     {
-                        TestAssert.Equal("1", String.Join(",", first.AppliedMigrations), "first run applies version 1");
+                        TestAssert.Equal("1,2", String.Join(",", first.AppliedMigrations), "first run applies every version");
                     }
 
                     using (DatabaseDriverBase second = await DatabaseDriverFactory.CreateAndInitializeAsync(settings, token).ConfigureAwait(false))
                     {
                         TestAssert.Equal(0, second.AppliedMigrations.Count, "second run applies nothing");
                         long rows = await second.Executor.ScalarAsync("SELECT COUNT(*) FROM schema_migrations", null, token).ConfigureAwait(false);
-                        TestAssert.Equal(1L, rows, "schema_migrations rows");
+                        TestAssert.Equal(2L, rows, "schema_migrations rows");
                     }
+
+                    TestDatabase.ReleasePools();
                 }),
                 Cases.Async(suite, "FirstBootIdempotent", "Seeding twice leaves one admin, one free plan, and one system tenant", async (CancellationToken token) =>
                 {
@@ -144,6 +146,21 @@ namespace Test.Shared.Suites
                         TestAssert.Equal(1L, (await f.Db.RequestHistory.EnumerateAsync(new RequestHistoryFilter { PathContains = "LOGIN" }, new PageRequest(), token).ConfigureAwait(false)).TotalCount, "path filter");
                         TestAssert.Equal(2, (await f.Db.RequestHistory.ListRangeAsync(now.AddMinutes(-5), now.AddMinutes(1), token).ConfigureAwait(false)).Count, "range rows");
                         TestAssert.Equal(1, await f.Db.RequestHistory.DeleteByFilterAsync(new RequestHistoryFilter { StatusCode = 401 }, token).ConfigureAwait(false), "filtered delete");
+                    }
+                }),
+                Cases.Async(suite, "DeviceCrud", "Devices are tenant and user scoped, found by token, and removed by token or user", async (CancellationToken token) =>
+                {
+                    using (CoreFixture f = await CoreFixture.CreateAsync(token).ConfigureAwait(false))
+                    {
+                        Device a1 = await f.Db.Devices.CreateAsync(new Device { TenantId = "ten_a", UserId = "usr_a", ExpoPushToken = "ExponentPushToken[aaa]", Platform = "ios", Name = "phone" }, token).ConfigureAwait(false);
+                        await f.Db.Devices.CreateAsync(new Device { TenantId = "ten_a", UserId = "usr_a", ExpoPushToken = "ExponentPushToken[bbb]", Platform = "android" }, token).ConfigureAwait(false);
+                        Device b1 = await f.Db.Devices.CreateAsync(new Device { TenantId = "ten_b", UserId = "usr_b", ExpoPushToken = "ExponentPushToken[aaa]", Platform = "ios" }, token).ConfigureAwait(false);
+                        TestAssert.Equal(a1.Id, (await f.Db.Devices.ReadByTokenAsync("ten_a", "usr_a", "ExponentPushToken[aaa]", token).ConfigureAwait(false))!.Id, "token lookup");
+                        TestAssert.True(await f.Db.Devices.ReadAsync("ten_a", b1.Id, token).ConfigureAwait(false) == null, "tenant isolation");
+                        TestAssert.Equal(2, (await f.Db.Devices.ListForUserAsync("ten_a", "usr_a", token).ConfigureAwait(false)).Count, "user list");
+                        TestAssert.Equal(2, await f.Db.Devices.DeleteByTokenAsync("ExponentPushToken[aaa]", token).ConfigureAwait(false), "delete by token everywhere");
+                        await f.Db.Devices.DeleteForUserAsync("ten_a", "usr_a", token).ConfigureAwait(false);
+                        TestAssert.Equal(0, (await f.Db.Devices.ListForUserAsync("ten_a", "usr_a", token).ConfigureAwait(false)).Count, "delete for user");
                     }
                 }),
                 Cases.Async(suite, "ConcurrentWrites", "Fifty concurrent inserts all succeed", async (CancellationToken token) =>

@@ -84,6 +84,14 @@ namespace MuxCloud.Server
         public EmailService Email { get; }
 
         /// <summary>
+        /// Push device service (available after <see cref="StartAsync"/>). Replace its Sender in tests.
+        /// </summary>
+        public DeviceService Devices
+        {
+            get { return _Devices ?? throw new InvalidOperationException("The server has not started."); }
+        }
+
+        /// <summary>
         /// Billing provider.
         /// </summary>
         public IBillingProvider Billing { get; set; } = new NullBillingProvider();
@@ -155,6 +163,8 @@ namespace MuxCloud.Server
         private EntitlementService? _Entitlements = null;
         private AuditService? _Audit = null;
         private RequestHistoryService? _RequestHistory = null;
+        private DeviceService? _Devices = null;
+        private ExpoPushSender? _ExpoSender = null;
         private Webserver? _Webserver = null;
         private Task? _Maintenance = null;
         private bool _Disposed = false;
@@ -200,6 +210,8 @@ namespace MuxCloud.Server
             _Accounts = new AccountService(_Database, Settings, protector, Email, _Audit);
             _Machines = new MachineService(_Database, Settings, protector, _Accounts, _Entitlements, Email, _Audit);
             _RequestHistory = new RequestHistoryService(_Database, Settings.RequestHistory, (string line) => LogError(line));
+            _ExpoSender = new ExpoPushSender(Settings.Push);
+            _Devices = new DeviceService(_Database, Settings.Push, _Entitlements, _ExpoSender) { Log = (string line) => LogError(line) };
             _Machines.MachineRevoked += OnMachineRevoked;
             _Accounts.UserDisconnected += OnUserDisconnected;
             _Entitlements.Changed += OnEntitlementsChanged;
@@ -272,6 +284,11 @@ namespace MuxCloud.Server
             {
                 await Database.Machines.UpdateStatusAsync(machine.Id, status.ActiveRuns, status.AwaitingApproval, status.RemoteToolApproval, status.MuxVersion, DateTime.UtcNow, CancellationToken.None).ConfigureAwait(false);
                 await PublishMachineAsync(machine.UserId, machine.Id, "machine.updated").ConfigureAwait(false);
+                if (DeviceService.IsNotifiable(status.Kind))
+                {
+                    Machine current = await Database.Machines.ReadAsync(machine.Id, CancellationToken.None).ConfigureAwait(false) ?? machine;
+                    await Devices.NotifyAsync(current, status, CancellationToken.None).ConfigureAwait(false);
+                }
             }
             catch (Exception e)
             {
@@ -341,6 +358,7 @@ namespace MuxCloud.Server
                 {
                 }
 
+                _ExpoSender?.Dispose();
                 _Database?.Dispose();
                 _Stopping.Dispose();
             }
@@ -370,6 +388,7 @@ namespace MuxCloud.Server
             new MachineRoutes(this).Register(app);
             new BillingRoutes(this).Register(app);
             new TicketRoutes(this).Register(app);
+            new DeviceRoutes(this).Register(app);
             new AdminRoutes(this).Register(app);
             new RequestHistoryRoutes(this).Register(app);
 

@@ -472,7 +472,7 @@ namespace MuxCloud.Core.Services
         }
 
         /// <summary>
-        /// Delete a user and everything they own: machines (their tunnels close), sessions, tokens, subscriptions, overrides,
+        /// Delete a user and everything they own: machines (their tunnels close), sessions, tokens, push devices, subscriptions, overrides,
         /// tenant, and account.
         /// </summary>
         /// <param name="user">User.</param>
@@ -488,6 +488,7 @@ namespace MuxCloud.Core.Services
             await machines.DeleteAllForUserAsync(user, token).ConfigureAwait(false);
             await _Db.Sessions.DeleteForUserAsync(user.TenantId, user.Id, token).ConfigureAwait(false);
             await _Db.OneTimeTokens.DeleteForUserAsync(user.TenantId, user.Id, token).ConfigureAwait(false);
+            await _Db.Devices.DeleteForUserAsync(user.TenantId, user.Id, token).ConfigureAwait(false);
             await _Db.Users.DeleteAsync(user.TenantId, user.Id, token).ConfigureAwait(false);
             Account? account = await _Db.Accounts.ReadAsync(user.AccountId, token).ConfigureAwait(false);
             if (account != null && !account.IsProtected && account.OwnerUserId == user.Id)

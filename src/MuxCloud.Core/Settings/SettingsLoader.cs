@@ -109,7 +109,7 @@ namespace MuxCloud.Core.Settings
         /// MUXCLOUD_REST_HOST, MUXCLOUD_REST_PORT, MUXCLOUD_DB_TYPE, MUXCLOUD_DB_FILENAME, MUXCLOUD_DB_SERVER, MUXCLOUD_DB_PORT,
         /// MUXCLOUD_DB_DATABASE, MUXCLOUD_DB_USERNAME, MUXCLOUD_DB_PASSWORD, MUXCLOUD_DB_CONNECTION_STRING,
         /// MUXCLOUD_AUTH_SIGNING_KEY, MUXCLOUD_ADMIN_EMAIL, MUXCLOUD_ADMIN_PASSWORD, MUXCLOUD_EMAIL_PROVIDER,
-        /// MUXCLOUD_MAILGUN_API_KEY, MUXCLOUD_MAILGUN_DOMAIN.
+        /// MUXCLOUD_MAILGUN_API_KEY, MUXCLOUD_MAILGUN_DOMAIN, MUXCLOUD_EXPO_ACCESS_TOKEN, MUXCLOUD_PUSH_ENABLED.
         /// </summary>
         /// <param name="settings">Settings to modify.</param>
         /// <param name="environment">Environment variables.</param>
@@ -151,6 +151,13 @@ namespace MuxCloud.Core.Settings
 
             if ((v = Get(environment, "MUXCLOUD_MAILGUN_API_KEY")) != null) { settings.Email.Mailgun.ApiKey = v; settings.EnvironmentOverrides.Add("Email.Mailgun.ApiKey"); }
             if ((v = Get(environment, "MUXCLOUD_MAILGUN_DOMAIN")) != null) { settings.Email.Mailgun.Domain = v; settings.EnvironmentOverrides.Add("Email.Mailgun.Domain"); }
+            if ((v = Get(environment, "MUXCLOUD_EXPO_ACCESS_TOKEN")) != null) { settings.Push.ExpoAccessToken = v; settings.EnvironmentOverrides.Add("Push.ExpoAccessToken"); }
+            if ((v = Get(environment, "MUXCLOUD_PUSH_ENABLED")) != null)
+            {
+                if (!Boolean.TryParse(v, out bool enabled)) throw new InvalidDataException("MUXCLOUD_PUSH_ENABLED '" + v + "' is not true or false.");
+                settings.Push.Enabled = enabled;
+                settings.EnvironmentOverrides.Add("Push.Enabled");
+            }
         }
 
         /// <summary>
