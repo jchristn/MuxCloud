@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ -z "${1:-}" ]; then
+    echo "Usage: build-server.sh <docker-image-tag>"
+    echo "Example: build-server.sh v0.1.0-alpha"
+    exit 1
+fi
+
+TAG="$1"
+IMAGE=jchristn77/muxcloud-server
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+# The server image includes the dashboard (built in the image), served on the same origin as the API.
+echo "Building and pushing ${IMAGE}:latest and ${IMAGE}:${TAG}..."
+docker buildx build \
+    --builder cloud-jchristn77-jchristn77 \
+    --platform linux/amd64,linux/arm64/v8 \
+    -t "${IMAGE}:latest" \
+    -t "${IMAGE}:${TAG}" \
+    -f docker/server/Dockerfile \
+    --push \
+    .
+
+echo "Pulling ${IMAGE} into the local registry..."
+docker pull "${IMAGE}:${TAG}"
+docker pull "${IMAGE}:latest"
+
+echo "Done."

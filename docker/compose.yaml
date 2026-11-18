@@ -13,6 +13,7 @@
 #   MUXCLOUD_MAILGUN_API_KEY          Mailgun key when the provider is Mailgun
 #   MUXCLOUD_EXPO_ACCESS_TOKEN        optional, for mobile push notifications
 #   MUXCLOUD_PORT                     host port (default 8800)
+#   MUXCLOUD_SERVER_IMAGE             server image (default jchristn77/muxcloud-server:v0.1.0-alpha)
 # Profiles "mysql" and "sqlserver" start those engines instead; point MUXCLOUD_DB_TYPE and MUXCLOUD_DB_SERVER at them.
 
 name: muxcloud
@@ -76,11 +77,9 @@ services:
       - ./logs:/init/logs
       - ./email-outbox:/init/email-outbox
 
+  # Built and pushed for linux/amd64 and linux/arm64/v8 by build-server.sh / build-server.bat at the repo root.
   muxcloud-server:
-    build:
-      context: ..
-      dockerfile: docker/server/Dockerfile
-    image: jchristn77/muxcloud-server:v0.1.0-alpha
+    image: ${MUXCLOUD_SERVER_IMAGE:-jchristn77/muxcloud-server:v0.1.0-alpha}
     restart: unless-stopped
     depends_on:
       postgres:

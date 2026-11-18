@@ -50,7 +50,14 @@ The machine side lives in the mux repository. The wire contract is the `MuxCloud
 | `src/Test.Shared` | Every test suite (Touchstone), including end-to-end relay tests with a fake machine |
 | `src/Test.Automated`, `src/Test.Xunit3`, `src/Test.Nunit` | Runners for the shared suites |
 | `docker/` | Compose stack, server image, update and factory reset scripts |
+| `build-*.sh`, `build-*.bat` | Multi-architecture image build and push to Docker Hub |
 | `assets/postman/` | Postman collection for the REST API |
+
+## Building the Docker image
+
+`build-server.sh` / `build-server.bat <tag>` (or `build-all`) builds `jchristn77/muxcloud-server` for `linux/amd64` and
+`linux/arm64/v8` on the `cloud-jchristn77-jchristn77` buildx builder, pushes `:<tag>` and `:latest` to Docker Hub, and
+pulls both locally. The dashboard is built into the server image, so it is the only image.
 
 ## Getting started with Docker
 

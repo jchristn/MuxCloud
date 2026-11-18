@@ -12,3 +12,5 @@ user-testing/
 *.md
 !README.md
 !LICENSE.md
+**/.env
+**/.env.*
