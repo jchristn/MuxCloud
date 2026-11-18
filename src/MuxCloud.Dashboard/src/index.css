@@ -1844,7 +1844,7 @@ table.data th.select-cell {
 }
 
 table.data td .truncate {
-  max-width: 260px;
+  max-width: clamp(140px, 17vw, 240px);
 }
 
 .table-toolbar .pager-nav {
