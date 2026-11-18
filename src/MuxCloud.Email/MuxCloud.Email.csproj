@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HtmlPageBuilder" Version="1.2.0" />
+    <PackageReference Include="SendWithMailgun" Version="1.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MuxCloud.Core\MuxCloud.Core.csproj" />
+  </ItemGroup>
+
+</Project>
