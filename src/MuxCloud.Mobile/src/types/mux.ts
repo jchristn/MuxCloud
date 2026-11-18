@@ -74,6 +74,16 @@ export interface MuxChatRequest {
   WorkingDirectory?: string | null;
   Messages: { Role: string; Content: string; DisplayOnly?: boolean }[];
   PlanMode?: boolean;
+  /** Run tools that would prompt without asking; the machine honors it only when this caller may approve tools. */
+  AutoApproveTools?: boolean;
+}
+
+/** GET /v1.0/api/chat/capabilities: what this caller may do about tool approvals (mux 2.0.0 and later). */
+export interface MuxChatCapabilities {
+  ToolApprovals: boolean;
+  AutoApproveTools: boolean;
+  Relayed: boolean;
+  Reason: string;
 }
 
 export interface MuxChatReply {

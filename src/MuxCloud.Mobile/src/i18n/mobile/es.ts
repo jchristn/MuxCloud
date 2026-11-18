@@ -44,7 +44,7 @@ export const es: MobileCatalog = {
     noEndpoint: 'Esta máquina no tiene endpoints. Añade uno en Administrar, Endpoints.',
     noEndpointShort: 'ninguno',
     planMode: 'Plan',
-    planModeHint: 'El modelo propone primero un plan y no cambia nada hasta que lo ejecutes.',
+    planModeHint: 'El modelo propone primero un plan y no cambia nada hasta que lo ejecutes.', autoApprove: 'Aprobar auto.', autoApproveHint: 'Ejecuta sin preguntar las herramientas que editan archivos o ejecutan comandos en esta conversación.',
     planTitle: 'Plan propuesto',
     runPlan: 'Ejecutar este plan',
     switched: 'Cambiado al endpoint {{endpoint}} ({{model}})',

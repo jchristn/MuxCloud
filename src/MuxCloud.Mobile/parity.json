@@ -153,6 +153,13 @@
       "screen": "components/ConversationView.tsx"
     },
     {
+      "id": "chat.autoApprove",
+      "view": "chat",
+      "feature": "Auto-approve tools for the conversation (offered only when the machine allows remote tool approval)",
+      "status": "implemented",
+      "screen": "components/ConversationView.tsx"
+    },
+    {
       "id": "chat.slashCommands",
       "view": "chat",
       "feature": "Chat commands (/?, /new, /stats, screen shortcuts)",

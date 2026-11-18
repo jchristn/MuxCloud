@@ -71,6 +71,10 @@ export function ConversationView(props: ConversationViewProps) {
   const [endpoints, setEndpoints] = useState<MuxEndpointSummary[]>([]);
   const [endpoint, setEndpoint] = useState<string>(initialEndpoint ?? '');
   const [planMode, setPlanMode] = useState(false);
+  // Auto-approve applies to this conversation only, and is offered only when the machine lets this caller approve
+  // tools (a machine with remote approval off, or an older mux without the capabilities route, hides it).
+  const [autoApprove, setAutoApprove] = useState(false);
+  const [canAutoApprove, setCanAutoApprove] = useState(false);
   const [plan, setPlan] = useState<{ text: string; executionPrompt: string } | null>(null);
   const [pickEndpoint, setPickEndpoint] = useState(false);
   const [mirroring, setMirroring] = useState(false);
@@ -127,6 +131,14 @@ export function ConversationView(props: ConversationViewProps) {
         setEndpoint((current) => current || r.Items.find((e) => e.IsDefault)?.Name || r.Items[0]?.Name || '');
       })
       .catch(() => undefined);
+  }, [api, online]);
+
+  useEffect(() => {
+    if (!online) return;
+    void api
+      .chatCapabilities()
+      .then((c) => setCanAutoApprove(!!c?.AutoApproveTools))
+      .catch(() => setCanAutoApprove(false));
   }, [api, online]);
 
   // Live updates from the machine: runs started on other surfaces, approvals, and transcript changes.
@@ -286,6 +298,7 @@ export function ConversationView(props: ConversationViewProps) {
         WorkingDirectory: sessionId ? null : workingDirectory || null,
         Messages: [...history, { Role: 'user', Content: text }],
         PlanMode: options.planMode,
+        AutoApproveTools: autoApprove && canAutoApprove,
       },
       getAccessToken: () => auth.getAccessToken(),
       refresh: () => auth.refresh(),
@@ -458,6 +471,30 @@ export function ConversationView(props: ConversationViewProps) {
               {t('mobile.chat.planMode')}
             </T>
           </Pressable>
+          {canAutoApprove ? (
+            <Pressable
+              testID="auto-approve"
+              onPress={() => setAutoApprove((v) => !v)}
+              accessibilityRole="switch"
+              accessibilityState={{ checked: autoApprove }}
+              accessibilityLabel={t('mobile.chat.autoApprove')}
+              accessibilityHint={t('mobile.chat.autoApproveHint')}
+              hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
+              style={{
+                minHeight: 32,
+                paddingHorizontal: spacing.md,
+                justifyContent: 'center',
+                borderRadius: radius.pill,
+                borderWidth: 1,
+                borderColor: autoApprove ? p.warning : p.line,
+                backgroundColor: autoApprove ? p.warningSoft : 'transparent',
+              }}
+            >
+              <T variant="small" style={{ color: autoApprove ? p.warning : p.muted, fontWeight: '600' }}>
+                {t('mobile.chat.autoApprove')}
+              </T>
+            </Pressable>
+          ) : null}
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm }}>
           <TextInput

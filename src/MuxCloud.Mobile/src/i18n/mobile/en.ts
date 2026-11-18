@@ -47,7 +47,7 @@ export const en = {
     noEndpoint: 'This machine has no endpoints. Add one under Manage, Endpoints.',
     noEndpointShort: 'none',
     planMode: 'Plan',
-    planModeHint: 'The model proposes a plan first and changes nothing until you run it.',
+    planModeHint: 'The model proposes a plan first and changes nothing until you run it.', autoApprove: 'Auto-approve', autoApproveHint: 'Run tools that edit files or run commands without asking, for this conversation.',
     planTitle: 'Proposed plan',
     runPlan: 'Run this plan',
     switched: 'Switched to endpoint {{endpoint}} ({{model}})',

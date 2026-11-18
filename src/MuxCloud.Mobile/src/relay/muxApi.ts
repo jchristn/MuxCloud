@@ -1,5 +1,6 @@
 import { relayPath, type ApiClient } from '@dashboard/api';
 import type {
+  MuxChatCapabilities,
   MuxCheckpointResult,
   MuxCheckpointStatus,
   MuxEndpoint,
@@ -74,6 +75,7 @@ export function muxApi(client: ApiClient, machineId: string) {
       post<MuxListResponse<MuxEndpoint>>('/v1.0/api/endpoints/import', { Source: source, Models: models }),
 
     workspaces: () => get<MuxListResponse<MuxWorkspace>>('/v1.0/api/workspaces'),
+    chatCapabilities: () => get<MuxChatCapabilities>('/v1.0/api/chat/capabilities'),
 
     settings: () => get<MuxJson>('/v1.0/api/settings'),
     saveSettings: (settings: MuxJson) => put<MuxJson>('/v1.0/api/settings', settings),
