@@ -10,6 +10,9 @@ Every 0.x release is alpha.
 
 ## 0.1.0-alpha (unreleased)
 
+- Docker: the compose stack requires a stable `MUXCLOUD_AUTH_SIGNING_KEY`, passes the public URL, forwarded-header
+  trust, email provider, and Expo token through from `.env`, prepares the bind-mounted folders for the non-root server
+  user, mounts `muxcloud.json` read-only, and rotates container logs. New `MUXCLOUD_TRUST_FORWARDED_HEADERS` override.
 - `MuxCloud.Protocol`: the tunnel wire contract (envelope and payload models, handshake proof, close and error
   codes, capabilities, header filtering, reconnect backoff), with source-generated JSON for AOT.
 - `MuxCloud.Core`: settings (`muxcloud.json` with `MUXCLOUD_*` overrides), a hand-written SQL layer for Sqlite,

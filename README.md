@@ -58,6 +58,7 @@ The machine side lives in the mux repository. The wire contract is the `MuxCloud
 cd docker
 echo "MUXCLOUD_DB_PASSWORD=choose-a-database-password" > .env
 echo "MUXCLOUD_ADMIN_PASSWORD=choose-an-admin-password" >> .env
+echo "MUXCLOUD_AUTH_SIGNING_KEY=$(openssl rand -hex 48)" >> .env
 docker compose up -d
 curl http://127.0.0.1:8800/v1.0/api/health
 ```
@@ -113,7 +114,7 @@ Settings live in `muxcloud.json` (path from `--config`, then `MUXCLOUD_SETTINGS_
 | --- | --- | --- |
 | `Server.PublicUrl` | `http://127.0.0.1:8800` (production: `https://app.usemux.ai`) | `MUXCLOUD_PUBLIC_URL` |
 | `Server.DashboardDirectory` | `./dashboard` | `MUXCLOUD_DASHBOARD_DIR` |
-| `Server.TrustForwardedHeaders` | `false` (enable behind a trusted reverse proxy) | |
+| `Server.TrustForwardedHeaders` | `false` (enable behind a trusted reverse proxy or load balancer) | `MUXCLOUD_TRUST_FORWARDED_HEADERS` |
 | `Server.AdditionalOrigins` | none (add a dashboard dev server here) | |
 | `Rest.Hostname`, `Rest.Port` | `127.0.0.1`, `8800` | `MUXCLOUD_REST_HOST`, `MUXCLOUD_REST_PORT` |
 | `Database.Type` | `Sqlite` (`Sqlite`, `Postgresql`, `Mysql`, `SqlServer`) | `MUXCLOUD_DB_TYPE` |

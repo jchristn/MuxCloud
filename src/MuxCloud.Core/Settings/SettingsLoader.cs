@@ -109,7 +109,8 @@ namespace MuxCloud.Core.Settings
         /// MUXCLOUD_REST_HOST, MUXCLOUD_REST_PORT, MUXCLOUD_DB_TYPE, MUXCLOUD_DB_FILENAME, MUXCLOUD_DB_SERVER, MUXCLOUD_DB_PORT,
         /// MUXCLOUD_DB_DATABASE, MUXCLOUD_DB_USERNAME, MUXCLOUD_DB_PASSWORD, MUXCLOUD_DB_CONNECTION_STRING,
         /// MUXCLOUD_AUTH_SIGNING_KEY, MUXCLOUD_ADMIN_EMAIL, MUXCLOUD_ADMIN_PASSWORD, MUXCLOUD_EMAIL_PROVIDER,
-        /// MUXCLOUD_MAILGUN_API_KEY, MUXCLOUD_MAILGUN_DOMAIN, MUXCLOUD_EXPO_ACCESS_TOKEN, MUXCLOUD_PUSH_ENABLED.
+        /// MUXCLOUD_MAILGUN_API_KEY, MUXCLOUD_MAILGUN_DOMAIN, MUXCLOUD_EXPO_ACCESS_TOKEN, MUXCLOUD_PUSH_ENABLED,
+        /// MUXCLOUD_TRUST_FORWARDED_HEADERS.
         /// </summary>
         /// <param name="settings">Settings to modify.</param>
         /// <param name="environment">Environment variables.</param>
@@ -122,6 +123,12 @@ namespace MuxCloud.Core.Settings
             string? v;
             if ((v = Get(environment, "MUXCLOUD_PUBLIC_URL")) != null) { settings.Server.PublicUrl = v; settings.EnvironmentOverrides.Add("Server.PublicUrl"); }
             if ((v = Get(environment, "MUXCLOUD_NODE_ID")) != null) { settings.Server.NodeId = v; settings.EnvironmentOverrides.Add("Server.NodeId"); }
+            if ((v = Get(environment, "MUXCLOUD_TRUST_FORWARDED_HEADERS")) != null)
+            {
+                if (!Boolean.TryParse(v, out bool trust)) throw new InvalidDataException("MUXCLOUD_TRUST_FORWARDED_HEADERS '" + v + "' is not true or false.");
+                settings.Server.TrustForwardedHeaders = trust;
+                settings.EnvironmentOverrides.Add("Server.TrustForwardedHeaders");
+            }
             if ((v = Get(environment, "MUXCLOUD_DASHBOARD_DIR")) != null) { settings.Server.DashboardDirectory = v; settings.EnvironmentOverrides.Add("Server.DashboardDirectory"); }
             if ((v = Get(environment, "MUXCLOUD_REST_HOST")) != null) { settings.Rest.Hostname = v; settings.EnvironmentOverrides.Add("Rest.Hostname"); }
             if ((v = Get(environment, "MUXCLOUD_REST_PORT")) != null) { settings.Rest.Port = ParseInt(v, "MUXCLOUD_REST_PORT"); settings.EnvironmentOverrides.Add("Rest.Port"); }

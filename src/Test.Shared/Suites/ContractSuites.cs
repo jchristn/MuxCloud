@@ -77,6 +77,30 @@ namespace Test.Shared.Suites
 
                     Directory.Delete(dir, true);
                 }),
+                Cases.Sync(suite, "EnvOverrides", "Deployment environment variables override settings, and a bad boolean is rejected", () =>
+                {
+                    MuxCloud.Core.Settings.MuxCloudSettings settings = new MuxCloud.Core.Settings.MuxCloudSettings();
+                    System.Collections.Hashtable env = new System.Collections.Hashtable
+                    {
+                        { "MUXCLOUD_PUBLIC_URL", "https://app.usemux.ai" },
+                        { "MUXCLOUD_TRUST_FORWARDED_HEADERS", "true" },
+                        { "MUXCLOUD_REST_PORT", "8800" },
+                    };
+                    MuxCloud.Core.Settings.SettingsLoader.ApplyEnvironment(settings, env);
+                    TestAssert.Equal("https://app.usemux.ai", settings.Server.PublicUrl, "public url");
+                    TestAssert.True(settings.Server.TrustForwardedHeaders, "trust forwarded headers");
+                    TestAssert.True(settings.EnvironmentOverrides.Contains("Server.TrustForwardedHeaders"), "override recorded");
+                    bool threw = false;
+                    try
+                    {
+                        MuxCloud.Core.Settings.SettingsLoader.ApplyEnvironment(new MuxCloud.Core.Settings.MuxCloudSettings(), new System.Collections.Hashtable { { "MUXCLOUD_TRUST_FORWARDED_HEADERS", "yes" } });
+                    }
+                    catch (InvalidDataException)
+                    {
+                        threw = true;
+                    }
+                    TestAssert.True(threw, "non-boolean rejected");
+                }),
                 Cases.Async(suite, "AdminShapes", "Audit records carry principal, overrides carry limit and expiresUtc, and users carry active and lastLoginUtc", async (CancellationToken token) =>
                 {
                     await using (ServerFixture f = await ServerFixture.StartAsync(token).ConfigureAwait(false))

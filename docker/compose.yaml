@@ -1,9 +1,18 @@
-# Mux Cloud: the server (REST API, tunnel, relay, events, and the dashboard on one origin) and PostgreSQL.
-# Secrets come from the environment or a .env file next to this file:
-#   MUXCLOUD_DB_PASSWORD        database password (required)
-#   MUXCLOUD_AUTH_SIGNING_KEY   64+ random characters; generated into muxcloud.json when unset
-#   MUXCLOUD_ADMIN_PASSWORD     seed administrator password (first boot only)
-#   MUXCLOUD_MAILGUN_API_KEY    Mailgun key when Email.Provider is Mailgun
+# Mux Cloud: the server and PostgreSQL. The dashboard is built into the server image and served by the server on the
+# same origin as the API, the machine tunnel, the relay, and the events socket. Cookies, the relayed machine dashboard
+# iframe, and WebSocket Origin checks depend on that single origin, so there is no separate dashboard container.
+#
+# Secrets and deployment values come from the environment or a .env file next to this file:
+#   MUXCLOUD_DB_PASSWORD              database password (required)
+#   MUXCLOUD_AUTH_SIGNING_KEY         64+ random characters (required). Keep it stable: changing it signs everyone out
+#                                     and makes every machine sign in again.
+#   MUXCLOUD_ADMIN_PASSWORD           seed administrator password (first boot only)
+#   MUXCLOUD_PUBLIC_URL               the public https URL, for example https://app.usemux.ai
+#   MUXCLOUD_TRUST_FORWARDED_HEADERS  true behind a load balancer or reverse proxy that sets X-Forwarded-For/-Proto
+#   MUXCLOUD_EMAIL_PROVIDER           File (default, writes to ./email-outbox) or Mailgun
+#   MUXCLOUD_MAILGUN_API_KEY          Mailgun key when the provider is Mailgun
+#   MUXCLOUD_EXPO_ACCESS_TOKEN        optional, for mobile push notifications
+#   MUXCLOUD_PORT                     host port (default 8800)
 # Profiles "mysql" and "sqlserver" start those engines instead; point MUXCLOUD_DB_TYPE and MUXCLOUD_DB_SERVER at them.
 
 name: muxcloud
@@ -18,6 +27,11 @@ services:
       POSTGRES_PASSWORD: ${MUXCLOUD_DB_PASSWORD:?set MUXCLOUD_DB_PASSWORD}
     volumes:
       - muxcloud-postgres:/var/lib/postgresql/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U muxcloud -d muxcloud"]
       interval: 5s
@@ -53,6 +67,15 @@ services:
     volumes:
       - muxcloud-sqlserver:/var/opt/mssql
 
+  # Creates the bind-mounted folders and gives them to the server's non-root user (uid 1654 in the .NET image).
+  muxcloud-init:
+    image: busybox:1.37
+    command: ["sh", "-c", "chown -R 1654:1654 /init/data /init/logs /init/email-outbox"]
+    volumes:
+      - ./data:/init/data
+      - ./logs:/init/logs
+      - ./email-outbox:/init/email-outbox
+
   muxcloud-server:
     build:
       context: ..
@@ -62,26 +85,36 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      muxcloud-init:
+        condition: service_completed_successfully
     ports:
       - "${MUXCLOUD_PORT:-8800}:8800"
     environment:
       MUXCLOUD_SETTINGS_FILE: /app/muxcloud.json
       MUXCLOUD_DB_PASSWORD: ${MUXCLOUD_DB_PASSWORD:?set MUXCLOUD_DB_PASSWORD}
-      MUXCLOUD_AUTH_SIGNING_KEY: ${MUXCLOUD_AUTH_SIGNING_KEY:-}
+      MUXCLOUD_AUTH_SIGNING_KEY: ${MUXCLOUD_AUTH_SIGNING_KEY:?set MUXCLOUD_AUTH_SIGNING_KEY to 64+ random characters}
       MUXCLOUD_ADMIN_PASSWORD: ${MUXCLOUD_ADMIN_PASSWORD:-}
-      MUXCLOUD_MAILGUN_API_KEY: ${MUXCLOUD_MAILGUN_API_KEY:-}
       MUXCLOUD_PUBLIC_URL: ${MUXCLOUD_PUBLIC_URL:-http://127.0.0.1:8800}
+      MUXCLOUD_TRUST_FORWARDED_HEADERS: ${MUXCLOUD_TRUST_FORWARDED_HEADERS:-false}
+      MUXCLOUD_EMAIL_PROVIDER: ${MUXCLOUD_EMAIL_PROVIDER:-File}
+      MUXCLOUD_MAILGUN_API_KEY: ${MUXCLOUD_MAILGUN_API_KEY:-}
+      MUXCLOUD_EXPO_ACCESS_TOKEN: ${MUXCLOUD_EXPO_ACCESS_TOKEN:-}
     volumes:
-      - ./muxcloud.json:/app/muxcloud.json
+      - ./muxcloud.json:/app/muxcloud.json:ro
       - ./data:/app/data
       - ./logs:/app/logs
       - ./email-outbox:/app/email-outbox
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:8800/v1.0/api/health"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
-      retries: 2
-      start_period: 15s
+      retries: 3
+      start_period: 20s
 
 volumes:
   muxcloud-postgres:
