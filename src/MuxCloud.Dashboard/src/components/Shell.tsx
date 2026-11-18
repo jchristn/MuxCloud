@@ -10,7 +10,7 @@ import { LanguageSelector } from './LanguageSelector';
 import { Logo } from './Logo';
 import { ThemeToggle } from './ThemeToggle';
 
-export const APP_VERSION = '0.1.0-alpha';
+export const APP_VERSION = '2.0.0';
 const GITHUB_URL = 'https://github.com/jchristn/MuxCloud';
 
 interface NavItem {

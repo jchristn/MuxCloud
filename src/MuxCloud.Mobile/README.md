@@ -6,7 +6,7 @@ conversations, chat with streaming replies, approve tools, start new conversatio
 machine's endpoints, MCP servers, prompts, subagents, hooks, commands, keybindings, skills, usage, pricing, palettes,
 and settings.
 
-Expo (SDK 58) with React Native 0.88, React 19.3, expo-router, and TypeScript. Version 0.1.0-alpha, in step with Mux
+Expo (SDK 58) with React Native 0.88, React 19.3, expo-router, and TypeScript. Version 2.0.0, in step with Mux
 Cloud.
 
 ## Running it

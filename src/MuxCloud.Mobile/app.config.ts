@@ -10,8 +10,8 @@ const BUNDLE_ID = process.env.MUXCLOUD_MOBILE_BUNDLE_ID ?? 'com.joelchristner.mu
 const EAS_PROJECT_ID: string | undefined = process.env.MUXCLOUD_MOBILE_EAS_PROJECT_ID;
 
 // Kept in step with the Mux Cloud release (no independent app versioning).
-const VERSION = '0.1.0-alpha';
-const STORE_VERSION = '0.1.0';
+const VERSION = '2.0.0';
+const STORE_VERSION = '2.0.0';
 const SPLASH_BACKGROUND = '#101418';
 const FACE_ID_USAGE = 'Mux uses Face ID to unlock the app.';
 

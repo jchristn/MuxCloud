@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <PackageId>MuxCloud.Protocol</PackageId>
-    <!-- Versioned in step with mux 2.0.0, independently of the rest of MuxCloud. -->
-    <Version>2.0.0</Version>
     <Title>MuxCloud.Protocol</Title>
     <Description>Wire contracts for the Mux Cloud tunnel: the persistent WebSocket a mux machine keeps open to Mux Cloud, its envelope and payload models, handshake proofs, close codes, and reconnect policy.</Description>
     <PackageTags>mux;muxcloud;mux-cloud;ai;agent;coding-agent;llm;tunnel;websocket;relay;remote-access;protocol;hmac;aot</PackageTags>

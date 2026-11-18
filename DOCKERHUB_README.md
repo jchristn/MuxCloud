@@ -31,7 +31,7 @@ services:
       timeout: 5s
       retries: 2
   muxcloud-server:
-    image: jchristn77/muxcloud-server:v0.1.0-alpha
+    image: jchristn77/muxcloud-server:v2.0.0
     depends_on:
       postgres:
         condition: service_healthy

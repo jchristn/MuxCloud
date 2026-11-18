@@ -2,7 +2,7 @@
 setlocal
 if "%~1"=="" (
   echo Usage: build-server.bat ^<docker-image-tag^>
-  echo Example: build-server.bat v0.1.0-alpha
+  echo Example: build-server.bat v2.0.0
   exit /b 1
 )
 

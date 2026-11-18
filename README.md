@@ -12,7 +12,7 @@ Conversations stay on your machines. Mux Cloud stores your account and the list 
 
 The hosted service runs at [app.usemux.ai](https://app.usemux.ai). The code is MIT licensed, and you can run your own.
 
-> **Status:** 0.1.0-alpha, under active development. [PLAN.md](PLAN.md) has the architecture, decisions, and roadmap.
+> **Status:** 2.0.0, in step with mux 2.0.0. [PLAN.md](PLAN.md) has the architecture, decisions, and roadmap.
 
 ## How it works
 

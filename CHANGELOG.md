@@ -1,14 +1,11 @@
 # Changelog
 
 All notable changes to Mux Cloud are recorded here. Versions follow [Semantic Versioning](https://semver.org).
-Every 0.x release is alpha.
 
-## MuxCloud.Protocol 2.0.0
+## 2.0.0
 
-- First stable release of the tunnel wire contract on NuGet, versioned in step with mux 2.0.0 and independently of
-  the rest of MuxCloud. Tunnel protocol version 1. (0.1.0-alpha was published briefly before it.)
-
-## 0.1.0-alpha (unreleased)
+First release, versioned in step with mux 2.0.0. `MuxCloud.Protocol` 2.0.0 is on NuGet (0.1.0-alpha was published
+briefly before it) and `jchristn77/muxcloud-server:v2.0.0` is on Docker Hub for amd64 and arm64.
 
 - Docker: the compose stack requires a stable `MUXCLOUD_AUTH_SIGNING_KEY`, passes the public URL, forwarded-header
   trust, email provider, and Expo token through from `.env`, prepares the bind-mounted folders for the non-root server

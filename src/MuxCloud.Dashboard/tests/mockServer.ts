@@ -385,7 +385,7 @@ export async function mockServer(pw: Page, options: MockOptions = {}): Promise<M
         requestBody: '',
       });
     if (path === '/v1.0/api/health')
-      return json(route, 200, { status: 'healthy', product: 'MuxCloud', version: '0.1.0-alpha', utc: iso(0) });
+      return json(route, 200, { status: 'healthy', product: 'MuxCloud', version: '2.0.0', utc: iso(0) });
     return json(route, 404, { error: 'NotFound' });
   });
 

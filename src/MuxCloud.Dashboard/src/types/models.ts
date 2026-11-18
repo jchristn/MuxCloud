@@ -287,7 +287,7 @@ export interface AuditQuery extends PageQuery {
   toUtc?: string;
 }
 
-/** Effective server settings (admin). Secrets are shown as "(set)" or "(not set)". Read only in 0.1.0. */
+/** Effective server settings (admin). Secrets are shown as "(set)" or "(not set)". Read only in 2.0.0. */
 export interface AdminSettings {
   environmentOverrides?: string[];
   [section: string]: unknown;

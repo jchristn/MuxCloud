@@ -3,7 +3,7 @@ set -euo pipefail
 
 if [ -z "${1:-}" ]; then
     echo "Usage: build-server.sh <docker-image-tag>"
-    echo "Example: build-server.sh v0.1.0-alpha"
+    echo "Example: build-server.sh v2.0.0"
     exit 1
 fi
 

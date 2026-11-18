@@ -61,7 +61,7 @@ Anonymous.
 
 ```json
 200
-{ "status": "healthy", "product": "MuxCloud", "version": "0.1.0-alpha", "utc": "2026-11-17T18:00:00.0000000Z" }
+{ "status": "healthy", "product": "MuxCloud", "version": "2.0.0", "utc": "2026-11-17T18:00:00.0000000Z" }
 ```
 
 ---
@@ -419,7 +419,7 @@ Connection history, newest first, paged.
 | `GET /v1.0/api/billing/plans` | Anonymous | `200 [ plan ]`, public active plans only |
 | `GET /v1.0/api/billing/subscription` | Authenticated | `200` subscription object, or `200 null` when the account has none |
 | `GET /v1.0/api/billing/entitlements` | Authenticated | `200` entitlements object |
-| `POST /v1.0/api/billing/checkout` | Authenticated | `{ "planCode": "pro" }`. Returns `200 { "url": "..." }` from the billing provider. `501 NotImplemented` while no provider is configured (0.1.0). |
+| `POST /v1.0/api/billing/checkout` | Authenticated | `{ "planCode": "pro" }`. Returns `200 { "url": "..." }` from the billing provider. `501 NotImplemented` while no provider is configured (2.0.0). |
 | `POST /v1.0/api/billing/portal` | Authenticated | `200 { "url": "..." }`, or `501 NotImplemented` |
 | `POST /v1.0/api/billing/webhooks/{provider}` | Provider signature | `200`. `404 NotFound` for a provider that is not configured. |
 
@@ -578,7 +578,7 @@ Every admin route requires a user with `isAdmin: true`. Anyone else gets `403 Fo
 | `POST /v1.0/api/admin/accounts/{accountId}/overrides` | `{ "featureKey": "machines.max", "limit": null, "reason": "comp", "expiresUtc": null }` returns `201` with the override |
 | `DELETE /v1.0/api/admin/accounts/{accountId}/overrides/{id}` | `204` |
 | `GET /v1.0/api/admin/audit` | Paged audit records. Filter with `eventType`, `userId`, `fromUtc`, and `toUtc`. |
-| `GET /v1.0/api/admin/settings` | Effective server settings with secrets shown as `"(set)"` or `"(not set)"`, and environment-overridden fields listed in `environmentOverrides`. Read only in 0.1.0. |
+| `GET /v1.0/api/admin/settings` | Effective server settings with secrets shown as `"(set)"` or `"(not set)"`, and environment-overridden fields listed in `environmentOverrides`. Read only in 2.0.0. |
 | `POST /v1.0/api/admin/email/test` | `{ "to": "ops@example.com" }` sends the admin test email. Returns `202`. |
 
 User object (the admin routes and `GET /v1.0/api/account` return the same shape):

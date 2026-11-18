@@ -221,7 +221,7 @@ Conventions, taken from the requirements and from what worked in Xeno and Armada
 - **Settings:** settings file `muxcloud.json` with `MUXCLOUD_*` env overrides. Logging via SyslogLogging. Telemetry via Watson 7.1+ built-ins plus a `muxcloud_*` Meter and ActivitySource.
 - **Tests:** Touchstone, with one shared suite run by `Test.Automated`, `Test.Xunit3`, and `Test.Nunit`. The provider matrix runs in CI against MySQL 8.4, Postgres 16, and SQL Server 2022. AOT is recorded as "Not supported" initially, with the reason in the README.
 - **Docker:** `.yaml` files, curl healthchecks against `127.0.0.1` at `interval: 5s` and `retries: 2`, `depends_on` with `service_healthy`, and `update.bat` / `update.sh` plus a factory reset.
-- **Versioning:** MuxCloud starts at `0.1.0-alpha`. Mux's version is not changed unless explicitly requested.
+- **Versioning:** MuxCloud versions in step with mux, starting at `2.0.0`. Mux's version is not changed unless explicitly requested.
 
 ### 5.1 Core data model (beyond billing)
 
@@ -229,7 +229,7 @@ Conventions, taken from the requirements and from what worked in Xeno and Armada
 | --- | --- |
 | `Tenant` | `name`, `accountId`, `active`, `isprotected` |
 | `User` | `tenantId`, `email` (unique across the service), `firstName`, `lastName`, `passwordHash`, `passwordAlgorithm`, `emailVerifiedUtc`, `isAdmin`, `isTenantAdmin`, `active` |
-| `Credential` | API key pairs for programmatic access, per AUTHENTICATION.md. Deferred: 0.1.0 ships bearer access tokens and machine secrets only. |
+| `Credential` | API key pairs for programmatic access, per AUTHENTICATION.md. Deferred: 2.0.0 ships bearer access tokens and machine secrets only. |
 | `AuthSession` | Access and refresh sessions, revocable, with `sourceIp`, `userAgent`, `expiresUtc`, `revokedUtc` |
 | `Machine` | `tenantId`, `userId`, `name`, `hostname`, `os`, `fingerprint`, `muxVersion`, `protocolVersion`, `secretVerifier`, `secretLast4`, `lastSeenUtc`, `lastConnectedUtc`, `lastDisconnectedUtc`, `revokedUtc`, `active` |
 | `MachineConnection` | Connection history: `machineId`, `connectionId`, `nodeId`, `remoteIp`, `connectedUtc`, `disconnectedUtc`, `closeCode`, `bytesIn`, `bytesOut` |

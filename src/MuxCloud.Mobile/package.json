@@ -1,7 +1,7 @@
 {
   "name": "muxcloud-mobile",
   "main": "expo-router/entry",
-  "version": "0.1.0-alpha",
+  "version": "2.0.0",
   "private": true,
   "description": "Mux Cloud mobile app: your mux machines and conversations from a phone or tablet.",
   "scripts": {

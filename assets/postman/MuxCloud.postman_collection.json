@@ -1091,7 +1091,7 @@
                 "checkout"
               ]
             },
-            "description": "501 NotImplemented in 0.1.0.",
+            "description": "501 NotImplemented in 2.0.0.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"planCode\": \"pro\"\n}",
@@ -1120,7 +1120,7 @@
                 "portal"
               ]
             },
-            "description": "501 NotImplemented in 0.1.0."
+            "description": "501 NotImplemented in 2.0.0."
           }
         }
       ]
