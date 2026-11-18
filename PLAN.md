@@ -110,7 +110,7 @@ Correlation uses cloud-generated `streamId` and `channelId` values. The cloud ke
 ### 2.3 Handshake and machine credentials
 
 1. **Enrollment** (once per machine, over HTTPS). The user enters email and password in any mux surface. Mux calls `POST /v1.0/api/machines/enroll` with those credentials plus `machineName`, `hostname`, `os`, `muxVersion`, and a stable `fingerprint` (SHA-256 of machine name and config directory, like Armada). The cloud verifies the password, checks the `machines.max` entitlement, and returns `machineId` and a one-time-shown `machineSecret` (`mcs_` plus 48 high-entropy characters). Mux stores those in `settings.json` under `cloud`. **The password is never stored on the machine.** Re-enrolling the same fingerprint for the same user reuses the machine record and rotates the secret.
-2. **Handshake** (every connection). The first frame is `tunnel.hello` with `proof = hex(HMAC-SHA256(machineSecret, "mux-tunnel:" + machineId + ":" + timestampUtc + ":" + nonce))`. The cloud stores only a verifier for the secret, checks the timestamp is within plus or minus 120 seconds, rejects replayed nonces for 5 minutes, and compares in constant time. A failed handshake counts toward a per-IP and per-machine lockout.
+2. **Handshake** (every connection). The first frame is `tunnel.hello` with `proof = hex(HMAC-SHA256(machineSecret, "mux-tunnel:" + machineId + ":" + timestampUtc + ":" + nonce))`. The cloud stores the secret AES-256-GCM encrypted (an HMAC proof needs the secret itself, so a one-way verifier cannot work), with a key derived from the signing key, and only its last four characters in clear. It checks the timestamp is within plus or minus 120 seconds, rejects replayed nonces for 5 minutes, and compares in constant time. A failed handshake counts toward a per-IP and per-machine lockout.
 3. **Revocation.** Deleting a machine or revoking its credential in the dashboard closes the live tunnel with `4403 revoked`. The machine stops reconnecting and shows "Disconnected from Mux Cloud: credential revoked" with a prompt to sign in again.
 
 Close codes: `4400` bad handshake, `4401` bad credential, `4403` revoked, `4409` replaced by a newer connection, `4426` protocol version unsupported, `4429` rate limited, `4503` server draining.
@@ -374,7 +374,7 @@ The cloud relays a remote-control channel into a developer's machine, so the thr
 - The cloud operator can see relayed traffic in memory while it passes through, though it is not stored. The README and the connect screens say so plainly. End-to-end encryption between the client and the machine is a possible later protocol version, not version 1.
 - **Credentials:**
   - Passwords are hashed with PBKDF2-SHA256, 600,000 iterations, per-user salt.
-  - Machine secrets are stored as verifiers only.
+  - Machine secrets are stored AES-256-GCM encrypted, never in clear.
   - Refresh tokens are stored hashed.
   - Every secret comparison is constant time.
 - **Rate limits:** auth, enrollment, and tunnel handshakes are rate limited per IP and per account. Failed handshakes share the lockout.

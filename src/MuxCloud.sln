@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Xunit3", "Test.Xunit3\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Nunit", "Test.Nunit\Test.Nunit.csproj", "{816B131B-5769-457E-B7DD-FCBD493B29E3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MuxCloud.Core", "MuxCloud.Core\MuxCloud.Core.csproj", "{D0A22238-D611-4089-A0C2-0407226E809C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,18 @@ Global
 		{816B131B-5769-457E-B7DD-FCBD493B29E3}.Release|x64.Build.0 = Release|Any CPU
 		{816B131B-5769-457E-B7DD-FCBD493B29E3}.Release|x86.ActiveCfg = Release|Any CPU
 		{816B131B-5769-457E-B7DD-FCBD493B29E3}.Release|x86.Build.0 = Release|Any CPU
+		{D0A22238-D611-4089-A0C2-0407226E809C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0A22238-D611-4089-A0C2-0407226E809C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0A22238-D611-4089-A0C2-0407226E809C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D0A22238-D611-4089-A0C2-0407226E809C}.Debug|x64.Build.0 = Debug|Any CPU
+		{D0A22238-D611-4089-A0C2-0407226E809C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D0A22238-D611-4089-A0C2-0407226E809C}.Debug|x86.Build.0 = Debug|Any CPU
+		{D0A22238-D611-4089-A0C2-0407226E809C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0A22238-D611-4089-A0C2-0407226E809C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0A22238-D611-4089-A0C2-0407226E809C}.Release|x64.ActiveCfg = Release|Any CPU
+		{D0A22238-D611-4089-A0C2-0407226E809C}.Release|x64.Build.0 = Release|Any CPU
+		{D0A22238-D611-4089-A0C2-0407226E809C}.Release|x86.ActiveCfg = Release|Any CPU
+		{D0A22238-D611-4089-A0C2-0407226E809C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

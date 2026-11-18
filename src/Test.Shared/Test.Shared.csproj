@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MuxCloud.Protocol\MuxCloud.Protocol.csproj" />
+    <ProjectReference Include="..\MuxCloud.Core\MuxCloud.Core.csproj" />
   </ItemGroup>
 
 </Project>

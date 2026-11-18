@@ -22,7 +22,9 @@ namespace Test.Shared
                 {
                     ProtocolSuites.Envelope(),
                     ProtocolSuites.Proof(),
-                    ProtocolSuites.Policy()
+                    ProtocolSuites.Policy(),
+                    DatabaseSuites.Database(),
+                    AccountSuites.Accounts()
                 };
             }
         }
