@@ -668,6 +668,69 @@
           ]
         },
         {
+          "name": "Sign out machine (machine-authenticated)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Builds a sign-out proof from the machineId and machineSecret saved by 'Enroll machine'.",
+                  "const machineId = pm.collectionVariables.get('machineId');",
+                  "const secret = pm.collectionVariables.get('machineSecret');",
+                  "const ts = new Date().toISOString();",
+                  "const nonce = CryptoJS.lib.WordArray.random(16).toString(CryptoJS.enc.Hex);",
+                  "const proof = CryptoJS.HmacSHA256('mux-signout:' + machineId + ':' + ts + ':' + nonce, secret).toString(CryptoJS.enc.Hex);",
+                  "pm.collectionVariables.set('signOutBody', JSON.stringify({ machineId: machineId, timestampUtc: ts, nonce: nonce, proof: proof }));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/machines/sign-out",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "machines",
+                "sign-out"
+              ]
+            },
+            "description": "What mux calls on logout. No password or token: the body proves possession of the machine secret with HMAC-SHA256 over 'mux-signout:' + machineId + ':' + timestampUtc + ':' + nonce. Revokes the machine and closes its tunnel with 4403. 401 when the machine is unknown or already revoked, or the proof or timestamp is invalid.",
+            "body": {
+              "mode": "raw",
+              "raw": "{{signOutBody}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
           "name": "List machines",
           "request": {
             "method": "GET",
@@ -1953,6 +2016,10 @@
       "value": "",
       "type": "string",
       "description": "Set by register device"
+    },
+    {
+      "key": "signOutBody",
+      "value": ""
     }
   ]
 }

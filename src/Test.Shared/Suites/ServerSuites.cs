@@ -422,6 +422,45 @@ namespace Test.Shared.Suites
                         }
                     }
                 }),
+                Cases.Async(suite, "MachineSignOut", "A machine signs itself out with a sign-out proof: bad proofs are 401, a good one revokes and closes the tunnel", async (CancellationToken token) =>
+                {
+                    await using (ServerFixture f = await ServerFixture.StartAsync(token).ConfigureAwait(false))
+                    {
+                        EnrollResponse enrolled = await f.EnrollAsync(TestSettings.AdminEmail, TestSettings.AdminPassword, "studio", token).ConfigureAwait(false);
+                        await using (FakeMachine machine = new FakeMachine(f.BaseUrl, enrolled.MachineId, enrolled.MachineSecret))
+                        {
+                            await machine.ConnectAsync(token).ConfigureAwait(false);
+                            TestAssert.True(await machine.WaitWelcomeAsync(_Wait).ConfigureAwait(false), "welcomed");
+                            using (HttpClient anon = f.BearerClient(null))
+                            {
+                                MachineSignOutRequest wrongSecret = MachineSignOutRequest.Create(enrolled.MachineId, "mcs_not-the-secret", DateTime.UtcNow);
+                                TestAssert.Equal(HttpStatusCode.Unauthorized, (await PostSignOutAsync(anon, wrongSecret, token).ConfigureAwait(false)).StatusCode, "wrong secret");
+                                MachineSignOutRequest stale = MachineSignOutRequest.Create(enrolled.MachineId, enrolled.MachineSecret, DateTime.UtcNow.AddMinutes(-10));
+                                TestAssert.Equal(HttpStatusCode.Unauthorized, (await PostSignOutAsync(anon, stale, token).ConfigureAwait(false)).StatusCode, "stale timestamp");
+                                MachineSignOutRequest tunnelProof = MachineSignOutRequest.Create(enrolled.MachineId, enrolled.MachineSecret, DateTime.UtcNow);
+                                tunnelProof.Proof = TunnelProof.ComputeProof(enrolled.MachineSecret, enrolled.MachineId, tunnelProof.TimestampUtc, tunnelProof.Nonce);
+                                TestAssert.Equal(HttpStatusCode.Unauthorized, (await PostSignOutAsync(anon, tunnelProof, token).ConfigureAwait(false)).StatusCode, "a handshake proof is not a sign-out proof");
+                                MachineSignOutRequest unknown = MachineSignOutRequest.Create("mch_unknown", enrolled.MachineSecret, DateTime.UtcNow);
+                                TestAssert.Equal(HttpStatusCode.Unauthorized, (await PostSignOutAsync(anon, unknown, token).ConfigureAwait(false)).StatusCode, "unknown machine");
+                                TestAssert.True(f.Server.Registry.IsOnline(enrolled.MachineId), "still online after bad requests");
+
+                                MachineSignOutRequest good = MachineSignOutRequest.Create(enrolled.MachineId, enrolled.MachineSecret, DateTime.UtcNow);
+                                TestAssert.Equal(HttpStatusCode.NoContent, (await PostSignOutAsync(anon, good, token).ConfigureAwait(false)).StatusCode, "signed out");
+                                TestAssert.Equal((int?)TunnelCloseCodes.Revoked, await machine.WaitClosedAsync(_Wait).ConfigureAwait(false), "tunnel closed 4403");
+                                Machine? stored = await f.Server.Database.Machines.ReadAsync(enrolled.MachineId, token).ConfigureAwait(false);
+                                TestAssert.True(stored != null && stored.RevokedUtc != null, "revoked in the database");
+                                TestAssert.Equal(HttpStatusCode.Unauthorized, (await PostSignOutAsync(anon, MachineSignOutRequest.Create(enrolled.MachineId, enrolled.MachineSecret, DateTime.UtcNow), token).ConfigureAwait(false)).StatusCode, "second sign-out is refused");
+                            }
+                        }
+
+                        Machine signedOut = (await f.Server.Database.Machines.ReadAsync(enrolled.MachineId, token).ConfigureAwait(false))!;
+                        EnrollRequest reenroll = new EnrollRequest { Email = TestSettings.AdminEmail, Password = TestSettings.AdminPassword, MachineName = "studio", Fingerprint = signedOut.Fingerprint };
+                        EnrollResult again = await f.Server.Machines.EnrollAsync(reenroll, "198.51.100.1", token).ConfigureAwait(false);
+                        TestAssert.Equal(enrolled.MachineId, again.Machine.Id, "signing in again restores the same machine");
+                        Machine? restored = await f.Server.Database.Machines.ReadAsync(again.Machine.Id, token).ConfigureAwait(false);
+                        TestAssert.True(restored != null && restored.RevokedUtc == null, "no longer revoked");
+                    }
+                }),
                 Cases.Async(suite, "HeartbeatEviction", "A machine that stops answering pings is evicted with 4408", async (CancellationToken token) =>
                 {
                     await using (ServerFixture f = await ServerFixture.StartAsync(token, (MuxCloud.Core.Settings.MuxCloudSettings s) => { s.Tunnel.HeartbeatSeconds = 5; s.Tunnel.MissedHeartbeats = 1; }).ConfigureAwait(false))
@@ -467,6 +506,12 @@ namespace Test.Shared.Suites
         #endregion
 
         #region Private-Methods
+
+        private static Task<HttpResponseMessage> PostSignOutAsync(HttpClient client, MachineSignOutRequest request, CancellationToken token)
+        {
+            StringContent body = new StringContent(TunnelProtocol.SerializeSignOut(request), Encoding.UTF8, "application/json");
+            return client.PostAsync(TunnelProtocol.SignOutPath, body, token);
+        }
 
         private static string WsUrl(ServerFixture f, string path)
         {

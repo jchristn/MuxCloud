@@ -295,6 +295,27 @@ Errors:
 | 402 | `EntitlementExceeded` | A new machine would exceed `machines.max` for the plan. Re-enrolling an existing fingerprint is always allowed. |
 | 429 | `TooManyAttempts` | Lockout, shared with login |
 
+### `POST /v1.0/api/machines/sign-out`
+
+Anonymous route, called by mux when its owner signs the machine out (`mux cloud logout`, `/cloud logout`, or Sign out in the desktop app, local dashboard, or VS Code). It revokes the machine and closes its tunnel with `4403`, so the machine stops appearing as an offline machine in the account. No password or token is sent; the body proves possession of the machine secret.
+
+```json
+{
+  "machineId": "mch_01JD...",
+  "timestampUtc": "2026-11-18T14:02:30.2239110Z",
+  "nonce": "9f1c0b7e4a2d4c55a1b2c3d4e5f60718",
+  "proof": "64 lowercase hex characters"
+}
+```
+
+`proof = hex(HMAC-SHA256(key: UTF8(machineSecret), message: UTF8("mux-signout:" + machineId + ":" + timestampUtc + ":" + nonce)))`. The `mux-signout:` prefix differs from the tunnel handshake's `mux-tunnel:`, so neither proof can be replayed as the other. `timestampUtc` must be within 120 seconds of the server clock. `MuxCloud.Protocol` builds the body with `MachineSignOutRequest.Create(machineId, machineSecret, DateTime.UtcNow)`.
+
+Response: `204`. No email is sent, because the owner asked for it. Signing in again from the same machine restores it under the same id.
+
+| Status | Code | When |
+| --- | --- | --- |
+| 401 | `Unauthorized` | Unknown or already revoked machine, wrong proof, or a stale timestamp. Mux treats this as already signed out. |
+
 ### `GET /v1.0/api/machines`
 
 Authenticated. Returns the current user's machines, most recently seen first.

@@ -7,6 +7,7 @@ namespace MuxCloud.Server.Handlers
     using MuxCloud.Core.Models;
     using MuxCloud.Core.Requests;
     using MuxCloud.Core.Responses;
+    using MuxCloud.Protocol;
     using MuxCloud.Server.Http;
     using WatsonWebserver.Core;
 
@@ -49,6 +50,19 @@ namespace MuxCloud.Server.Handlers
             EnrollResult result = await _Server.Machines.EnrollAsync(request, rc.SourceIp, ctx.Token).ConfigureAwait(false);
             await Api.SendJsonAsync(ctx, rc, 201, new EnrollResponse { MachineId = result.Machine.Id, MachineSecret = result.Secret, MachineName = result.Machine.Name }).ConfigureAwait(false);
             if (!result.Reenrolled) await _Server.PublishMachineAsync(result.Machine.UserId, result.Machine.Id, "machine.updated").ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// POST /v1.0/api/machines/sign-out. Anonymous; the body carries a sign-out proof over the machine secret.
+        /// </summary>
+        /// <param name="ctx">HTTP context.</param>
+        /// <param name="rc">Request context.</param>
+        /// <returns>Task.</returns>
+        public async Task SignOutAsync(HttpContextBase ctx, RequestContext rc)
+        {
+            MachineSignOutRequest request = Api.ReadJson<MachineSignOutRequest>(ctx, rc);
+            await _Server.Machines.SignOutAsync(request, rc.SourceIp, ctx.Token).ConfigureAwait(false);
+            await Api.SendNoContentAsync(ctx).ConfigureAwait(false);
         }
 
         /// <summary>

@@ -7,6 +7,7 @@ namespace MuxCloud.Protocol
     /// </summary>
     [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNameCaseInsensitive = true, WriteIndented = false)]
     [JsonSerializable(typeof(TunnelEnvelope))]
+    [JsonSerializable(typeof(MachineSignOutRequest))]
     public partial class TunnelJsonContext : JsonSerializerContext
     {
     }

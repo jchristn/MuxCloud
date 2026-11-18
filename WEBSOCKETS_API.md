@@ -55,7 +55,7 @@ Example:
 
 A machine authenticates with a per-machine credential, never with the user's password. The user signs in once from any mux surface. Mux calls `POST /v1.0/api/machines/enroll` (see `REST_API.md`) with the user's email and password and a description of the machine. It receives a `machineId` (`mch_...`) and a `machineSecret` (`mcs_` plus 48 alphanumeric characters), saves both in `settings.json` under `cloud`, and discards the password. The secret is shown once. The cloud stores it encrypted and shows only its last four characters.
 
-Re-enrolling from the same machine (same fingerprint, same user) keeps the `machineId` and rotates the secret. Removing or revoking the machine in the dashboard invalidates the secret and closes any live tunnel with `4403`.
+Re-enrolling from the same machine (same fingerprint, same user) keeps the `machineId`, rotates the secret, and clears a revocation. Removing or revoking the machine in the dashboard invalidates the secret and closes any live tunnel with `4403`. So does signing out on the machine itself: mux calls `POST /v1.0/api/machines/sign-out` with a sign-out proof (the handshake proof with the prefix `mux-signout:` instead of `mux-tunnel:`, see `REST_API.md`) before it deletes its local credential.
 
 ### 1.4 Connection lifecycle
 

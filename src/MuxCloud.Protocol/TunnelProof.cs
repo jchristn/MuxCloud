@@ -74,13 +74,7 @@ namespace MuxCloud.Protocol
         /// <exception cref="ArgumentException">Any argument is blank.</exception>
         public static string ComputeProof(string machineSecret, string machineId, string timestampUtc, string nonce)
         {
-            if (String.IsNullOrWhiteSpace(machineSecret)) throw new ArgumentException("A machine secret is required to compute a proof.", nameof(machineSecret));
-            if (String.IsNullOrWhiteSpace(machineId)) throw new ArgumentException("A machine identifier is required to compute a proof.", nameof(machineId));
-            if (String.IsNullOrWhiteSpace(timestampUtc)) throw new ArgumentException("A timestamp is required to compute a proof.", nameof(timestampUtc));
-            if (String.IsNullOrWhiteSpace(nonce)) throw new ArgumentException("A nonce is required to compute a proof.", nameof(nonce));
-            byte[] key = Encoding.UTF8.GetBytes(machineSecret);
-            byte[] message = Encoding.UTF8.GetBytes("mux-tunnel:" + machineId + ":" + timestampUtc + ":" + nonce);
-            return Convert.ToHexString(HMACSHA256.HashData(key, message)).ToLowerInvariant();
+            return Compute("mux-tunnel:", machineSecret, machineId, timestampUtc, nonce);
         }
 
         /// <summary>
@@ -94,12 +88,37 @@ namespace MuxCloud.Protocol
         /// <returns>True when the proof matches.</returns>
         public static bool VerifyProof(string machineSecret, string machineId, string timestampUtc, string nonce, string proof)
         {
-            if (String.IsNullOrWhiteSpace(machineSecret) || String.IsNullOrWhiteSpace(machineId) || String.IsNullOrWhiteSpace(timestampUtc)
-                || String.IsNullOrWhiteSpace(nonce) || String.IsNullOrWhiteSpace(proof)) return false;
-            string expected = ComputeProof(machineSecret, machineId, timestampUtc, nonce);
-            byte[] a = Encoding.ASCII.GetBytes(expected);
-            byte[] b = Encoding.ASCII.GetBytes(proof.Trim().ToLowerInvariant());
-            return CryptographicOperations.FixedTimeEquals(a, b);
+            return Verify("mux-tunnel:", machineSecret, machineId, timestampUtc, nonce, proof);
+        }
+
+        /// <summary>
+        /// Compute the sign-out proof a machine sends when it signs itself out:
+        /// <c>hex(HMAC-SHA256(key: UTF8(machineSecret), message: UTF8("mux-signout:" + machineId + ":" + timestampUtc + ":" + nonce)))</c>.
+        /// The different prefix keeps a captured handshake proof from being replayed as a sign-out, and the reverse.
+        /// </summary>
+        /// <param name="machineSecret">Machine secret.</param>
+        /// <param name="machineId">Machine identifier.</param>
+        /// <param name="timestampUtc">Timestamp string exactly as sent.</param>
+        /// <param name="nonce">Nonce exactly as sent.</param>
+        /// <returns>Lowercase hex HMAC-SHA256.</returns>
+        /// <exception cref="ArgumentException">Any argument is blank.</exception>
+        public static string ComputeSignOutProof(string machineSecret, string machineId, string timestampUtc, string nonce)
+        {
+            return Compute("mux-signout:", machineSecret, machineId, timestampUtc, nonce);
+        }
+
+        /// <summary>
+        /// Verify a sign-out proof in constant time.
+        /// </summary>
+        /// <param name="machineSecret">Machine secret held by the server.</param>
+        /// <param name="machineId">Machine identifier.</param>
+        /// <param name="timestampUtc">Timestamp string as received.</param>
+        /// <param name="nonce">Nonce as received.</param>
+        /// <param name="proof">Proof as received.</param>
+        /// <returns>True when the proof matches.</returns>
+        public static bool VerifySignOutProof(string machineSecret, string machineId, string timestampUtc, string nonce, string proof)
+        {
+            return Verify("mux-signout:", machineSecret, machineId, timestampUtc, nonce, proof);
         }
 
         /// <summary>
@@ -126,6 +145,31 @@ namespace MuxCloud.Protocol
         {
             if (String.IsNullOrEmpty(secret)) return String.Empty;
             return secret.Length <= 4 ? secret : secret.Substring(secret.Length - 4);
+        }
+
+        #endregion
+
+        #region Private-Methods
+
+        private static string Compute(string purpose, string machineSecret, string machineId, string timestampUtc, string nonce)
+        {
+            if (String.IsNullOrWhiteSpace(machineSecret)) throw new ArgumentException("A machine secret is required to compute a proof.", nameof(machineSecret));
+            if (String.IsNullOrWhiteSpace(machineId)) throw new ArgumentException("A machine identifier is required to compute a proof.", nameof(machineId));
+            if (String.IsNullOrWhiteSpace(timestampUtc)) throw new ArgumentException("A timestamp is required to compute a proof.", nameof(timestampUtc));
+            if (String.IsNullOrWhiteSpace(nonce)) throw new ArgumentException("A nonce is required to compute a proof.", nameof(nonce));
+            byte[] key = Encoding.UTF8.GetBytes(machineSecret);
+            byte[] message = Encoding.UTF8.GetBytes(purpose + machineId + ":" + timestampUtc + ":" + nonce);
+            return Convert.ToHexString(HMACSHA256.HashData(key, message)).ToLowerInvariant();
+        }
+
+        private static bool Verify(string purpose, string machineSecret, string machineId, string timestampUtc, string nonce, string proof)
+        {
+            if (String.IsNullOrWhiteSpace(machineSecret) || String.IsNullOrWhiteSpace(machineId) || String.IsNullOrWhiteSpace(timestampUtc)
+                || String.IsNullOrWhiteSpace(nonce) || String.IsNullOrWhiteSpace(proof)) return false;
+            string expected = Compute(purpose, machineSecret, machineId, timestampUtc, nonce);
+            byte[] a = Encoding.ASCII.GetBytes(expected);
+            byte[] b = Encoding.ASCII.GetBytes(proof.Trim().ToLowerInvariant());
+            return CryptographicOperations.FixedTimeEquals(a, b);
         }
 
         #endregion

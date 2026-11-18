@@ -184,6 +184,40 @@ namespace MuxCloud.Core.Services
         }
 
         /// <summary>
+        /// A machine signs itself out (its owner ran <c>mux cloud logout</c> or signed out on another mux surface). The
+        /// request is authenticated by a sign-out proof over the machine secret rather than by a user session. A valid
+        /// request revokes the machine, which also closes its tunnel; the owner gets no email because they asked for it.
+        /// </summary>
+        /// <param name="request">Signed request.</param>
+        /// <param name="sourceIp">Caller address, for the audit log.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>The revoked machine.</returns>
+        /// <exception cref="ApiException">401 when the machine is unknown, already revoked, or the proof or timestamp is invalid.</exception>
+        public async Task<Machine> SignOutAsync(MachineSignOutRequest request, string sourceIp, CancellationToken token = default)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+            ApiException rejected = new ApiException(401, "Unauthorized", "The sign-out request could not be verified.");
+            if (String.IsNullOrWhiteSpace(request.MachineId) || request.MachineId.Length > 64) throw rejected;
+            Machine? machine = await _Db.Machines.ReadAsync(request.MachineId, token).ConfigureAwait(false);
+            if (machine == null || machine.RevokedUtc != null) throw rejected;
+            string? secret = GetSecret(machine);
+            bool valid = secret != null
+                && TunnelProof.IsTimestampFresh(request.TimestampUtc, DateTime.UtcNow)
+                && TunnelProof.VerifySignOutProof(secret, machine.Id, request.TimestampUtc, request.Nonce, request.Proof);
+            if (!valid)
+            {
+                await _Audit.WriteAsync("machine.signout", "failure", machine.TenantId, machine.UserId, "machine", machine.Id, sourceIp, "invalid proof", token).ConfigureAwait(false);
+                throw rejected;
+            }
+
+            User user = await _Db.Users.ReadAsync(machine.TenantId, machine.UserId, token).ConfigureAwait(false)
+                ?? throw rejected;
+            await RevokeInternalAsync(user, machine, false, token).ConfigureAwait(false);
+            await _Audit.WriteAsync("machine.signout", "success", machine.TenantId, machine.UserId, "machine", machine.Id, sourceIp, "signed out from the machine", token).ConfigureAwait(false);
+            return machine;
+        }
+
+        /// <summary>
         /// Revoke and delete a machine with its history.
         /// </summary>
         /// <param name="user">Owner.</param>

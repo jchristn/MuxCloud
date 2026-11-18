@@ -33,6 +33,11 @@ namespace MuxCloud.Protocol
         public const string EnrollPath = "/v1.0/api/machines/enroll";
 
         /// <summary>
+        /// REST path a machine calls to sign itself out (anonymous; authenticated by a sign-out proof).
+        /// </summary>
+        public const string SignOutPath = "/v1.0/api/machines/sign-out";
+
+        /// <summary>
         /// Production Mux Cloud URL, the default for mux's <c>cloud.serverUrl</c>.
         /// </summary>
         public const string DefaultServerUrl = "https://app.usemux.ai";
@@ -90,6 +95,17 @@ namespace MuxCloud.Protocol
         {
             ArgumentNullException.ThrowIfNull(envelope);
             return JsonSerializer.Serialize(envelope, TunnelJsonContext.Default.TunnelEnvelope);
+        }
+
+        /// <summary>
+        /// Serialize a sign-out request body (source-generated, AOT safe).
+        /// </summary>
+        /// <param name="request">Request.</param>
+        /// <returns>JSON.</returns>
+        public static string SerializeSignOut(MachineSignOutRequest request)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+            return JsonSerializer.Serialize(request, TunnelJsonContext.Default.MachineSignOutRequest);
         }
 
         /// <summary>

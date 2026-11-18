@@ -28,6 +28,7 @@ namespace MuxCloud.Server.Routes
         {
             MachineHandler h = new MachineHandler(Server);
             Add(app, HttpMethod.POST, "/v1.0/api/machines/enroll", false, "Machines", "Enroll a machine", h.EnrollAsync, true);
+            Add(app, HttpMethod.POST, "/v1.0/api/machines/sign-out", false, "Machines", "A machine signs itself out", h.SignOutAsync, true);
             Add(app, HttpMethod.GET, "/v1.0/api/machines", true, "Machines", "List machines", h.ListAsync);
             Add(app, HttpMethod.GET, "/v1.0/api/machines/{id}", true, "Machines", "Read a machine", h.GetAsync);
             Add(app, HttpMethod.PUT, "/v1.0/api/machines/{id}", true, "Machines", "Rename a machine", h.RenameAsync);
