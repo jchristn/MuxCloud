@@ -384,6 +384,18 @@ export const it: Catalog = {
     deleteUserTitle: 'Eliminare {{email}}?',
     deleteUserBody: "Elimina l'utente e il suo account e disconnette le sue macchine. L'operazione è irreversibile.",
     userDeleted: 'Utente eliminato.',
+    setPassword: 'Imposta password',
+    setPasswordTitle: 'Imposta una password per {{email}}',
+    setPasswordBody: 'La nuova password vale subito e disconnette {{email}} ovunque. Non viene inviata alcuna email.',
+    setPasswordSelfBody:
+      'La nuova password vale subito. Le tue altre sessioni vengono disconnesse; questa resta attiva.',
+    passwordSet: 'Password impostata. Nessuna email inviata.',
+    sendReset: 'Invia reimpostazione',
+    sendResetTitle: 'Inviare un link di reimpostazione a {{email}}?',
+    sendResetBody:
+      "Riceverà la solita email con un link valido per un'ora. La password attuale continua a funzionare finché non lo usa.",
+    resetSent: 'Link di reimpostazione inviato a {{email}}.',
+    resetDisabled: "Attiva l'utente prima di inviare un link.",
     machinesTitle: 'Tutte le macchine',
     machinesSubtitle: 'Le macchine di tutti gli account.',
     userIdFilter: 'ID utente',
@@ -452,7 +464,7 @@ export const it: Catalog = {
   requests: {
     title: 'Cronologia richieste',
     subtitle:
-      'Ogni richiesta gestita da questo server. Il traffico inoltrato delle macchine viene registrato senza contenuto.',
+      'Ogni chiamata API gestita da questo server. Il traffico inoltrato alle macchine è registrato senza corpi; i file della dashboard non vengono registrati.',
     kpiTotal: 'Richieste',
     kpiFailures: 'Errori',
     kpiSuccessRate: 'Tasso di successo',
@@ -514,12 +526,11 @@ export const it: Catalog = {
     ariaLabel: 'Richieste per intervallo, riuscite e non riuscite',
   },
   explorer: {
+    operation: 'Operazione API',
+    operationPlaceholder: "Scegli un'operazione",
     title: 'Esplora API',
     subtitle: 'Esegui qualsiasi rotta di questo server con la tua sessione. Generato dal documento OpenAPI attuale.',
-    searchPlaceholder: 'Cerca metodo, percorso o riepilogo',
     noSpec: "Questo server non ha restituito /openapi.json, quindi non c'è nulla da mostrare.",
-    noMatches: 'Nessuna operazione corrispondente.',
-    selectPrompt: "Scegli un'operazione a sinistra.",
     pathParams: 'Parametri di percorso',
     queryParams: 'Parametri di query',
     headers: 'Intestazioni',

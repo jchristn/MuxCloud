@@ -104,6 +104,39 @@ namespace MuxCloud.Server.Handlers
         }
 
         /// <summary>
+        /// PUT /v1.0/api/admin/users/{id}/password. Sets the password without any email and signs the user out
+        /// everywhere; an administrator setting their own password stays signed in on this session.
+        /// </summary>
+        /// <param name="ctx">HTTP context.</param>
+        /// <param name="rc">Request context.</param>
+        /// <returns>Task.</returns>
+        public async Task SetUserPasswordAsync(HttpContextBase ctx, RequestContext rc)
+        {
+            AuthenticatedPrincipal admin = Api.RequireAdmin(rc);
+            AdminSetPasswordRequest request = Api.ReadJson<AdminSetPasswordRequest>(ctx, rc);
+            User user = await ReadUserAsync(ctx, "/v1.0/api/admin/users/{id}/password").ConfigureAwait(false);
+            string? keep = user.Id == admin.User.Id ? admin.Session.Id : null;
+            await _Server.Accounts.AdminSetPasswordAsync(user, request.Password, keep, ctx.Token).ConfigureAwait(false);
+            await _Server.Audit.WriteAsync("admin.user.password.set", "success", user.TenantId, admin.User.Id, "user", user.Id, rc.SourceIp, null, ctx.Token).ConfigureAwait(false);
+            await Api.SendNoContentAsync(ctx).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// POST /v1.0/api/admin/users/{id}/password-reset. Emails the user a password reset link.
+        /// </summary>
+        /// <param name="ctx">HTTP context.</param>
+        /// <param name="rc">Request context.</param>
+        /// <returns>Task.</returns>
+        public async Task SendUserPasswordResetAsync(HttpContextBase ctx, RequestContext rc)
+        {
+            AuthenticatedPrincipal admin = Api.RequireAdmin(rc);
+            User user = await ReadUserAsync(ctx, "/v1.0/api/admin/users/{id}/password-reset").ConfigureAwait(false);
+            await _Server.Accounts.AdminSendPasswordResetAsync(user, ctx.Token).ConfigureAwait(false);
+            await _Server.Audit.WriteAsync("admin.user.password.reset", "success", user.TenantId, admin.User.Id, "user", user.Id, rc.SourceIp, null, ctx.Token).ConfigureAwait(false);
+            await Api.SendJsonAsync(ctx, rc, 202, new AcceptedResponse()).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// DELETE /v1.0/api/admin/users/{id}.
         /// </summary>
         /// <param name="ctx">HTTP context.</param>
@@ -299,9 +332,9 @@ namespace MuxCloud.Server.Handlers
 
         #region Private-Methods
 
-        private async Task<User> ReadUserAsync(HttpContextBase ctx)
+        private async Task<User> ReadUserAsync(HttpContextBase ctx, string template = "/v1.0/api/admin/users/{id}")
         {
-            string id = Api.PathValue(ctx, "/v1.0/api/admin/users/{id}", "id");
+            string id = Api.PathValue(ctx, template, "id");
             return await _Server.Database.Users.ReadAsync(id, ctx.Token).ConfigureAwait(false) ?? throw ApiException.NotFound("User");
         }
 

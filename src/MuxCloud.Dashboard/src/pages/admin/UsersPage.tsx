@@ -10,6 +10,8 @@ import { ErrorBanner } from '../../components/ErrorBanner';
 import { JsonViewerModal } from '../../components/JsonViewerModal';
 import { Modal } from '../../components/Modal';
 import { PageHeader } from '../../components/PageHeader';
+import { PasswordInput } from '../../components/PasswordInput';
+import { Icon } from '../../components/Icon';
 import { useAuth } from '../../context/AuthContext';
 import { usePageTitle } from '../../context/PageTitleContext';
 import { useToast } from '../../context/ToastContext';
@@ -19,7 +21,94 @@ import { useLocale } from '../../i18n/runtime';
 import { formatDateTime } from '../../lib/format';
 import type { User } from '../../types';
 
-function EditUserModal({ user, onClose, onSaved }: { user: User; onClose: () => void; onSaved: (user: User) => void }) {
+function SetPasswordModal({ user, self, onClose }: { user: User; self: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
+  const toast = useToast();
+  const [next, setNext] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<unknown>(null);
+  const tooShort = next.length > 0 && next.length < 10;
+  const mismatch = confirm.length > 0 && confirm !== next;
+  const ready = next.length >= 10 && next === confirm;
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!ready) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await adminApi.setUserPassword(api, user.id, next);
+      toast.success(t('admin.passwordSet'));
+      onClose();
+    } catch (e) {
+      setError(e);
+      setBusy(false);
+    }
+  };
+  return (
+    <Modal
+      title={t('admin.setPasswordTitle', { email: user.email })}
+      onClose={onClose}
+      blocking={busy}
+      footer={
+        <>
+          <button type="button" className="btn" onClick={onClose} disabled={busy}>
+            {t('common.cancel')}
+          </button>
+          <button type="submit" form="set-password-form" className="btn btn-primary" disabled={busy || !ready}>
+            {busy ? t('common.saving') : t('admin.setPassword')}
+          </button>
+        </>
+      }
+    >
+      <form id="set-password-form" className="form-stack" onSubmit={submit}>
+        {error ? <ErrorBanner error={error} /> : null}
+        <p className="small muted">
+          {self ? t('admin.setPasswordSelfBody') : t('admin.setPasswordBody', { email: user.email })}
+        </p>
+        <div className="field">
+          <label htmlFor="admin-new-password">{t('auth.newPassword')}</label>
+          <PasswordInput
+            id="admin-new-password"
+            autoComplete="new-password"
+            autoFocus
+            value={next}
+            onChange={(e) => setNext(e.target.value)}
+            aria-invalid={tooShort}
+          />
+          <span className={tooShort ? 'field-error' : 'field-hint'}>
+            {tooShort ? t('auth.passwordTooShort') : t('auth.passwordHint')}
+          </span>
+        </div>
+        <div className="field">
+          <label htmlFor="admin-confirm-password">{t('auth.confirmPassword')}</label>
+          <PasswordInput
+            id="admin-confirm-password"
+            autoComplete="new-password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            aria-invalid={mismatch}
+          />
+          {mismatch ? <span className="field-error">{t('auth.passwordMismatch')}</span> : null}
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+function EditUserModal({
+  user,
+  onClose,
+  onSaved,
+  onSetPassword,
+  onSendReset,
+}: {
+  user: User;
+  onClose: () => void;
+  onSaved: (user: User) => void;
+  onSetPassword: () => void;
+  onSendReset: () => void;
+}) {
   const { t } = useTranslation();
   const [form, setForm] = useState({
     firstName: user.firstName ?? '',
@@ -111,6 +200,19 @@ function EditUserModal({ user, onClose, onSaved }: { user: User; onClose: () => 
           />
           <span>{t('admin.isAdmin')}</span>
         </label>
+        <div className="field">
+          <span className="field-label">{t('auth.password')}</span>
+          <div className="row">
+            <button type="button" className="btn btn-sm" onClick={onSetPassword} disabled={busy}>
+              <Icon name="key" size={15} />
+              {t('admin.setPassword')}
+            </button>
+            <button type="button" className="btn btn-sm" onClick={onSendReset} disabled={busy}>
+              <Icon name="mail" size={15} />
+              {t('admin.sendReset')}
+            </button>
+          </div>
+        </div>
       </form>
     </Modal>
   );
@@ -127,6 +229,8 @@ export function UsersPage() {
   const [edit, setEdit] = useState<User | null>(null);
   const [json, setJson] = useState<User | null>(null);
   const [remove, setRemove] = useState<User | null>(null);
+  const [passwordFor, setPasswordFor] = useState<User | null>(null);
+  const [resetFor, setResetFor] = useState<User | null>(null);
   const { data, setData, loading, error, reload, paging } = usePaged<User>(
     'admin-users',
     (pageNumber, pageSize) => adminApi.users(api, { pageNumber, pageSize, email: filter || undefined }),
@@ -186,6 +290,8 @@ export function UsersPage() {
         rowActions={(u) => [
           { label: t('common.edit'), icon: 'edit', onSelect: () => setEdit(u) },
           { label: t('common.viewJson'), icon: 'braces', onSelect: () => setJson(u) },
+          { label: t('admin.setPassword'), icon: 'key', separatorBefore: true, onSelect: () => setPasswordFor(u) },
+          { label: t('admin.sendReset'), icon: 'mail', onSelect: () => setResetFor(u) },
           {
             label: t('common.delete'),
             icon: 'trash',
@@ -217,6 +323,30 @@ export function UsersPage() {
           onSaved={(u) => {
             setData((d) => (d ? { ...d, items: d.items.map((x) => (x.id === u.id ? u : x)) } : d));
             toast.success(t('admin.userSaved'));
+          }}
+          onSetPassword={() => {
+            setPasswordFor(edit);
+            setEdit(null);
+          }}
+          onSendReset={() => {
+            setResetFor(edit);
+            setEdit(null);
+          }}
+        />
+      ) : null}
+      {passwordFor ? (
+        <SetPasswordModal user={passwordFor} self={passwordFor.id === me?.id} onClose={() => setPasswordFor(null)} />
+      ) : null}
+      {resetFor ? (
+        <ConfirmModal
+          title={t('admin.sendResetTitle', { email: resetFor.email })}
+          body={resetFor.active === false ? t('admin.resetDisabled') : t('admin.sendResetBody')}
+          confirmLabel={t('admin.sendReset')}
+          confirmDisabled={resetFor.active === false}
+          onClose={() => setResetFor(null)}
+          onConfirm={async () => {
+            await adminApi.sendPasswordReset(api, resetFor.id);
+            toast.success(t('admin.resetSent', { email: resetFor.email }));
           }}
         />
       ) : null}

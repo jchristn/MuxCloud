@@ -1,6 +1,7 @@
 namespace MuxCloud.Core.Models
 {
     using System;
+    using System.Collections.Generic;
     using MuxCloud.Core.Helpers;
 
     /// <summary>
@@ -76,14 +77,22 @@ namespace MuxCloud.Core.Models
         public bool IsRelay { get; set; } = false;
 
         /// <summary>
-        /// Redacted request headers as text lines. Unmanaged diagnostic text.
+        /// Redacted request headers by name. Empty for relay routes and in list results.
         /// </summary>
-        public string RequestHeaders { get; set; } = String.Empty;
+        public Dictionary<string, string> RequestHeaders
+        {
+            get { return _RequestHeaders; }
+            set { _RequestHeaders = value ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); }
+        }
 
         /// <summary>
-        /// Response headers as text lines. Unmanaged diagnostic text.
+        /// Redacted response headers by name. Empty for relay routes and in list results.
         /// </summary>
-        public string ResponseHeaders { get; set; } = String.Empty;
+        public Dictionary<string, string> ResponseHeaders
+        {
+            get { return _ResponseHeaders; }
+            set { _ResponseHeaders = value ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); }
+        }
 
         /// <summary>
         /// Truncated request body. Unmanaged diagnostic text; empty for relay routes.
@@ -109,6 +118,13 @@ namespace MuxCloud.Core.Models
         /// Capture time, UTC.
         /// </summary>
         public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
+
+        #endregion
+
+        #region Private-Members
+
+        private Dictionary<string, string> _RequestHeaders = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, string> _ResponseHeaders = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         #endregion
     }

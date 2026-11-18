@@ -390,6 +390,19 @@ export const fr: Catalog = {
     deleteUserTitle: 'Supprimer {{email}} ?',
     deleteUserBody: "Supprime l'utilisateur et son compte, et déconnecte ses machines. Action irréversible.",
     userDeleted: 'Utilisateur supprimé.',
+    setPassword: 'Définir le mot de passe',
+    setPasswordTitle: 'Définir un mot de passe pour {{email}}',
+    setPasswordBody:
+      "Le nouveau mot de passe s'applique immédiatement et déconnecte {{email}} partout. Aucun e-mail n'est envoyé.",
+    setPasswordSelfBody:
+      "Le nouveau mot de passe s'applique immédiatement. Vos autres sessions sont déconnectées ; celle-ci reste connectée.",
+    passwordSet: "Mot de passe défini. Aucun e-mail n'a été envoyé.",
+    sendReset: 'Envoyer une réinitialisation',
+    sendResetTitle: 'Envoyer un lien de réinitialisation à {{email}} ?',
+    sendResetBody:
+      "La personne reçoit l'e-mail habituel avec un lien valable une heure. Son mot de passe actuel reste valable jusqu'à ce qu'elle l'utilise.",
+    resetSent: 'Lien de réinitialisation envoyé à {{email}}.',
+    resetDisabled: "Activez l'utilisateur avant d'envoyer un lien.",
     machinesTitle: 'Toutes les machines',
     machinesSubtitle: 'Les machines de tous les comptes.',
     userIdFilter: "ID d'utilisateur",
@@ -457,7 +470,8 @@ export const fr: Catalog = {
   },
   requests: {
     title: 'Historique des requêtes',
-    subtitle: 'Chaque requête traitée par ce serveur. Le trafic relayé des machines est enregistré sans contenu.',
+    subtitle:
+      "Chaque appel d'API traité par ce serveur. Le trafic relayé vers les machines est enregistré sans corps ; les fichiers du tableau de bord ne sont pas enregistrés.",
     kpiTotal: 'Requêtes',
     kpiFailures: 'Échecs',
     kpiSuccessRate: 'Taux de réussite',
@@ -519,13 +533,12 @@ export const fr: Catalog = {
     ariaLabel: 'Requêtes par intervalle, réussies et échouées',
   },
   explorer: {
+    operation: "Opération d'API",
+    operationPlaceholder: 'Choisissez une opération',
     title: "Explorateur d'API",
     subtitle:
       "Exécutez n'importe quelle route de ce serveur avec votre session. Généré à partir du document OpenAPI actuel.",
-    searchPlaceholder: 'Rechercher une méthode, un chemin ou un résumé',
     noSpec: "Ce serveur n'a pas renvoyé /openapi.json, l'explorateur n'a donc rien à afficher.",
-    noMatches: 'Aucune opération ne correspond.',
-    selectPrompt: 'Choisissez une opération à gauche.',
     pathParams: 'Paramètres de chemin',
     queryParams: 'Paramètres de requête',
     headers: 'En-têtes',

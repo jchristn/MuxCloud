@@ -384,6 +384,18 @@ export const es: Catalog = {
     deleteUserTitle: '¿Eliminar {{email}}?',
     deleteUserBody: 'Elimina al usuario y su cuenta, y desconecta sus equipos. No se puede deshacer.',
     userDeleted: 'Usuario eliminado.',
+    setPassword: 'Establecer contraseña',
+    setPasswordTitle: 'Establecer una contraseña para {{email}}',
+    setPasswordBody:
+      'La nueva contraseña funciona al instante y cierra la sesión de {{email}} en todas partes. No se envía ningún correo.',
+    setPasswordSelfBody: 'La nueva contraseña funciona al instante. Se cierran tus otras sesiones; esta sigue abierta.',
+    passwordSet: 'Contraseña establecida. No se envió ningún correo.',
+    sendReset: 'Enviar restablecimiento',
+    sendResetTitle: '¿Enviar un enlace de restablecimiento a {{email}}?',
+    sendResetBody:
+      'Recibirá el correo habitual con un enlace válido durante una hora. Su contraseña actual sigue funcionando hasta que lo use.',
+    resetSent: 'Enlace de restablecimiento enviado a {{email}}.',
+    resetDisabled: 'Activa al usuario antes de enviar un enlace.',
     machinesTitle: 'Todos los equipos',
     machinesSubtitle: 'Equipos de todas las cuentas.',
     userIdFilter: 'ID de usuario',
@@ -451,7 +463,7 @@ export const es: Catalog = {
   requests: {
     title: 'Historial de solicitudes',
     subtitle:
-      'Cada solicitud que atendió este servidor. El tráfico retransmitido de los equipos se registra sin contenido.',
+      'Cada llamada a la API que atendió este servidor. El tráfico reenviado a las máquinas se registra sin cuerpos; los archivos del panel no se registran.',
     kpiTotal: 'Solicitudes',
     kpiFailures: 'Fallos',
     kpiSuccessRate: 'Tasa de éxito',
@@ -513,12 +525,11 @@ export const es: Catalog = {
     ariaLabel: 'Solicitudes por intervalo, correctas y fallidas',
   },
   explorer: {
+    operation: 'Operación de la API',
+    operationPlaceholder: 'Elige una operación',
     title: 'Explorador de API',
     subtitle: 'Ejecuta cualquier ruta de este servidor con tu sesión. Generado a partir del documento OpenAPI actual.',
-    searchPlaceholder: 'Buscar método, ruta o resumen',
     noSpec: 'Este servidor no devolvió /openapi.json, así que el explorador no tiene nada que mostrar.',
-    noMatches: 'Ninguna operación coincide.',
-    selectPrompt: 'Elige una operación a la izquierda.',
     pathParams: 'Parámetros de ruta',
     queryParams: 'Parámetros de consulta',
     headers: 'Encabezados',

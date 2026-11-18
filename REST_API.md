@@ -570,6 +570,8 @@ Every admin route requires a user with `isAdmin: true`. Anyone else gets `403 Fo
 | `GET /v1.0/api/admin/users/{id}` | User object |
 | `PUT /v1.0/api/admin/users/{id}` | `{ "active": true, "isAdmin": false, "emailVerified": true, "firstName": "...", "lastName": "..." }`. Disabling a user revokes their sessions and closes their machines' tunnels. |
 | `DELETE /v1.0/api/admin/users/{id}` | Deletes the user and their account. `409 Conflict` for the protected seed admin. |
+| `PUT /v1.0/api/admin/users/{id}/password` | `{ "password": "..." }` sets the user's password (same length rules as signup). Sends no email. Revokes all of the user's sessions and refresh tokens; when an administrator sets their own password, the session making the call stays signed in. Returns `204`. Audited as `admin.user.password.set`. |
+| `POST /v1.0/api/admin/users/{id}/password-reset` | Emails the user the standard password reset link (valid one hour) and changes nothing else. Returns `202 { "accepted": true }`; `409 Conflict` when the user is disabled. Audited as `admin.user.password.reset`. |
 | `GET /v1.0/api/admin/machines` | Paged machines across all accounts. Filter with `online`, `name`, and `userId`. |
 | `GET /v1.0/api/admin/plans` | All plans, including inactive and private ones |
 | `POST /v1.0/api/admin/plans` | Create a plan: `{ "code": "pro", "name": "Pro", "priceCents": 900, "currency": "usd", "interval": "month", "active": true, "public": true, "features": [ { "key": "machines.max", "limit": 10 } ] }` |
@@ -661,4 +663,10 @@ A request history entry:
 }
 ```
 
-The detail route adds `requestHeaders`, `responseHeaders`, `requestBody`, `responseBody`, `requestBodyTruncated`, and `responseBodyTruncated`.
+The detail route adds `requestHeaders`, `responseHeaders`, `requestBody`, `responseBody`, `requestBodyTruncated`, and `responseBodyTruncated`. Headers are objects of name to value, with credentials (`Authorization`, `Cookie`, `Set-Cookie`, and names containing `token`, `secret`, or `api-key`) shown as `(redacted)`. Relay entries and list results carry empty header objects.
+
+```json
+"requestHeaders": { "Accept": "application/json", "X-Forwarded-For": "203.0.113.7" }
+```
+
+Only API traffic is recorded: `/v1.0/api/...` (except `/v1.0/api/health`), relayed `/m/{machineId}/...` traffic, and the `/v1.0/tunnel` and `/v1.0/events` sockets. Dashboard files and the dashboard page itself are never recorded.

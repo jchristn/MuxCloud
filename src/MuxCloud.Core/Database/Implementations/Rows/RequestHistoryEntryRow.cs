@@ -2,6 +2,7 @@ namespace MuxCloud.Core.Database.Implementations.Rows
 {
     using System;
     using System.Data.Common;
+    using MuxCloud.Core.Helpers;
     using MuxCloud.Core.Models;
 
     /// <summary>
@@ -59,8 +60,8 @@ namespace MuxCloud.Core.Database.Implementations.Rows
                 SourceIp = Converters.String(reader, "source_ip"),
                 UserAgent = Converters.String(reader, "user_agent"),
                 IsRelay = Converters.Bool(reader, "is_relay"),
-                RequestHeaders = Converters.String(reader, "request_headers"),
-                ResponseHeaders = Converters.String(reader, "response_headers"),
+                RequestHeaders = HeaderLines.Parse(Converters.String(reader, "request_headers")),
+                ResponseHeaders = HeaderLines.Parse(Converters.String(reader, "response_headers")),
                 RequestBody = Converters.String(reader, "request_body"),
                 ResponseBody = Converters.String(reader, "response_body"),
                 RequestBodyTruncated = Converters.Bool(reader, "request_body_truncated"),
@@ -91,8 +92,8 @@ namespace MuxCloud.Core.Database.Implementations.Rows
                 .Add("source_ip", item.SourceIp)
                 .Add("user_agent", item.UserAgent)
                 .Add("is_relay", item.IsRelay)
-                .Add("request_headers", item.RequestHeaders)
-                .Add("response_headers", item.ResponseHeaders)
+                .Add("request_headers", HeaderLines.Format(item.RequestHeaders))
+                .Add("response_headers", HeaderLines.Format(item.ResponseHeaders))
                 .Add("request_body", item.RequestBody)
                 .Add("response_body", item.ResponseBody)
                 .Add("request_body_truncated", item.RequestBodyTruncated)

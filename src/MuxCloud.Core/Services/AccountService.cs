@@ -522,6 +522,39 @@ namespace MuxCloud.Core.Services
         }
 
         /// <summary>
+        /// Administrative password set. Sends no email. Revokes every session of the user except
+        /// <paramref name="keepSessionId"/> (the administrator's own session when they set their own password).
+        /// </summary>
+        /// <param name="user">User whose password is set.</param>
+        /// <param name="password">New password.</param>
+        /// <param name="keepSessionId">Session to keep signed in, or null to revoke all.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Task.</returns>
+        /// <exception cref="ApiException">400 when the password does not meet the length policy.</exception>
+        public async Task AdminSetPasswordAsync(User user, string? password, string? keepSessionId, CancellationToken token = default)
+        {
+            ArgumentNullException.ThrowIfNull(user);
+            ValidatePassword(password);
+            await SetPasswordAsync(user, password!, keepSessionId, token, notify: false).ConfigureAwait(false);
+            _LoginLimiter.Reset("email:" + user.EmailNormalized);
+        }
+
+        /// <summary>
+        /// Administrative password reset: emails the user the standard reset link and changes nothing else.
+        /// </summary>
+        /// <param name="user">User.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Task.</returns>
+        /// <exception cref="ApiException">409 when the user is disabled.</exception>
+        public async Task AdminSendPasswordResetAsync(User user, CancellationToken token = default)
+        {
+            ArgumentNullException.ThrowIfNull(user);
+            if (!user.Active) throw ApiException.Conflict("Conflict", "The user is disabled. Enable the user before sending a reset link.");
+            string value = await CreateOneTimeTokenAsync(user, OneTimeTokenPurposeEnum.PasswordReset, _ResetLifetime, token).ConfigureAwait(false);
+            await _Notifier.SendPasswordResetAsync(user, _Settings.Server.PublicUrl + "/reset?token=" + Uri.EscapeDataString(value), token).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Administrative update of a user. Disabling a user revokes their sessions and disconnects their machines.
         /// </summary>
         /// <param name="user">User.</param>
@@ -616,7 +649,7 @@ namespace MuxCloud.Core.Services
             };
         }
 
-        private async Task SetPasswordAsync(User user, string password, string? keepSessionId, CancellationToken token)
+        private async Task SetPasswordAsync(User user, string password, string? keepSessionId, CancellationToken token, bool notify = true)
         {
             _Hasher.Hash(password, out string hash, out string salt);
             user.PasswordHash = hash;
@@ -625,7 +658,7 @@ namespace MuxCloud.Core.Services
             user.PasswordAlgorithm = Constants.PasswordAlgorithm;
             await _Db.Users.UpdateAsync(user, token).ConfigureAwait(false);
             await _Db.Sessions.RevokeAllForUserAsync(user.TenantId, user.Id, keepSessionId, "password changed", DateTime.UtcNow, token).ConfigureAwait(false);
-            await _Notifier.SendPasswordChangedAsync(user, token).ConfigureAwait(false);
+            if (notify) await _Notifier.SendPasswordChangedAsync(user, token).ConfigureAwait(false);
         }
 
         private async Task<string> CreateOneTimeTokenAsync(User user, OneTimeTokenPurposeEnum purpose, TimeSpan lifetime, CancellationToken token)

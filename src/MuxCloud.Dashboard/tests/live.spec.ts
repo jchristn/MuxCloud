@@ -93,11 +93,13 @@ test.describe('live server', () => {
     await page.goto('/admin/users');
     await expect(page.getByRole('cell', { name: new RegExp(adminEmail.replace('.', '\\.')) })).toBeVisible();
     await page.goto('/admin/explorer');
-    await page.getByPlaceholder('Search method, path, or summary').fill('health');
-    await page
-      .getByRole('button', { name: /GET .*health/ })
-      .first()
-      .click();
+    const select = page.getByLabel('API operation');
+    const value = await select.evaluate(
+      (el) =>
+        Array.from((el as HTMLSelectElement).options).find((o) => /^GET\s+\/v1\.0\/api\/health/.test(o.text))?.value ??
+        '',
+    );
+    await select.selectOption(value);
     await page.getByRole('button', { name: 'Send' }).click();
     await expect(page.getByText(/healthy/).first()).toBeVisible();
   });

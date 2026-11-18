@@ -386,6 +386,19 @@ export const ms: Catalog = {
     deleteUserTitle: 'Padam {{email}}?',
     deleteUserBody: 'Memadam pengguna dan akaunnya, serta memutuskan mesinnya. Tindakan ini tidak boleh dibuat asal.',
     userDeleted: 'Pengguna dipadam.',
+    setPassword: 'Tetapkan kata laluan',
+    setPasswordTitle: 'Tetapkan kata laluan untuk {{email}}',
+    setPasswordBody:
+      'Kata laluan baharu berkuat kuasa serta-merta dan melog keluar {{email}} di mana-mana. Tiada e-mel dihantar.',
+    setPasswordSelfBody:
+      'Kata laluan baharu berkuat kuasa serta-merta. Sesi anda yang lain dilog keluar; sesi ini kekal log masuk.',
+    passwordSet: 'Kata laluan ditetapkan. Tiada e-mel dihantar.',
+    sendReset: 'Hantar set semula kata laluan',
+    sendResetTitle: 'Hantar pautan set semula kepada {{email}}?',
+    sendResetBody:
+      'Mereka menerima e-mel set semula biasa dengan pautan yang sah selama satu jam. Kata laluan semasa terus berfungsi sehingga mereka menggunakannya.',
+    resetSent: 'Pautan set semula dihantar kepada {{email}}.',
+    resetDisabled: 'Dayakan pengguna sebelum menghantar pautan.',
     machinesTitle: 'Semua mesin',
     machinesSubtitle: 'Mesin merentas semua akaun.',
     userIdFilter: 'ID pengguna',
@@ -453,7 +466,7 @@ export const ms: Catalog = {
   requests: {
     title: 'Sejarah permintaan',
     subtitle:
-      'Setiap permintaan yang dikendalikan oleh pelayan ini. Trafik mesin yang digeganti direkodkan tanpa kandungan.',
+      'Setiap panggilan API yang dikendalikan pelayan ini. Trafik mesin yang dipancarkan direkodkan tanpa kandungan; fail papan pemuka tidak direkodkan.',
     kpiTotal: 'Permintaan',
     kpiFailures: 'Kegagalan',
     kpiSuccessRate: 'Kadar kejayaan',
@@ -515,12 +528,11 @@ export const ms: Catalog = {
     ariaLabel: 'Permintaan bagi setiap selang, berjaya dan gagal',
   },
   explorer: {
+    operation: 'Operasi API',
+    operationPlaceholder: 'Pilih operasi',
     title: 'Penjelajah API',
     subtitle: 'Jalankan mana-mana laluan pada pelayan ini dengan sesi anda. Dijana daripada dokumen OpenAPI semasa.',
-    searchPlaceholder: 'Cari kaedah, laluan atau ringkasan',
     noSpec: 'Pelayan ini tidak mengembalikan /openapi.json, jadi penjelajah tiada apa untuk dipaparkan.',
-    noMatches: 'Tiada operasi yang sepadan.',
-    selectPrompt: 'Pilih operasi di sebelah kiri.',
     pathParams: 'Parameter laluan',
     queryParams: 'Parameter pertanyaan',
     headers: 'Pengepala',

@@ -206,6 +206,7 @@ export function RequestHistoryPage() {
         <ChartHeader rangeId={rangeId} onRange={setRangeId} onRefresh={() => void loadSummary(rangeId)} />
         {summaryError ? <p className="small muted">{t('requests.unavailable')}</p> : null}
         <ActivityChart
+          height={400}
           summary={summary}
           params={rangeParams}
           rangeId={rangeId}

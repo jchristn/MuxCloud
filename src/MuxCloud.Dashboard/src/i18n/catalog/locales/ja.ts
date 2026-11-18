@@ -384,6 +384,19 @@ export const ja: Catalog = {
     deleteUserTitle: '{{email}} を削除しますか？',
     deleteUserBody: 'ユーザーとそのアカウントを削除し、マシンを切断します。元に戻せません。',
     userDeleted: 'ユーザーを削除しました。',
+    setPassword: 'パスワードを設定',
+    setPasswordTitle: '{{email}} のパスワードを設定',
+    setPasswordBody:
+      '新しいパスワードはすぐに有効になり、{{email}} はすべての場所でサインアウトされます。メールは送信されません。',
+    setPasswordSelfBody:
+      '新しいパスワードはすぐに有効になります。ほかのセッションはサインアウトされ、このセッションはサインインしたままです。',
+    passwordSet: 'パスワードを設定しました。メールは送信していません。',
+    sendReset: 'パスワードのリセットを送信',
+    sendResetTitle: '{{email}} にリセット用リンクを送信しますか？',
+    sendResetBody:
+      '1 時間有効なリンクを含む通常のリセットメールが届きます。リンクを使うまで現在のパスワードは有効です。',
+    resetSent: '{{email}} にリセット用リンクを送信しました。',
+    resetDisabled: 'リンクを送信する前にユーザーを有効にしてください。',
     machinesTitle: 'すべてのマシン',
     machinesSubtitle: 'すべてのアカウントのマシン。',
     userIdFilter: 'ユーザー ID',
@@ -450,7 +463,8 @@ export const ja: Catalog = {
   },
   requests: {
     title: 'リクエスト履歴',
-    subtitle: 'このサーバーが処理したすべてのリクエスト。マシンへの中継トラフィックは本文なしで記録されます。',
+    subtitle:
+      'このサーバーが処理したすべての API 呼び出し。中継されたマシンの通信は本文なしで記録され、ダッシュボードのファイルは記録されません。',
     kpiTotal: 'リクエスト',
     kpiFailures: '失敗',
     kpiSuccessRate: '成功率',
@@ -512,13 +526,12 @@ export const ja: Catalog = {
     ariaLabel: '区間ごとのリクエスト数（成功と失敗）',
   },
   explorer: {
+    operation: 'API 操作',
+    operationPlaceholder: '操作を選択',
     title: 'API エクスプローラー',
     subtitle:
       'あなたのセッションでこのサーバーの任意のルートを実行します。最新の OpenAPI ドキュメントから生成されます。',
-    searchPlaceholder: 'メソッド、パス、概要を検索',
     noSpec: 'このサーバーは /openapi.json を返さなかったため、表示する内容がありません。',
-    noMatches: '一致する操作はありません。',
-    selectPrompt: '左から操作を選んでください。',
     pathParams: 'パスパラメーター',
     queryParams: 'クエリパラメーター',
     headers: 'ヘッダー',

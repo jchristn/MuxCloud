@@ -311,8 +311,9 @@ export interface RequestHistoryEntry {
 }
 
 export interface RequestHistoryDetail extends RequestHistoryEntry {
-  requestHeaders?: Record<string, string>;
-  responseHeaders?: Record<string, string>;
+  /** Name to value. Older servers sent "Name: value" text lines; read these with headerEntries. */
+  requestHeaders?: Record<string, string> | string;
+  responseHeaders?: Record<string, string> | string;
   requestBody?: string;
   responseBody?: string;
   requestBodyTruncated?: boolean;

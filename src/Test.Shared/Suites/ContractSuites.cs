@@ -8,6 +8,7 @@ namespace Test.Shared.Suites
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
+    using MuxCloud.Core.Models;
     using MuxCloud.Core.Responses;
     using MuxCloud.Protocol;
     using Touchstone.Core;
@@ -78,6 +79,42 @@ namespace Test.Shared.Suites
                     }
 
                     Directory.Delete(dir, true);
+                }),
+                Cases.Async(suite, "HistoryApiOnly", "Request history records API calls only, never dashboard files or the SPA shell", async (CancellationToken token) =>
+                {
+                    string dir = Path.Combine(Path.GetTempPath(), "muxcloud-spa-" + Guid.NewGuid().ToString("N"));
+                    Directory.CreateDirectory(Path.Combine(dir, "assets"));
+                    File.WriteAllText(Path.Combine(dir, "index.html"), "<!doctype html><html><body><div id=\"root\"></div></body></html>");
+                    File.WriteAllText(Path.Combine(dir, "assets", "app-1.js"), "console.log('x')");
+                    File.WriteAllText(Path.Combine(dir, "logo.png"), "png");
+                    await using (ServerFixture f = await ServerFixture.StartAsync(token, (MuxCloud.Core.Settings.MuxCloudSettings s) => s.Server.DashboardDirectory = dir).ConfigureAwait(false))
+                    {
+                        using (HttpClient anon = f.BearerClient(null))
+                        {
+                            foreach (string path in new[] { "/", "/machines", "/assets/app-1.js", "/logo.png", "/assets/missing.js", "/v1.0/api/auth/me" })
+                            {
+                                await anon.GetAsync(path, token).ConfigureAwait(false);
+                            }
+                        }
+
+                        LoginResponse admin = await f.MobileLoginAsync(TestSettings.AdminEmail, TestSettings.AdminPassword, token).ConfigureAwait(false);
+                        await Task.Delay(400, token).ConfigureAwait(false);
+                        using (HttpClient a = f.BearerClient(admin.AccessToken))
+                        {
+                            PagedResult<RequestHistoryEntry> page = await ServerFixture.ReadAsync<PagedResult<RequestHistoryEntry>>(await a.GetAsync("/v1.0/api/request-history?pageSize=200", token).ConfigureAwait(false), token).ConfigureAwait(false);
+                            List<string> paths = page.Items.Select(i => i.Path).ToList();
+                            TestAssert.True(paths.Count > 0 && paths.All(p => p.StartsWith("/v1.0/", StringComparison.Ordinal) || p.StartsWith("/m/", StringComparison.Ordinal)), "only API paths recorded: " + String.Join(", ", paths));
+                            TestAssert.True(paths.Contains("/v1.0/api/auth/me"), "API call recorded");
+                        }
+                    }
+
+                    try
+                    {
+                        Directory.Delete(dir, true);
+                    }
+                    catch (IOException)
+                    {
+                    }
                 }),
                 Cases.Sync(suite, "EnvOverrides", "Deployment environment variables override settings, and a bad boolean is rejected", () =>
                 {

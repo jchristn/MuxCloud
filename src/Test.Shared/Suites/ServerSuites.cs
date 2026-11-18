@@ -116,6 +116,42 @@ namespace Test.Shared.Suites
                         await f.MobileLoginAsync(TestSettings.AdminEmail, "a brand new password", token).ConfigureAwait(false);
                     }
                 }),
+                Cases.Async(suite, "AdminPasswords", "An admin sets a password with no email and signs the user out, or sends exactly one reset email", async (CancellationToken token) =>
+                {
+                    await using (ServerFixture f = await ServerFixture.StartAsync(token).ConfigureAwait(false))
+                    {
+                        await f.CreateVerifiedUserAsync("carol@example.com", "carol password 123", token).ConfigureAwait(false);
+                        LoginResponse carol = await f.MobileLoginAsync("carol@example.com", "carol password 123", token).ConfigureAwait(false);
+                        LoginResponse admin = await f.MobileLoginAsync(TestSettings.AdminEmail, TestSettings.AdminPassword, token).ConfigureAwait(false);
+                        string carolId = carol.User!.Id;
+                        string passwordPath = "/v1.0/api/admin/users/" + carolId + "/password";
+                        string resetPath = "/v1.0/api/admin/users/" + carolId + "/password-reset";
+                        int before = EmailsTo(f, "carol@example.com");
+                        using (HttpClient c = f.BearerClient(carol.AccessToken))
+                        using (HttpClient a = f.BearerClient(admin.AccessToken))
+                        {
+                            TestAssert.Equal(HttpStatusCode.Forbidden, (await c.PutAsync(passwordPath, ServerFixture.Json(new { password = "a password from carol" }), token).ConfigureAwait(false)).StatusCode, "non-admin cannot set a password");
+                            TestAssert.Equal(HttpStatusCode.Forbidden, (await c.PostAsync(resetPath, ServerFixture.Json(new { }), token).ConfigureAwait(false)).StatusCode, "non-admin cannot send a reset");
+                            TestAssert.Equal(HttpStatusCode.BadRequest, (await a.PutAsync(passwordPath, ServerFixture.Json(new { password = "short" }), token).ConfigureAwait(false)).StatusCode, "length policy applies");
+                            TestAssert.Equal(HttpStatusCode.NoContent, (await a.PutAsync(passwordPath, ServerFixture.Json(new { password = "set by the admin 1" }), token).ConfigureAwait(false)).StatusCode, "set password");
+                            await Task.Delay(300, token).ConfigureAwait(false);
+                            TestAssert.Equal(before, EmailsTo(f, "carol@example.com"), "setting a password sends no email");
+                            TestAssert.Equal(HttpStatusCode.Unauthorized, (await c.GetAsync("/v1.0/api/auth/me", token).ConfigureAwait(false)).StatusCode, "the user's sessions are revoked");
+                            await f.MobileLoginAsync("carol@example.com", "set by the admin 1", token).ConfigureAwait(false);
+
+                            TestAssert.Equal(HttpStatusCode.Accepted, (await a.PostAsync(resetPath, ServerFixture.Json(new { }), token).ConfigureAwait(false)).StatusCode, "send reset");
+                            await Task.Delay(300, token).ConfigureAwait(false);
+                            TestAssert.Equal(before + 1, EmailsTo(f, "carol@example.com"), "reset sends exactly one email");
+                            string reset = f.LatestTokenFor("carol@example.com", "pwr_");
+                            TestAssert.Equal(HttpStatusCode.OK, (await a.PostAsync("/v1.0/api/auth/password/reset", ServerFixture.Json(new ResetPasswordRequest { Token = reset, Password = "chosen by carol 1" }), token).ConfigureAwait(false)).StatusCode, "the emailed link resets the password");
+                            await f.MobileLoginAsync("carol@example.com", "chosen by carol 1", token).ConfigureAwait(false);
+
+                            string ownPath = "/v1.0/api/admin/users/" + admin.User!.Id + "/password";
+                            TestAssert.Equal(HttpStatusCode.NoContent, (await a.PutAsync(ownPath, ServerFixture.Json(new { password = "admin new password 1" }), token).ConfigureAwait(false)).StatusCode, "admin sets own password");
+                            TestAssert.Equal(HttpStatusCode.OK, (await a.GetAsync("/v1.0/api/auth/me", token).ConfigureAwait(false)).StatusCode, "the admin's own session stays signed in");
+                        }
+                    }
+                }),
                 Cases.Async(suite, "AdminAndHistory", "Admin routes need an admin, and request history never stores credential bodies", async (CancellationToken token) =>
                 {
                     await using (ServerFixture f = await ServerFixture.StartAsync(token).ConfigureAwait(false))
@@ -136,7 +172,8 @@ namespace Test.Shared.Suites
                             PagedResult<RequestHistoryEntry> page = await ServerFixture.ReadAsync<PagedResult<RequestHistoryEntry>>(list, token).ConfigureAwait(false);
                             TestAssert.True(page.TotalCount >= 2, "logins captured");
                             RequestHistoryEntry detail = await ServerFixture.ReadAsync<RequestHistoryEntry>(await a.GetAsync("/v1.0/api/request-history/" + page.Items[0].Id, token).ConfigureAwait(false), token).ConfigureAwait(false);
-                            TestAssert.True(detail.RequestBody.Length == 0 && !detail.RequestHeaders.Contains(admin.AccessToken!, StringComparison.Ordinal), "credential body not captured");
+                            TestAssert.True(detail.RequestBody.Length == 0 && !detail.RequestHeaders.Values.Any(v => v.Contains(admin.AccessToken!, StringComparison.Ordinal)), "credential body not captured");
+                            TestAssert.True(detail.RequestHeaders.ContainsKey("Content-Type") && detail.ResponseHeaders.Count > 0, "headers come back as a name to value map");
                             HttpResponseMessage summary = await a.GetAsync("/v1.0/api/request-history/summary?fromUtc=" + Uri.EscapeDataString(DateTime.UtcNow.AddHours(-1).ToString("O")) + "&toUtc=" + Uri.EscapeDataString(DateTime.UtcNow.AddMinutes(1).ToString("O")) + "&bucketMinutes=15", token).ConfigureAwait(false);
                             RequestHistorySummary s = await ServerFixture.ReadAsync<RequestHistorySummary>(summary, token).ConfigureAwait(false);
                             TestAssert.True(s.TotalCount > 0 && s.Buckets.Count >= 4, "summary buckets");
@@ -494,7 +531,7 @@ namespace Test.Shared.Suites
                                 RequestHistoryEntry entry = page.Items.First(i => i.IsRelay);
                                 RequestHistoryEntry detail = await ServerFixture.ReadAsync<RequestHistoryEntry>(await a.GetAsync("/v1.0/api/request-history/" + entry.Id, token).ConfigureAwait(false), token).ConfigureAwait(false);
                                 TestAssert.Equal("/m/{machineId}/*", detail.Path, "path is a template");
-                                TestAssert.True(detail.RequestBody.Length == 0 && detail.ResponseBody.Length == 0 && detail.RequestHeaders.Length == 0, "no bodies or headers");
+                                TestAssert.True(detail.RequestBody.Length == 0 && detail.ResponseBody.Length == 0 && detail.RequestHeaders.Count == 0 && detail.ResponseHeaders.Count == 0, "no bodies or headers");
                                 TestAssert.True(detail.ResponseBytes > 0, "sizes recorded");
                             }
                         }
@@ -511,6 +548,13 @@ namespace Test.Shared.Suites
         {
             StringContent body = new StringContent(TunnelProtocol.SerializeSignOut(request), Encoding.UTF8, "application/json");
             return client.PostAsync(TunnelProtocol.SignOutPath, body, token);
+        }
+
+        private static int EmailsTo(ServerFixture f, string email)
+        {
+            string dir = f.Settings.Email.File.Directory;
+            if (!Directory.Exists(dir)) return 0;
+            return Directory.GetFiles(dir, "*.txt").Count(file => File.ReadAllText(file).Contains("To: " + email, StringComparison.OrdinalIgnoreCase));
         }
 
         private static string WsUrl(ServerFixture f, string path)

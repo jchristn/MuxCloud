@@ -26,6 +26,12 @@ export const adminApi = {
   user: (c: ApiClient, id: string) => c.get<User>(base + '/users/' + enc(id)),
   updateUser: (c: ApiClient, id: string, update: AdminUserUpdate) => c.put<User>(base + '/users/' + enc(id), update),
   deleteUser: (c: ApiClient, id: string) => c.delete<null>(base + '/users/' + enc(id)),
+  /** Set a user's password. Sends no email and signs the user out everywhere. */
+  setUserPassword: (c: ApiClient, id: string, password: string) =>
+    c.put<null>(base + '/users/' + enc(id) + '/password', { password }),
+  /** Email a user the standard password reset link. */
+  sendPasswordReset: (c: ApiClient, id: string) =>
+    c.post<{ accepted: boolean }>(base + '/users/' + enc(id) + '/password-reset', {}),
   machines: (c: ApiClient, query?: AdminMachineQuery) => c.get<Page<Machine>>(base + '/machines', { query }),
   plans: (c: ApiClient) => c.get<Plan[]>(base + '/plans'),
   createPlan: (c: ApiClient, plan: PlanRequest) => c.post<Plan>(base + '/plans', plan),

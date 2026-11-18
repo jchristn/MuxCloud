@@ -391,6 +391,18 @@ export const de: Catalog = {
     deleteUserBody:
       'Löscht den Benutzer und sein Konto und trennt seine Rechner. Dies kann nicht rückgängig gemacht werden.',
     userDeleted: 'Benutzer gelöscht.',
+    setPassword: 'Passwort festlegen',
+    setPasswordTitle: 'Passwort für {{email}} festlegen',
+    setPasswordBody: 'Das neue Passwort gilt sofort und meldet {{email}} überall ab. Es wird keine E-Mail gesendet.',
+    setPasswordSelfBody:
+      'Das neue Passwort gilt sofort. Ihre anderen Sitzungen werden abgemeldet; diese bleibt angemeldet.',
+    passwordSet: 'Passwort festgelegt. Es wurde keine E-Mail gesendet.',
+    sendReset: 'Zurücksetzen per E-Mail',
+    sendResetTitle: 'Link zum Zurücksetzen an {{email}} senden?',
+    sendResetBody:
+      'Die Person erhält die übliche E-Mail mit einem Link, der eine Stunde gültig ist. Das aktuelle Passwort funktioniert weiter, bis der Link verwendet wird.',
+    resetSent: 'Link zum Zurücksetzen an {{email}} gesendet.',
+    resetDisabled: 'Aktivieren Sie die Person, bevor Sie einen Link senden.',
     machinesTitle: 'Alle Rechner',
     machinesSubtitle: 'Rechner aller Konten.',
     userIdFilter: 'Benutzer-ID',
@@ -459,7 +471,7 @@ export const de: Catalog = {
   requests: {
     title: 'Anfrageverlauf',
     subtitle:
-      'Jede Anfrage, die dieser Server bearbeitet hat. Weitergeleiteter Rechner-Verkehr wird ohne Inhalte aufgezeichnet.',
+      'Jeder API-Aufruf, den dieser Server verarbeitet hat. Weitergeleiteter Rechnerverkehr wird ohne Inhalte erfasst; Dashboard-Dateien werden nicht erfasst.',
     kpiTotal: 'Anfragen',
     kpiFailures: 'Fehler',
     kpiSuccessRate: 'Erfolgsquote',
@@ -521,12 +533,11 @@ export const de: Catalog = {
     ariaLabel: 'Anfragen pro Intervall, erfolgreich und fehlgeschlagen',
   },
   explorer: {
+    operation: 'API-Vorgang',
+    operationPlaceholder: 'Vorgang auswählen',
     title: 'API-Explorer',
     subtitle: 'Führe jede Route dieses Servers mit deiner Sitzung aus. Erzeugt aus dem aktuellen OpenAPI-Dokument.',
-    searchPlaceholder: 'Methode, Pfad oder Zusammenfassung suchen',
     noSpec: 'Dieser Server hat kein /openapi.json geliefert, daher kann der Explorer nichts anzeigen.',
-    noMatches: 'Keine passenden Operationen.',
-    selectPrompt: 'Wähle links eine Operation.',
     pathParams: 'Pfadparameter',
     queryParams: 'Abfrageparameter',
     headers: 'Header',

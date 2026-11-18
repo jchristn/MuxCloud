@@ -7,6 +7,14 @@ All notable changes to Mux Cloud are recorded here. Versions follow [Semantic Ve
 First release, versioned in step with mux 2.0.0. `MuxCloud.Protocol` 2.0.0 is on NuGet (0.1.0-alpha was published
 briefly before it) and `jchristn77/muxcloud-server:v2.0.0` is on Docker Hub for amd64 and arm64.
 
+- Admin: `PUT /v1.0/api/admin/users/{id}/password` sets a user's password without any email and signs them out
+  everywhere; `POST /v1.0/api/admin/users/{id}/password-reset` emails them the standard reset link. Both are in the
+  Users page row menu and the edit dialog.
+- Request history: records API traffic only (no dashboard files or SPA shell), returns request and response headers
+  as name to value objects (they had rendered one character per row), and captures redacted response headers. The
+  request history chart is twice as tall and both activity charts draw at their real pixel size, so axis labels are no
+  longer stretched.
+- API Explorer: a full-width operation dropdown with the request and the response stacked beneath it.
 - Docker: the compose stack requires a stable `MUXCLOUD_AUTH_SIGNING_KEY`, passes the public URL, forwarded-header
   trust, email provider, and Expo token through from `.env`, prepares the bind-mounted folders for the non-root server
   user, mounts `muxcloud.json` read-only, and rotates container logs. New `MUXCLOUD_TRUST_FORWARDED_HEADERS` override.

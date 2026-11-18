@@ -2,6 +2,7 @@ namespace MuxCloud.Server.Services
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Specialized;
     using System.Linq;
     using System.Text;
     using System.Threading;
@@ -59,7 +60,7 @@ namespace MuxCloud.Server.Services
         {
             if (!_Settings.Enabled || ctx?.Metadata is not RequestContext rc) return;
             string path = ctx.Request.Url.RawWithoutQuery ?? String.Empty;
-            if (path == "/v1.0/api/health") return;
+            if (!ShouldCapture(path, rc.IsRelay)) return;
             RequestHistoryEntry entry = new RequestHistoryEntry
             {
                 TenantId = rc.User?.TenantId ?? String.Empty,
@@ -74,7 +75,8 @@ namespace MuxCloud.Server.Services
                 SourceIp = Truncate(rc.SourceIp, 64),
                 UserAgent = Truncate(rc.UserAgent, 500),
                 IsRelay = rc.IsRelay,
-                RequestHeaders = rc.IsRelay ? String.Empty : Headers(ctx),
+                RequestHeaders = rc.IsRelay ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) : Redact(ctx.Request.Headers),
+                ResponseHeaders = rc.IsRelay ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) : Redact(ctx.Response.Headers),
                 CreatedUtc = DateTime.UtcNow
             };
             if (!rc.IsRelay && !rc.SkipBodyCapture)
@@ -150,17 +152,29 @@ namespace MuxCloud.Server.Services
 
         #region Private-Methods
 
-        private static string Headers(HttpContextBase ctx)
+        // Only API traffic is recorded: the REST API (except the health probe), relayed machine traffic, and the tunnel
+        // and events sockets. Dashboard files, the SPA shell, and anything else are not.
+        private static bool ShouldCapture(string path, bool isRelay)
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (string? key in ctx.Request.Headers.AllKeys)
+            if (isRelay) return true;
+            if (String.IsNullOrEmpty(path)) return false;
+            if (path.Equals("/v1.0/api/health", StringComparison.OrdinalIgnoreCase)) return false;
+            if (path.StartsWith("/v1.0/api/", StringComparison.OrdinalIgnoreCase)) return true;
+            return path.Equals("/v1.0/tunnel", StringComparison.OrdinalIgnoreCase) || path.Equals("/v1.0/events", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static Dictionary<string, string> Redact(NameValueCollection? headers)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (headers == null) return result;
+            foreach (string? key in headers.AllKeys)
             {
                 if (String.IsNullOrEmpty(key)) continue;
                 bool secret = _Redacted.Contains(key) || key.Contains("api-key", StringComparison.OrdinalIgnoreCase) || key.Contains("token", StringComparison.OrdinalIgnoreCase) || key.Contains("secret", StringComparison.OrdinalIgnoreCase);
-                sb.Append(key).Append(": ").Append(secret ? "(redacted)" : ctx.Request.Headers[key]).Append('\n');
+                result[key] = secret ? "(redacted)" : headers[key] ?? String.Empty;
             }
 
-            return Truncate(sb.ToString(), 16384);
+            return result;
         }
 
         private static string Cap(string value, int max, out bool truncated)

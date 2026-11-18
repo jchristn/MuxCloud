@@ -7,3 +7,4 @@ export * from './errors';
 export * from './entitlements';
 export * from './openapi';
 export * from './conversations';
+export * from './headers';

@@ -20,7 +20,6 @@ import {
   fetchSnippet,
   flattenOpenApi,
   resolvePath,
-  searchOperations,
   type OpenApiOperation,
 } from '../../lib/openapi';
 
@@ -38,7 +37,6 @@ export function ExplorerPage() {
   usePageTitle(t('explorer.title'));
   const [ops, setOps] = useState<OpenApiOperation[] | null>(null);
   const [specError, setSpecError] = useState<unknown>(null);
-  const [search, setSearch] = useState('');
   const [selectedKey, setSelectedKey] = usePersistentState<string>('muxcloud.explorer.selected', '');
   const [values, setValues] = useState<Record<string, string>>({});
   const [headers, setHeaders] = useState<Array<{ name: string; value: string }>>([]);
@@ -72,12 +70,11 @@ export function ExplorerPage() {
     setRunError(null);
   }, [selectedKey, selected?.bodyExample]);
 
-  const filtered = useMemo(() => searchOperations(ops ?? [], search), [ops, search]);
   const grouped = useMemo(() => {
     const map = new Map<string, OpenApiOperation[]>();
-    for (const op of filtered) map.set(op.tag, [...(map.get(op.tag) ?? []), op]);
+    for (const op of ops ?? []) map.set(op.tag, [...(map.get(op.tag) ?? []), op]);
     return Array.from(map.entries());
-  }, [filtered]);
+  }, [ops]);
 
   const path = selected ? resolvePath(selected, values) : '';
   const url = window.location.origin + path;
@@ -139,54 +136,57 @@ export function ExplorerPage() {
     <div className="page" style={{ maxWidth: 'none' }}>
       <PageHeader title={t('explorer.title')} subtitle={t('explorer.subtitle')} />
       <div className="explorer">
-        <div className="table-frame explorer-ops">
-          <div className="table-toolbar">
-            <input
-              className="input"
-              type="search"
-              placeholder={t('explorer.searchPlaceholder')}
-              aria-label={t('explorer.searchPlaceholder')}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <div className="op-list">
-            {grouped.length === 0 ? <div className="empty">{t('explorer.noMatches')}</div> : null}
+        <div className="panel form-stack explorer-picker">
+          <label htmlFor="explorer-op" className="field-label">
+            {t('explorer.operation')}
+          </label>
+          <select
+            id="explorer-op"
+            className="select explorer-select"
+            value={selected ? selectedKey : ''}
+            onChange={(e) => setSelectedKey(e.target.value)}
+            title={selected ? selected.method + ' ' + selected.path : t('explorer.operationPlaceholder')}
+          >
+            <option value="" disabled>
+              {t('explorer.operationPlaceholder')}
+            </option>
             {grouped.map(([tag, list]) => (
-              <div key={tag}>
-                <div className="op-group-label">{tag}</div>
+              <optgroup key={tag} label={tag}>
                 {list.map((op) => (
+                  <option key={op.key} value={op.key}>
+                    {op.method.toUpperCase() + '  ' + op.path + (op.summary ? '  \u00b7  ' + op.summary : '')}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+          {history.length > 0 ? (
+            <div className="explorer-recent">
+              <span className="field-label">{t('explorer.history')}</span>
+              <div className="explorer-recent-list">
+                {history.map((h, i) => (
                   <button
-                    key={op.key}
+                    key={i}
                     type="button"
-                    className={'op-item' + (op.key === selectedKey ? ' active' : '')}
-                    onClick={() => setSelectedKey(op.key)}
-                    title={op.summary}
+                    className="explorer-chip"
+                    onClick={() => setSelectedKey(h.key)}
+                    title={
+                      h.method + ' ' + h.url + ' \u00b7 ' + h.status + ' \u00b7 ' + formatRelativeTime(locale, h.at)
+                    }
                   >
-                    <MethodBadge method={op.method} />
-                    <span className="path">{op.path}</span>
+                    <MethodBadge method={h.method} />
+                    <span className="path">{h.url}</span>
+                    <span className="small muted">{h.status}</span>
                   </button>
                 ))}
               </div>
-            ))}
-          </div>
-          <div style={{ borderTop: '1px solid var(--color-border)', padding: 10 }}>
-            <div className="field-label">{t('explorer.history')}</div>
-            {history.length === 0 ? <p className="small muted">{t('explorer.historyEmpty')}</p> : null}
-            {history.map((h, i) => (
-              <button key={i} type="button" className="op-item" onClick={() => setSelectedKey(h.key)}>
-                <MethodBadge method={h.method} />
-                <span className="path">{h.url}</span>
-                <span className="small muted">{h.status}</span>
-                <span className="small muted">{formatRelativeTime(locale, h.at)}</span>
-              </button>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <p className="small muted">{t('explorer.historyEmpty')}</p>
+          )}
         </div>
         <div className="form-stack" style={{ minWidth: 0 }}>
-          {!selected ? (
-            <div className="panel empty">{t('explorer.selectPrompt')}</div>
-          ) : (
+          {!selected ? null : (
             <>
               <div className="panel form-stack">
                 <div className="row">

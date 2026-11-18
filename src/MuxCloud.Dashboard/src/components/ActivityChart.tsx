@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useLocale } from '../i18n/runtime';
@@ -39,15 +39,36 @@ interface ActivityChartProps {
   params: RangeParams;
   rangeId: RangeId;
   onBucketClick?: (bucket: RequestHistoryBucket) => void;
+  /** Drawing height in CSS pixels. */
+  height?: number;
 }
 
-const W = 760;
-const H = 200;
-const PAD = { top: 10, right: 8, bottom: 26, left: 40 };
+const PAD = { top: 12, right: 10, bottom: 28, left: 44 };
+
+/** Width of an element in CSS pixels, kept current with a ResizeObserver. */
+function useWidth<T extends HTMLElement>(fallback: number): [RefObject<T | null>, number] {
+  const ref = useRef<T>(null);
+  const [width, setWidth] = useState(fallback);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => setWidth(Math.max(240, Math.round(el.getBoundingClientRect().width)));
+    update();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, width];
+}
 
 /** Stacked SVG bars: succeeded on top of failed. Missing buckets are zero-filled. Tooltip renders in a portal. */
-export function ActivityChart({ summary, params, rangeId, onBucketClick }: ActivityChartProps) {
+export function ActivityChart({ summary, params, rangeId, onBucketClick, height = 200 }: ActivityChartProps) {
   const { t } = useTranslation();
+  // The SVG is drawn at its real pixel size (no non-uniform scaling), so axis text keeps its proportions.
+  const [box, W] = useWidth<HTMLDivElement>(760);
+  // Phones get a shorter chart so it does not fill the screen.
+  const H = W < 560 ? Math.min(height, 260) : height;
   const locale = useLocale();
   const [hover, setHover] = useState<{ bucket: RequestHistoryBucket; x: number; y: number } | null>(null);
   const preset = RANGE_PRESETS[rangeId];
@@ -62,14 +83,14 @@ export function ActivityChart({ summary, params, rangeId, onBucketClick }: Activ
   const plotH = H - PAD.top - PAD.bottom;
   const barW = plotW / buckets.length;
   const y = (v: number) => PAD.top + plotH - (v / top) * plotH;
-  const labelEvery = Math.max(1, Math.round(buckets.length / 8));
+  const labelEvery = Math.max(1, Math.ceil(buckets.length / Math.max(2, Math.floor(plotW / 84))));
   const label = (iso: string) =>
     rangeId === 'hour' || rangeId === 'day' ? formatTime(locale, iso) : formatDate(locale, iso);
 
   return (
-    <div className="activity-chart">
+    <div className="activity-chart" ref={box}>
       {max === 0 ? <p className="small muted">{t('chart.noData')}</p> : null}
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={t('chart.ariaLabel')}>
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={t('chart.ariaLabel')}>
         {ticks.map((tick) => (
           <g key={tick}>
             <line className="grid" x1={PAD.left} x2={W - PAD.right} y1={y(tick)} y2={y(tick)} strokeDasharray="2 3" />

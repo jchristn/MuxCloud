@@ -151,12 +151,16 @@ test('admin overview chart, request inspector, and API explorer', async ({ page 
   const dialog = page.getByRole('dialog');
   await expect(dialog).toContainText('Response body');
   await expect(dialog).toContainText('"items"');
+  // Headers render as a name to value table, even when an older server sends text lines.
+  await expect(dialog.locator('dl.kv dt', { hasText: 'X-Forwarded-For' })).toBeVisible();
+  await expect(dialog.locator('dl.kv dd', { hasText: '203.0.113.9' })).toBeVisible();
+  await expect(dialog.locator('dl.kv dt', { hasText: /^0$/ })).toHaveCount(0);
   await page.keyboard.press('Escape');
   await page.goto('/admin/explorer');
-  await page.getByRole('button', { name: /GET \/v1\.0\/api\/health/ }).click();
+  await chooseOperation(page, 'GET /v1.0/api/health');
   await page.getByRole('button', { name: 'Send' }).click();
   await expect(page.getByText(/healthy/).first()).toBeVisible();
-  await page.getByRole('button', { name: /DELETE \/v1\.0\/api\/machines\/\{id\}/ }).click();
+  await chooseOperation(page, 'DELETE /v1.0/api/machines/{id}');
   await expect(page.getByText('Fill in the required path parameters: id.')).toBeVisible();
 });
 
@@ -274,4 +278,39 @@ test('a chunk missing after a redeploy reloads once, then explains the update', 
   await page.getByRole('link', { name: 'Profile and security' }).first().click();
   await expect(page.getByRole('heading', { name: 'Mux Cloud was updated' })).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole('button', { name: 'Reload' })).toBeVisible();
+});
+
+async function chooseOperation(page: import('@playwright/test').Page, startsWith: string) {
+  const select = page.getByLabel('API operation');
+  const value = await select.evaluate(
+    (el, prefix) =>
+      Array.from((el as HTMLSelectElement).options).find((o) => o.text.replace(/\s+/g, ' ').startsWith(prefix))
+        ?.value ?? '',
+    startsWith,
+  );
+  await select.selectOption(value);
+}
+
+test('an admin sets a password without email, or sends a reset link', async ({ page }) => {
+  const server = await mockServer(page);
+  await page.goto('/admin/users');
+  const row = page.getByRole('row', { name: /grace@example\.com/ });
+  await row.getByRole('button', { name: 'More actions' }).click();
+  await page.getByRole('menuitem', { name: 'Set password' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toContainText('No email is sent.');
+  await dialog.getByLabel('New password', { exact: true }).fill('short');
+  await expect(dialog.getByText('Use at least 10 characters.')).toBeVisible();
+  await dialog.getByLabel('New password', { exact: true }).fill('a long new password');
+  await dialog.getByLabel('Confirm password').fill('a long new password');
+  await dialog.getByRole('button', { name: 'Set password' }).click();
+  await expect(page.getByText('Password set. No email was sent.')).toBeVisible();
+  expect(server.requests).toContain('PUT /v1.0/api/admin/users/usr_2/password');
+
+  await row.getByRole('button', { name: 'More actions' }).click();
+  await page.getByRole('menuitem', { name: 'Send password reset' }).click();
+  await expect(page.getByRole('dialog')).toContainText('Email a reset link to grace@example.com?');
+  await page.getByRole('dialog').getByRole('button', { name: 'Send password reset' }).click();
+  await expect(page.getByText('Reset link sent to grace@example.com.')).toBeVisible();
+  expect(server.requests).toContain('POST /v1.0/api/admin/users/usr_2/password-reset');
 });

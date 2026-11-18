@@ -384,6 +384,18 @@ export const en = {
     deleteUserTitle: 'Delete {{email}}?',
     deleteUserBody: 'Deletes the user and their account, and disconnects their machines. This cannot be undone.',
     userDeleted: 'User deleted.',
+    setPassword: 'Set password',
+    setPasswordTitle: 'Set a password for {{email}}',
+    setPasswordBody: 'The new password works right away and signs {{email}} out everywhere. No email is sent.',
+    setPasswordSelfBody:
+      'The new password works right away. Your other sessions are signed out; this one stays signed in.',
+    passwordSet: 'Password set. No email was sent.',
+    sendReset: 'Send password reset',
+    sendResetTitle: 'Email a reset link to {{email}}?',
+    sendResetBody:
+      'They get the standard reset email with a link that works for one hour. Their current password keeps working until they use it.',
+    resetSent: 'Reset link sent to {{email}}.',
+    resetDisabled: 'Enable the user before sending a reset link.',
     machinesTitle: 'All machines',
     machinesSubtitle: 'Machines across every account.',
     userIdFilter: 'User ID',
@@ -450,7 +462,8 @@ export const en = {
   },
   requests: {
     title: 'Request history',
-    subtitle: 'Every request this server handled. Relayed machine traffic is recorded without bodies.',
+    subtitle:
+      'Every API call this server handled. Relayed machine traffic is recorded without bodies; dashboard files are not recorded.',
     kpiTotal: 'Requests',
     kpiFailures: 'Failures',
     kpiSuccessRate: 'Success rate',
@@ -512,12 +525,11 @@ export const en = {
     ariaLabel: 'Requests per interval, succeeded and failed',
   },
   explorer: {
+    operation: 'API operation',
+    operationPlaceholder: 'Choose an operation',
     title: 'API Explorer',
     subtitle: 'Run any route on this server with your session. Generated from the live OpenAPI document.',
-    searchPlaceholder: 'Search method, path, or summary',
     noSpec: 'This server did not return /openapi.json, so the explorer has nothing to show.',
-    noMatches: 'No operations match.',
-    selectPrompt: 'Choose an operation on the left.',
     pathParams: 'Path parameters',
     queryParams: 'Query parameters',
     headers: 'Headers',

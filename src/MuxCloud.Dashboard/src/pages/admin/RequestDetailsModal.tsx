@@ -11,11 +11,12 @@ import { Modal } from '../../components/Modal';
 import { Loading } from '../../components/Spinner';
 import { useLocale } from '../../i18n/runtime';
 import { formatBytes, formatDateTime, formatDuration } from '../../lib/format';
+import { headerEntries } from '../../lib/headers';
 import type { RequestHistoryDetail, RequestHistoryEntry } from '../../types';
 
-function Headers({ headers }: { headers?: Record<string, string> }) {
+function Headers({ headers }: { headers?: Record<string, string> | string }) {
   const { t } = useTranslation();
-  const entries = Object.entries(headers ?? {});
+  const entries = headerEntries(headers);
   if (!entries.length) return <p className="small muted">{t('requests.noHeaders')}</p>;
   return (
     <dl className="kv mono">
@@ -126,7 +127,7 @@ export function RequestDetailsModal({ entry, onClose }: { entry: RequestHistoryE
         <>
           <Collapsible
             title={t('requests.sectionRequestHeaders')}
-            copyValue={JSON.stringify(detail.requestHeaders ?? {}, null, 2)}
+            copyValue={JSON.stringify(Object.fromEntries(headerEntries(detail.requestHeaders)), null, 2)}
           >
             <Headers headers={detail.requestHeaders} />
           </Collapsible>
@@ -140,7 +141,7 @@ export function RequestDetailsModal({ entry, onClose }: { entry: RequestHistoryE
           </Collapsible>
           <Collapsible
             title={t('requests.sectionResponseHeaders')}
-            copyValue={JSON.stringify(detail.responseHeaders ?? {}, null, 2)}
+            copyValue={JSON.stringify(Object.fromEntries(headerEntries(detail.responseHeaders)), null, 2)}
           >
             <Headers headers={detail.responseHeaders} />
           </Collapsible>

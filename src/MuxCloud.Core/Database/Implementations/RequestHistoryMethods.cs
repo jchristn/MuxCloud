@@ -61,8 +61,8 @@ namespace MuxCloud.Core.Database.Implementations
             {
                 entry.RequestBody = String.Empty;
                 entry.ResponseBody = String.Empty;
-                entry.RequestHeaders = String.Empty;
-                entry.ResponseHeaders = String.Empty;
+                entry.RequestHeaders.Clear();
+                entry.ResponseHeaders.Clear();
             }
 
             return result;

@@ -277,6 +277,10 @@ export async function mockServer(pw: Page, options: MockOptions = {}): Promise<M
         relayStreams: 4,
         eventSubscribers: 7,
       });
+    if (/^\/v1\.0\/api\/admin\/users\/[^/]+\/password$/.test(path) && method === 'PUT')
+      return route.fulfill({ status: 204 });
+    if (/^\/v1\.0\/api\/admin\/users\/[^/]+\/password-reset$/.test(path) && method === 'POST')
+      return json(route, 202, { accepted: true });
     if (path === '/v1.0/api/admin/users')
       return json(
         route,
@@ -379,7 +383,7 @@ export async function mockServer(pw: Page, options: MockOptions = {}): Promise<M
         statusCode: 200,
         durationMs: 3.41,
         createdUtc: iso(-60_000),
-        requestHeaders: { Accept: 'application/json' },
+        requestHeaders: 'X-Forwarded-For: 203.0.113.9\nAccept: application/json\n',
         responseHeaders: { 'Content-Type': 'application/json' },
         responseBody: '{"items":[]}',
         requestBody: '',
