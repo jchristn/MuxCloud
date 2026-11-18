@@ -229,7 +229,7 @@ Conventions, taken from the requirements and from what worked in Xeno and Armada
 | --- | --- |
 | `Tenant` | `name`, `accountId`, `active`, `isprotected` |
 | `User` | `tenantId`, `email` (unique across the service), `firstName`, `lastName`, `passwordHash`, `passwordAlgorithm`, `emailVerifiedUtc`, `isAdmin`, `isTenantAdmin`, `active` |
-| `Credential` | API key pairs for programmatic access, per AUTHENTICATION.md |
+| `Credential` | API key pairs for programmatic access, per AUTHENTICATION.md. Deferred: 0.1.0 ships bearer access tokens and machine secrets only. |
 | `AuthSession` | Access and refresh sessions, revocable, with `sourceIp`, `userAgent`, `expiresUtc`, `revokedUtc` |
 | `Machine` | `tenantId`, `userId`, `name`, `hostname`, `os`, `fingerprint`, `muxVersion`, `protocolVersion`, `secretVerifier`, `secretLast4`, `lastSeenUtc`, `lastConnectedUtc`, `lastDisconnectedUtc`, `revokedUtc`, `active` |
 | `MachineConnection` | Connection history: `machineId`, `connectionId`, `nodeId`, `remoteIp`, `connectedUtc`, `disconnectedUtc`, `closeCode`, `bytesIn`, `bytesOut` |

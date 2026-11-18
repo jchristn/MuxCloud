@@ -1,0 +1,1857 @@
+{
+  "info": {
+    "name": "Mux Cloud",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Mux Cloud REST API: accounts, machines, the relay to your mux machines, billing, tickets, admin, and request history. Every value that differs by environment is a collection variable. Run \"Login (mobile)\" first; its test script stores the tokens that every authenticated request sends as a bearer token. Browsers use HttpOnly cookies instead (client \"web\"). Full reference: REST_API.md and WEBSOCKETS_API.md in https://github.com/jchristn/MuxCloud."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "description": "Liveness probe. Anonymous.",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "health"
+              ]
+            },
+            "description": "Returns status, product, version, and server time. Used by Docker healthchecks.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "description": "Sign up, verify, sign in, refresh, sign out, and password reset. Login with client \"mobile\" returns tokens in the body (saved to collection variables by the test script); client \"web\" sets HttpOnly cookies instead.",
+      "item": [
+        {
+          "name": "Sign up",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/auth/signup",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "auth",
+                "signup"
+              ]
+            },
+            "description": "Create a user with a personal account and tenant. A verification email is sent. 409 EmailInUse when the address is taken.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"firstName\": \"Ada\",\n  \"lastName\": \"Lovelace\",\n  \"acceptTerms\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Verify email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/auth/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "auth",
+                "verify"
+              ]
+            },
+            "description": "Confirm an email with the token from the verification link (evf_...). Single use, 48 hours.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{verifyToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Resend verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/auth/verify/resend",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "auth",
+                "verify",
+                "resend"
+              ]
+            },
+            "description": "Always 202, so it reveals nothing about the address.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Login (mobile)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Sign in and receive access and refresh tokens in the body. The test script stores them.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"client\": \"mobile\",\n  \"deviceName\": \"Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.accessToken) pm.collectionVariables.set('accessToken', j.accessToken);",
+                  "if (j.refreshToken) pm.collectionVariables.set('refreshToken', j.refreshToken);",
+                  "if (j.sessionId) pm.collectionVariables.set('sessionId', j.sessionId);",
+                  "if (j.user) { pm.collectionVariables.set('userId', j.user.id); pm.collectionVariables.set('accountId', j.user.accountId); }",
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as admin (mobile)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Sign in as the seed administrator for the Admin folder.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\",\n  \"client\": \"mobile\",\n  \"deviceName\": \"Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.accessToken) pm.collectionVariables.set('accessToken', j.accessToken);",
+                  "if (j.refreshToken) pm.collectionVariables.set('refreshToken', j.refreshToken);",
+                  "if (j.sessionId) pm.collectionVariables.set('sessionId', j.sessionId);",
+                  "if (j.user) { pm.collectionVariables.set('userId', j.user.id); pm.collectionVariables.set('accountId', j.user.accountId); }",
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Rotate the refresh token. Replaying an old refresh token revokes the session.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.accessToken) pm.collectionVariables.set('accessToken', j.accessToken);",
+                  "if (j.refreshToken) pm.collectionVariables.set('refreshToken', j.refreshToken);",
+                  "if (j.sessionId) pm.collectionVariables.set('sessionId', j.sessionId);",
+                  "if (j.user) { pm.collectionVariables.set('userId', j.user.id); pm.collectionVariables.set('accountId', j.user.accountId); }",
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Current user, session, and entitlements."
+          }
+        },
+        {
+          "name": "Forgot password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/auth/password/forgot",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "auth",
+                "password",
+                "forgot"
+              ]
+            },
+            "description": "Email a reset link (1 hour). Always 202.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Reset password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/auth/password/reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "auth",
+                "password",
+                "reset"
+              ]
+            },
+            "description": "Set a new password with the pwr_ token. Revokes every session.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Revoke the current session and clear cookies."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "description": "The signed-in user.",
+      "item": [
+        {
+          "name": "Get account",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/account",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "account"
+              ]
+            },
+            "description": "Profile."
+          }
+        },
+        {
+          "name": "Update account",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/account",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "account"
+              ]
+            },
+            "description": "Change first and last name.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Ada\",\n  \"lastName\": \"Lovelace\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Change password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/account/password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "account",
+                "password"
+              ]
+            },
+            "description": "Requires the current password. Revokes other sessions.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"{{password}}\",\n  \"newPassword\": \"{{newPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/account/sessions?pageNumber=1&pageSize=25",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "account",
+                "sessions"
+              ],
+              "query": [
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "25"
+                }
+              ]
+            },
+            "description": "Active sessions, newest first. current marks this one."
+          }
+        },
+        {
+          "name": "Revoke session",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/account/sessions/{{sessionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "account",
+                "sessions",
+                "{{sessionId}}"
+              ]
+            },
+            "description": "Sign a session out."
+          }
+        },
+        {
+          "name": "Delete account",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/account",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "account"
+              ]
+            },
+            "description": "Delete the account, revoke every machine, and close their tunnels.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Machines",
+      "description": "Enroll and manage machines. Enrollment takes the account credentials and returns a machine secret once; mux stores it and discards the password.",
+      "item": [
+        {
+          "name": "Enroll machine",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/machines/enroll",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "machines",
+                "enroll"
+              ]
+            },
+            "description": "Returns machineId and machineSecret (shown once). 402 EntitlementExceeded when machines.max is reached; re-enrolling the same fingerprint rotates the secret.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"machineName\": \"studio-mac\",\n  \"hostname\": \"studio.local\",\n  \"os\": \"macOS 26.0 arm64\",\n  \"muxVersion\": \"2.0.0\",\n  \"fingerprint\": \"{{fingerprint}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('machineId', j.machineId);",
+                  "pm.collectionVariables.set('machineSecret', j.machineSecret);",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List machines",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/machines?online=true&name=&includeRevoked=false&pageNumber=1&pageSize=25",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "machines"
+              ],
+              "query": [
+                {
+                  "key": "online",
+                  "value": "true"
+                },
+                {
+                  "key": "name",
+                  "value": ""
+                },
+                {
+                  "key": "includeRevoked",
+                  "value": "false"
+                },
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "25"
+                }
+              ]
+            },
+            "description": "Online machines first, then most recently seen."
+          }
+        },
+        {
+          "name": "Get machine",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/machines/{{machineId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "machines",
+                "{{machineId}}"
+              ]
+            },
+            "description": "One machine with its online state and last status push."
+          }
+        },
+        {
+          "name": "Rename machine",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/machines/{{machineId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "machines",
+                "{{machineId}}"
+              ]
+            },
+            "description": "The machine sees the new name on its next welcome.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"studio\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Revoke machine",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/machines/{{machineId}}/revoke",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "machines",
+                "{{machineId}}",
+                "revoke"
+              ]
+            },
+            "description": "Invalidate the secret and close the tunnel with 4403."
+          }
+        },
+        {
+          "name": "Machine connections",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/machines/{{machineId}}/connections?pageNumber=1&pageSize=25",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "machines",
+                "{{machineId}}",
+                "connections"
+              ],
+              "query": [
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "25"
+                }
+              ]
+            },
+            "description": "Tunnel connection history, newest first."
+          }
+        },
+        {
+          "name": "Delete machine",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/machines/{{machineId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "machines",
+                "{{machineId}}"
+              ]
+            },
+            "description": "Revoke and delete with history."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Relay",
+      "description": "Requests to /m/{machineId}/... go through the machine tunnel to its local mux API, unchanged. 503 MachineOffline when the machine is not connected.",
+      "item": [
+        {
+          "name": "Machine health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/m/{{machineId}}/v1.0/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "m",
+                "{{machineId}}",
+                "v1.0",
+                "api",
+                "health"
+              ]
+            },
+            "description": "mux health on the machine."
+          }
+        },
+        {
+          "name": "Machine sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/m/{{machineId}}/v1.0/api/sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "m",
+                "{{machineId}}",
+                "v1.0",
+                "api",
+                "sessions"
+              ]
+            },
+            "description": "The machine's conversations."
+          }
+        },
+        {
+          "name": "Machine dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/m/{{machineId}}/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "m",
+                "{{machineId}}",
+                "dashboard"
+              ]
+            },
+            "description": "The machine's own mux dashboard, rendered to call back through the relay."
+          }
+        },
+        {
+          "name": "Machine chat stream",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/m/{{machineId}}/v1.0/api/chat/stream",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "m",
+                "{{machineId}}",
+                "v1.0",
+                "api",
+                "chat",
+                "stream"
+              ]
+            },
+            "description": "Server-sent events stream through as they are produced.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Messages\": [\n    {\n      \"Role\": \"user\",\n      \"Content\": \"Hello from Mux Cloud\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Billing",
+      "description": "Plans, subscription, and entitlements. Checkout and portal return 501 until a billing provider is configured.",
+      "item": [
+        {
+          "name": "List plans",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/billing/plans",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "billing",
+                "plans"
+              ]
+            },
+            "description": "Public active plans.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Subscription",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/billing/subscription",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "billing",
+                "subscription"
+              ]
+            },
+            "description": "Current subscription or null."
+          }
+        },
+        {
+          "name": "Entitlements",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/billing/entitlements",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "billing",
+                "entitlements"
+              ]
+            },
+            "description": "Effective features by key."
+          }
+        },
+        {
+          "name": "Checkout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/billing/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "billing",
+                "checkout"
+              ]
+            },
+            "description": "501 NotImplemented in 0.1.0.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"planCode\": \"pro\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Portal",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/billing/portal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "billing",
+                "portal"
+              ]
+            },
+            "description": "501 NotImplemented in 0.1.0."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "description": "Single-use WebSocket tickets for bearer clients.",
+      "item": [
+        {
+          "name": "Create ticket",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/ws-tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "ws-tickets"
+              ]
+            },
+            "description": "Valid for 30 seconds. Use as ?ticket= on /v1.0/events or /m/{machineId}/v1.0/ws."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('ticket', pm.response.json().ticket);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "description": "System administrator only. Sign in with \"Login as admin\" first.",
+      "item": [
+        {
+          "name": "Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "stats"
+              ]
+            },
+            "description": "Users, machines, live tunnels, relay streams, event sockets."
+          }
+        },
+        {
+          "name": "List users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/users?email=&pageNumber=1&pageSize=25",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": ""
+                },
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "25"
+                }
+              ]
+            },
+            "description": "Filter by email substring."
+          }
+        },
+        {
+          "name": "Get user",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "One user."
+          }
+        },
+        {
+          "name": "Update user",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Disabling revokes sessions and closes tunnels.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"active\": true,\n  \"isAdmin\": false,\n  \"emailVerified\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete user",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Deletes the user and their account. 409 for the protected admin."
+          }
+        },
+        {
+          "name": "List all machines",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/machines?online=&name=&userId=&pageNumber=1&pageSize=25",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "machines"
+              ],
+              "query": [
+                {
+                  "key": "online",
+                  "value": ""
+                },
+                {
+                  "key": "name",
+                  "value": ""
+                },
+                {
+                  "key": "userId",
+                  "value": ""
+                },
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "25"
+                }
+              ]
+            },
+            "description": "Across accounts."
+          }
+        },
+        {
+          "name": "List all plans",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/plans",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "plans"
+              ]
+            },
+            "description": "Including inactive and private plans."
+          }
+        },
+        {
+          "name": "Create plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/plans",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "plans"
+              ]
+            },
+            "description": "Feature limit null is unlimited, 0 is disabled.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"pro\",\n  \"name\": \"Pro\",\n  \"priceCents\": 900,\n  \"currency\": \"usd\",\n  \"interval\": \"month\",\n  \"active\": true,\n  \"public\": true,\n  \"features\": [\n    {\n      \"key\": \"machines.max\",\n      \"limit\": 10\n    },\n    {\n      \"key\": \"web.access\",\n      \"limit\": null\n    },\n    {\n      \"key\": \"mobile.access\",\n      \"limit\": null\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('planId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update plan",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/plans/{{planId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "plans",
+                "{{planId}}"
+              ]
+            },
+            "description": "Replaces the plan features. The code cannot change.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"pro\",\n  \"name\": \"Pro\",\n  \"priceCents\": 1200,\n  \"currency\": \"usd\",\n  \"interval\": \"month\",\n  \"active\": true,\n  \"public\": true,\n  \"features\": [\n    {\n      \"key\": \"machines.max\",\n      \"limit\": 20\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List overrides",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/accounts/{{accountId}}/overrides",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "accounts",
+                "{{accountId}}",
+                "overrides"
+              ]
+            },
+            "description": "Entitlement overrides for an account."
+          }
+        },
+        {
+          "name": "Create override",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/accounts/{{accountId}}/overrides",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "accounts",
+                "{{accountId}}",
+                "overrides"
+              ]
+            },
+            "description": "Grant or restrict one feature.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"featureKey\": \"machines.max\",\n  \"limit\": null,\n  \"reason\": \"comp\",\n  \"expiresUtc\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('overrideId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete override",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/accounts/{{accountId}}/overrides/{{overrideId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "accounts",
+                "{{accountId}}",
+                "overrides",
+                "{{overrideId}}"
+              ]
+            },
+            "description": "Remove an override."
+          }
+        },
+        {
+          "name": "Audit",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/audit?eventType=&userId=&pageNumber=1&pageSize=25",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "audit"
+              ],
+              "query": [
+                {
+                  "key": "eventType",
+                  "value": ""
+                },
+                {
+                  "key": "userId",
+                  "value": ""
+                },
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "25"
+                }
+              ]
+            },
+            "description": "Security and admin events."
+          }
+        },
+        {
+          "name": "Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "settings"
+              ]
+            },
+            "description": "Effective settings, secrets masked."
+          }
+        },
+        {
+          "name": "Send test email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/admin/email/test",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "admin",
+                "email",
+                "test"
+              ]
+            },
+            "description": "Send the admin test message.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"{{adminEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Request history",
+      "description": "Captured requests (admin). Relay traffic is recorded by template with sizes only.",
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/request-history?method=&statusCode=&pathContains=&pageNumber=1&pageSize=25",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "request-history"
+              ],
+              "query": [
+                {
+                  "key": "method",
+                  "value": ""
+                },
+                {
+                  "key": "statusCode",
+                  "value": ""
+                },
+                {
+                  "key": "pathContains",
+                  "value": ""
+                },
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "25"
+                }
+              ]
+            },
+            "description": "Without bodies."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json(); if (j.items && j.items.length) pm.collectionVariables.set('requestId', j.items[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/request-history/summary?fromUtc={{fromUtc}}&toUtc={{toUtc}}&bucketMinutes=15",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "request-history",
+                "summary"
+              ],
+              "query": [
+                {
+                  "key": "fromUtc",
+                  "value": "{{fromUtc}}"
+                },
+                {
+                  "key": "toUtc",
+                  "value": "{{toUtc}}"
+                },
+                {
+                  "key": "bucketMinutes",
+                  "value": "15"
+                }
+              ]
+            },
+            "description": "Bucketed counts; empty buckets included."
+          }
+        },
+        {
+          "name": "Get",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/request-history/{{requestId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "request-history",
+                "{{requestId}}"
+              ]
+            },
+            "description": "One entry with captured (redacted, truncated) bodies for non-relay routes."
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/request-history/{{requestId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "request-history",
+                "{{requestId}}"
+              ]
+            },
+            "description": "Delete one entry."
+          }
+        },
+        {
+          "name": "Delete by filter",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/request-history?statusCode=404",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "request-history"
+              ],
+              "query": [
+                {
+                  "key": "statusCode",
+                  "value": "404"
+                }
+              ]
+            },
+            "description": "Returns deletedCount."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8800",
+      "type": "string",
+      "description": "Server origin. Production: https://app.usemux.ai"
+    },
+    {
+      "key": "email",
+      "value": "ada@example.com",
+      "type": "string",
+      "description": "Test user email"
+    },
+    {
+      "key": "password",
+      "value": "correct horse battery",
+      "type": "string",
+      "description": "Test user password"
+    },
+    {
+      "key": "newPassword",
+      "value": "another long password",
+      "type": "string",
+      "description": "Password for the change-password request"
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@muxcloud.local",
+      "type": "string",
+      "description": "Seed administrator"
+    },
+    {
+      "key": "adminPassword",
+      "value": "",
+      "type": "string",
+      "description": "Seed administrator password (MUXCLOUD_ADMIN_PASSWORD)"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string",
+      "description": "Set by login"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string",
+      "description": "Set by login"
+    },
+    {
+      "key": "sessionId",
+      "value": "",
+      "type": "string",
+      "description": "Set by login"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string",
+      "description": "Set by login"
+    },
+    {
+      "key": "accountId",
+      "value": "",
+      "type": "string",
+      "description": "Set by login"
+    },
+    {
+      "key": "verifyToken",
+      "value": "",
+      "type": "string",
+      "description": "evf_ token from the verification email"
+    },
+    {
+      "key": "resetToken",
+      "value": "",
+      "type": "string",
+      "description": "pwr_ token from the reset email"
+    },
+    {
+      "key": "fingerprint",
+      "value": "0123456789abcdef0123456789abcdef",
+      "type": "string",
+      "description": "Stable machine fingerprint"
+    },
+    {
+      "key": "machineId",
+      "value": "",
+      "type": "string",
+      "description": "Set by enroll"
+    },
+    {
+      "key": "machineSecret",
+      "value": "",
+      "type": "string",
+      "description": "Set by enroll (secret)"
+    },
+    {
+      "key": "ticket",
+      "value": "",
+      "type": "string",
+      "description": "Set by create ticket"
+    },
+    {
+      "key": "planId",
+      "value": "",
+      "type": "string",
+      "description": "Set by create plan"
+    },
+    {
+      "key": "overrideId",
+      "value": "",
+      "type": "string",
+      "description": "Set by create override"
+    },
+    {
+      "key": "requestId",
+      "value": "",
+      "type": "string",
+      "description": "Set by request history list"
+    },
+    {
+      "key": "fromUtc",
+      "value": "2026-11-17T00:00:00Z",
+      "type": "string",
+      "description": "Summary start"
+    },
+    {
+      "key": "toUtc",
+      "value": "2026-11-18T00:00:00Z",
+      "type": "string",
+      "description": "Summary end"
+    }
+  ]
+}
