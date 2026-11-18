@@ -94,8 +94,12 @@ export function MachinesPage() {
       );
       return;
     }
-    if (!current.items.some((m) => m.id === event.machine.id)) {
-      // A machine this page does not show (new, or filtered out): reload so counts and filters stay right.
+    const updated = event.machine;
+    const stillMatches =
+      (includeRevoked || !updated.revoked) && (state === 'all' || updated.online === (state === 'online'));
+    if (!current.items.some((m) => m.id === updated.id) || !stillMatches) {
+      // A machine this page does not show (new, or filtered out), or one that no longer matches the filters (it was
+      // revoked, signed out, or changed state): reload so the rows, counts, and filters stay right.
       void load();
       return;
     }
@@ -293,7 +297,7 @@ export function MachinesPage() {
             onRetry={load}
             onRefresh={load}
             onRowClick={(m) =>
-              m.revoked ? setDialog({ kind: 'json', machine: m }) : setDialog({ kind: 'rename', machine: m })
+              m.revoked ? setDialog({ kind: 'json', machine: m }) : navigate('/machines/' + encodeURIComponent(m.id))
             }
             rowActions={(m) => [
               {

@@ -191,6 +191,7 @@ export async function mockServer(pw: Page, options: MockOptions = {}): Promise<M
 
     if (path === '/v1.0/api/machines') {
       let items = list;
+      if (url.searchParams.get('includeRevoked') !== 'true') items = items.filter((m) => !m.revoked);
       if (url.searchParams.get('online') === 'true') items = items.filter((m) => m.online);
       if (url.searchParams.get('online') === 'false') items = items.filter((m) => !m.online);
       const name = url.searchParams.get('name');

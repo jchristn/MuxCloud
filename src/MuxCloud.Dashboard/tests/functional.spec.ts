@@ -62,15 +62,37 @@ test('machines update live from the events socket and the action menu opens in a
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });
 
-test('clicking a machine row opens rename; add machine shows every surface and the remote-control notice', async ({
+test('a machine revoked or signed out elsewhere leaves the list live, and Show revoked brings it back', async ({
+  page,
+}) => {
+  const list = machines.map((m) => ({ ...m }));
+  const server = await mockServer(page, { machineList: list });
+  await page.goto('/machines');
+  const row = page.getByRole('row', { name: /travel-laptop/ });
+  await expect(row).toBeVisible();
+  list[1].revoked = true;
+  server.emit({ type: 'machine.updated', machine: { ...list[1] } });
+  await expect(row).toHaveCount(0);
+  await page.getByLabel('Show revoked').check();
+  await expect(page.getByRole('row', { name: /travel-laptop/ })).toBeVisible();
+});
+
+test('clicking a machine row opens it; rename is in the row menu; add machine shows every surface', async ({
   page,
 }) => {
   await mockServer(page);
   await page.goto('/machines');
   await page
-    .getByRole('row', { name: /travel-laptop/ })
-    .getByText('travel-laptop.local')
+    .getByRole('row', { name: /studio-mac/ })
+    .getByText('studio-mac.local')
     .click();
+  await expect(page).toHaveURL(new RegExp('/machines/' + machines[0].id + '$'));
+  await page.goto('/machines');
+  await page
+    .getByRole('row', { name: /travel-laptop/ })
+    .getByRole('button', { name: 'More actions' })
+    .click();
+  await page.getByRole('menuitem', { name: 'Rename' }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Rename machine' })).toBeVisible();
   await dialog.getByLabel('Machine name').fill('travel');
