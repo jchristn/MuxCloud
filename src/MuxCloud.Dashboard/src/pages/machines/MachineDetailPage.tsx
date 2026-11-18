@@ -180,7 +180,7 @@ export function MachineDetailPage() {
           ))}
         </select>
         {machine ? (
-          <span className="machine-bar-status" title={t('machines.colStatus')}>
+          <span className="machine-bar-status">
             <MachineStatusPill machine={machine} />
           </span>
         ) : null}

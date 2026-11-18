@@ -6,13 +6,13 @@ export function MachineStatusPill({ machine }: { machine: Machine }) {
   const { t } = useTranslation();
   const status = machineStatus(machine);
   const map = {
-    online: { cls: 'pill-success', key: 'machines.statusOnline' },
-    approval: { cls: 'pill-warning', key: 'machines.statusApproval' },
-    offline: { cls: '', key: 'machines.statusOffline' },
-    revoked: { cls: 'pill-danger', key: 'machines.statusRevoked' },
+    online: { cls: 'pill-success', key: 'machines.statusOnline', tip: 'machines.statusOnlineTip' },
+    approval: { cls: 'pill-warning', key: 'machines.statusApproval', tip: 'machines.statusApprovalTip' },
+    offline: { cls: '', key: 'machines.statusOffline', tip: 'machines.statusOfflineTip' },
+    revoked: { cls: 'pill-danger', key: 'machines.statusRevoked', tip: 'machines.statusRevokedTip' },
   }[status];
   return (
-    <span className={'pill ' + map.cls}>
+    <span className={'pill ' + map.cls} title={t(map.tip)}>
       <span className="dot" aria-hidden="true" />
       {t(map.key)}
     </span>

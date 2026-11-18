@@ -251,3 +251,18 @@ for (const [width, height] of [
     expect(scroll.main).toBeLessThanOrEqual(0);
   });
 }
+
+test('every topbar control and status pill has a tooltip', async ({ page }) => {
+  await mockServer(page);
+  for (const route of ['/machines', '/machines/' + machines[0].id]) {
+    await page.goto(route);
+    await page.waitForLoadState('networkidle');
+    const missing = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('header.topbar :is(a, button, select, .pill)'))
+        .filter((el) => (el as HTMLElement).offsetParent !== null)
+        .filter((el) => !(el.getAttribute('title') ?? '').trim())
+        .map((el) => el.outerHTML.slice(0, 120)),
+    );
+    expect(missing, route).toEqual([]);
+  }
+});

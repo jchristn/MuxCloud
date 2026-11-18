@@ -195,18 +195,31 @@ function ShellFrame({ children, flush }: { children: ReactNode; flush: boolean }
             <Icon name={collapsed ? 'chevronsRight' : 'chevronsLeft'} className="flip-rtl" />
           </button>
           {collapsed ? (
-            <NavLink to="/machines" className="topbar-brand desktop-only" aria-label={t('common.appName')}>
+            <NavLink
+              to="/machines"
+              className="topbar-brand desktop-only"
+              aria-label={t('common.appName')}
+              title={t('common.appName')}
+            >
               <Logo className="topbar-logo" wordmark />
             </NavLink>
           ) : null}
-          {custom ? null : <div className="topbar-title">{title}</div>}
+          {custom ? null : (
+            <div className="topbar-title" title={title}>
+              {title}
+            </div>
+          )}
           {custom ? null : <LiveStatus />}
           <div className="topbar-slot" ref={setSlot} />
           {custom ? null : <span className="topbar-spacer" />}
           <span className="principal" title={user ? t('shell.signedInAs', { email: user.email }) : undefined}>
             <Icon name="user" size={16} />
             <span className="email">{user?.email}</span>
-            {user?.isAdmin ? <span className="pill pill-accent">{t('shell.admin')}</span> : null}
+            {user?.isAdmin ? (
+              <span className="pill pill-accent" title={t('shell.adminTooltip')}>
+                {t('shell.admin')}
+              </span>
+            ) : null}
           </span>
           <div className="topbar-actions">
             <span className="desktop-only">
