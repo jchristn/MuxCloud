@@ -43,5 +43,9 @@ export function errorText(error: unknown): ErrorText {
     if (error.retryAfterSeconds !== null) values.seconds = error.retryAfterSeconds;
     return { key: 'errors.' + code, values, detail: error.message };
   }
-  return { key: 'errors.generic', values: { status: 0 }, detail: error instanceof Error ? error.message : String(error) };
+  return {
+    key: 'errors.generic',
+    values: { status: 0 },
+    detail: error instanceof Error ? error.message : String(error),
+  };
 }

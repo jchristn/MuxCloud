@@ -20,10 +20,19 @@ export function mergeConversations(results: MachineLoadResult[]): ConversationRo
   const rows: ConversationRow[] = [];
   for (const result of results) {
     for (const session of result.sessions ?? []) {
-      rows.push({ key: result.machine.id + '/' + session.Id, machineId: result.machine.id, machineName: result.machine.name, session });
+      rows.push({
+        key: result.machine.id + '/' + session.Id,
+        machineId: result.machine.id,
+        machineName: result.machine.name,
+        session,
+      });
     }
   }
-  return rows.sort((a, b) => (b.session.UpdatedUtc ?? b.session.CreatedUtc ?? '').localeCompare(a.session.UpdatedUtc ?? a.session.CreatedUtc ?? ''));
+  return rows.sort((a, b) =>
+    (b.session.UpdatedUtc ?? b.session.CreatedUtc ?? '').localeCompare(
+      a.session.UpdatedUtc ?? a.session.CreatedUtc ?? '',
+    ),
+  );
 }
 
 /** Filter rows by machine and by a search over title, model, endpoint, and labels. */
@@ -33,7 +42,9 @@ export function filterConversations(rows: ConversationRow[], machineId: string, 
     if (machineId && row.machineId !== machineId) return false;
     if (!term) return true;
     const s = row.session;
-    const haystack = [s.Title, s.Model, s.EndpointName, s.WorkingDirectory, ...(s.Labels ?? []), row.machineName].join(' ').toLowerCase();
+    const haystack = [s.Title, s.Model, s.EndpointName, s.WorkingDirectory, ...(s.Labels ?? []), row.machineName]
+      .join(' ')
+      .toLowerCase();
     return haystack.includes(term);
   });
 }

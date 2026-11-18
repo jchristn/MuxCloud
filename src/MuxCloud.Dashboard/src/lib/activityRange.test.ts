@@ -13,7 +13,15 @@ describe('activity ranges', () => {
     const params = rangeToParams('hour', now);
     const second = new Date(new Date(params.fromUtc).getTime() + 60_000).toISOString();
     const buckets = normalizeBuckets(
-      { totalCount: 3, totalSuccess: 2, totalFailure: 1, averageDurationMs: 5, buckets: [{ bucketStartUtc: second, bucketEndUtc: second, successCount: 2, failureCount: 1, averageDurationMs: 5 }] },
+      {
+        totalCount: 3,
+        totalSuccess: 2,
+        totalFailure: 1,
+        averageDurationMs: 5,
+        buckets: [
+          { bucketStartUtc: second, bucketEndUtc: second, successCount: 2, failureCount: 1, averageDurationMs: 5 },
+        ],
+      },
       params,
       60,
     );

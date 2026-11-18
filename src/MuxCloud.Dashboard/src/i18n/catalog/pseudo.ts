@@ -2,10 +2,58 @@
 type Tree = { [key: string]: string | Tree };
 
 const ACCENTS: Record<string, string> = {
-  a: 'ȧ', b: 'ƀ', c: 'ƈ', d: 'ḓ', e: 'ḗ', f: 'ƒ', g: 'ɠ', h: 'ħ', i: 'ī', j: 'ĵ', k: 'ķ', l: 'ŀ', m: 'ḿ',
-  n: 'ƞ', o: 'ǿ', p: 'ƥ', q: 'ɋ', r: 'ř', s: 'ş', t: 'ŧ', u: 'ŭ', v: 'ṽ', w: 'ẇ', x: 'ẋ', y: 'ẏ', z: 'ẑ',
-  A: 'Ȧ', B: 'Ɓ', C: 'Ƈ', D: 'Ḓ', E: 'Ḗ', F: 'Ƒ', G: 'Ɠ', H: 'Ħ', I: 'Ī', J: 'Ĵ', K: 'Ķ', L: 'Ŀ', M: 'Ḿ',
-  N: 'Ƞ', O: 'Ǿ', P: 'Ƥ', Q: 'Ɋ', R: 'Ř', S: 'Ş', T: 'Ŧ', U: 'Ŭ', V: 'Ṽ', W: 'Ẇ', X: 'Ẋ', Y: 'Ẏ', Z: 'Ẑ',
+  a: 'ȧ',
+  b: 'ƀ',
+  c: 'ƈ',
+  d: 'ḓ',
+  e: 'ḗ',
+  f: 'ƒ',
+  g: 'ɠ',
+  h: 'ħ',
+  i: 'ī',
+  j: 'ĵ',
+  k: 'ķ',
+  l: 'ŀ',
+  m: 'ḿ',
+  n: 'ƞ',
+  o: 'ǿ',
+  p: 'ƥ',
+  q: 'ɋ',
+  r: 'ř',
+  s: 'ş',
+  t: 'ŧ',
+  u: 'ŭ',
+  v: 'ṽ',
+  w: 'ẇ',
+  x: 'ẋ',
+  y: 'ẏ',
+  z: 'ẑ',
+  A: 'Ȧ',
+  B: 'Ɓ',
+  C: 'Ƈ',
+  D: 'Ḓ',
+  E: 'Ḗ',
+  F: 'Ƒ',
+  G: 'Ɠ',
+  H: 'Ħ',
+  I: 'Ī',
+  J: 'Ĵ',
+  K: 'Ķ',
+  L: 'Ŀ',
+  M: 'Ḿ',
+  N: 'Ƞ',
+  O: 'Ǿ',
+  P: 'Ƥ',
+  Q: 'Ɋ',
+  R: 'Ř',
+  S: 'Ş',
+  T: 'Ŧ',
+  U: 'Ŭ',
+  V: 'Ṽ',
+  W: 'Ẇ',
+  X: 'Ẋ',
+  Y: 'Ẏ',
+  Z: 'Ẑ',
 };
 
 /** Transform text outside {{interpolations}} and <tags>. */
@@ -28,6 +76,7 @@ export function rtl(value: string): string {
 
 export function pseudoTree(tree: Tree, fn: (value: string) => string): Tree {
   const out: Tree = {};
-  for (const [key, value] of Object.entries(tree)) out[key] = typeof value === 'string' ? fn(value) : pseudoTree(value, fn);
+  for (const [key, value] of Object.entries(tree))
+    out[key] = typeof value === 'string' ? fn(value) : pseudoTree(value, fn);
   return out;
 }

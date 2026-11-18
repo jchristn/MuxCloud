@@ -19,9 +19,16 @@ function toDate(value: string | number | Date | null | undefined): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-export function formatNumber(locale: string, value: number | null | undefined, options?: Intl.NumberFormatOptions): string {
+export function formatNumber(
+  locale: string,
+  value: number | null | undefined,
+  options?: Intl.NumberFormatOptions,
+): string {
   if (value === null || value === undefined || Number.isNaN(value)) return '';
-  return cached('n|' + locale + '|' + JSON.stringify(options ?? {}), () => new Intl.NumberFormat(locale, options)).format(value);
+  return cached(
+    'n|' + locale + '|' + JSON.stringify(options ?? {}),
+    () => new Intl.NumberFormat(locale, options),
+  ).format(value);
 }
 
 export function formatPercent(locale: string, ratio: number | null | undefined, fractionDigits = 1): string {
@@ -47,11 +54,18 @@ export function formatTime(locale: string, value: string | number | Date | null 
 export function formatDateTime(locale: string, value: string | number | Date | null | undefined): string {
   const date = toDate(value);
   if (!date) return '';
-  return cached('dt|' + locale, () => new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'medium' })).format(date);
+  return cached(
+    'dt|' + locale,
+    () => new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'medium' }),
+  ).format(date);
 }
 
 /** Relative time such as "3 minutes ago" or "in 2 days". `now` is injectable for tests. */
-export function formatRelativeTime(locale: string, value: string | number | Date | null | undefined, now: number = Date.now()): string {
+export function formatRelativeTime(
+  locale: string,
+  value: string | number | Date | null | undefined,
+  now: number = Date.now(),
+): string {
   const date = toDate(value);
   if (!date) return '';
   const seconds = Math.round((date.getTime() - now) / 1000);
@@ -92,9 +106,18 @@ export function formatBytes(locale: string, bytes: number | null | undefined): s
     value /= 1024;
     index++;
   }
-  return formatNumber(locale, value, { style: 'unit', unit: units[index], unitDisplay: 'short', maximumFractionDigits: index === 0 ? 0 : 1 });
+  return formatNumber(locale, value, {
+    style: 'unit',
+    unit: units[index],
+    unitDisplay: 'short',
+    maximumFractionDigits: index === 0 ? 0 : 1,
+  });
 }
 
-export function formatList(locale: string, items: string[], type: 'conjunction' | 'disjunction' | 'unit' = 'conjunction'): string {
+export function formatList(
+  locale: string,
+  items: string[],
+  type: 'conjunction' | 'disjunction' | 'unit' = 'conjunction',
+): string {
   return cached('l|' + locale + '|' + type, () => new Intl.ListFormat(locale, { style: 'long', type })).format(items);
 }

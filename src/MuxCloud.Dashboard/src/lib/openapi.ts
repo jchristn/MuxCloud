@@ -42,7 +42,9 @@ const METHODS = ['get', 'post', 'put', 'patch', 'delete', 'head'];
 
 /** Flatten an OpenAPI 3 document into a sorted operation list, grouped by first tag. */
 export function flattenOpenApi(doc: unknown, untaggedLabel = 'Other'): OpenApiOperation[] {
-  const paths = (doc as { paths?: Record<string, Record<string, RawOperation & { parameters?: RawParameter[] }>> } | null)?.paths;
+  const paths = (
+    doc as { paths?: Record<string, Record<string, RawOperation & { parameters?: RawParameter[] }>> } | null
+  )?.paths;
   if (!paths || typeof paths !== 'object') return [];
   const operations: OpenApiOperation[] = [];
   for (const [path, item] of Object.entries(paths)) {
@@ -87,7 +89,9 @@ export function flattenOpenApi(doc: unknown, untaggedLabel = 'Other'): OpenApiOp
       });
     }
   }
-  return operations.sort((a, b) => a.tag.localeCompare(b.tag) || a.path.localeCompare(b.path) || a.method.localeCompare(b.method));
+  return operations.sort(
+    (a, b) => a.tag.localeCompare(b.tag) || a.path.localeCompare(b.path) || a.method.localeCompare(b.method),
+  );
 }
 
 /** Substitute path parameters and append query parameters. Missing required path values stay as {name}. */
@@ -107,7 +111,9 @@ export function resolvePath(operation: OpenApiOperation, values: Record<string, 
 export function searchOperations(operations: OpenApiOperation[], term: string): OpenApiOperation[] {
   const t = term.trim().toLowerCase();
   if (!t) return operations;
-  return operations.filter((o) => (o.method + ' ' + o.path + ' ' + o.summary + ' ' + o.operationId + ' ' + o.tag).toLowerCase().includes(t));
+  return operations.filter((o) =>
+    (o.method + ' ' + o.path + ' ' + o.summary + ' ' + o.operationId + ' ' + o.tag).toLowerCase().includes(t),
+  );
 }
 
 export interface SnippetInput {
@@ -133,19 +139,34 @@ export function fetchSnippet(input: SnippetInput): string {
   if (input.body) init.body = '__BODY__';
   let text = JSON.stringify(init, null, 2);
   if (input.body) text = text.replace('"__BODY__"', 'JSON.stringify(' + input.body.trim() + ')');
-  return 'const response = await fetch(' + JSON.stringify(input.url) + ', ' + text + ');\nconsole.log(response.status, await response.text());';
+  return (
+    'const response = await fetch(' +
+    JSON.stringify(input.url) +
+    ', ' +
+    text +
+    ');\nconsole.log(response.status, await response.text());'
+  );
 }
 
 export function csharpSnippet(input: SnippetInput): string {
   const lines = [
     'using HttpClient client = new HttpClient();',
-    'using HttpRequestMessage request = new HttpRequestMessage(new HttpMethod(' + JSON.stringify(input.method) + '), ' + JSON.stringify(input.url) + ');',
+    'using HttpRequestMessage request = new HttpRequestMessage(new HttpMethod(' +
+      JSON.stringify(input.method) +
+      '), ' +
+      JSON.stringify(input.url) +
+      ');',
   ];
   for (const [k, v] of Object.entries(input.headers)) {
     if (k.toLowerCase() === 'content-type') continue;
     lines.push('request.Headers.TryAddWithoutValidation(' + JSON.stringify(k) + ', ' + JSON.stringify(v) + ');');
   }
-  if (input.body) lines.push('request.Content = new StringContent(' + JSON.stringify(input.body) + ', System.Text.Encoding.UTF8, "application/json");');
+  if (input.body)
+    lines.push(
+      'request.Content = new StringContent(' +
+        JSON.stringify(input.body) +
+        ', System.Text.Encoding.UTF8, "application/json");',
+    );
   lines.push('using HttpResponseMessage response = await client.SendAsync(request);');
   lines.push('Console.WriteLine((int)response.StatusCode + " " + await response.Content.ReadAsStringAsync());');
   return lines.join('\n');

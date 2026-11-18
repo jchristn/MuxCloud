@@ -50,7 +50,12 @@ export interface RawResult {
   url: string;
 }
 
-const NO_REFRESH_PATHS = ['/v1.0/api/auth/login', '/v1.0/api/auth/refresh', '/v1.0/api/auth/signup', '/v1.0/api/auth/logout'];
+const NO_REFRESH_PATHS = [
+  '/v1.0/api/auth/login',
+  '/v1.0/api/auth/refresh',
+  '/v1.0/api/auth/signup',
+  '/v1.0/api/auth/logout',
+];
 
 /**
  * Typed fetch wrapper for the Mux Cloud API. Host agnostic: no window, document, or storage access, so the
@@ -116,7 +121,11 @@ export class ApiClient {
     try {
       return JSON.parse(text) as T;
     } catch {
-      throw new ApiError(response.status, ClientErrorCodes.InvalidJson, 'The server returned a response that is not JSON.');
+      throw new ApiError(
+        response.status,
+        ClientErrorCodes.InvalidJson,
+        'The server returned a response that is not JSON.',
+      );
     }
   }
 
@@ -132,9 +141,20 @@ export class ApiClient {
   }
 
   /** Raw request for the API Explorer: never throws on HTTP status, always reports timing. */
-  async raw(method: string, pathAndQuery: string, body: string | null, headers: Record<string, string>, signal?: AbortSignal): Promise<RawResult> {
+  async raw(
+    method: string,
+    pathAndQuery: string,
+    body: string | null,
+    headers: Record<string, string>,
+    signal?: AbortSignal,
+  ): Promise<RawResult> {
     const started = Date.now();
-    const init: RequestInit = { method, headers: await this.headersFor(headers, body !== null), signal, credentials: 'include' };
+    const init: RequestInit = {
+      method,
+      headers: await this.headersFor(headers, body !== null),
+      signal,
+      credentials: 'include',
+    };
     if (body !== null && method !== 'GET' && method !== 'HEAD') init.body = body;
     const url = this.baseUrl + pathAndQuery;
     let response: Response;
@@ -163,7 +183,10 @@ export class ApiClient {
     return this.options.fetchImpl ?? ((input, init) => fetch(input, init));
   }
 
-  private async headersFor(extra: Record<string, string> | undefined, hasBody: boolean): Promise<Record<string, string>> {
+  private async headersFor(
+    extra: Record<string, string> | undefined,
+    hasBody: boolean,
+  ): Promise<Record<string, string>> {
     const headers: Record<string, string> = { Accept: 'application/json', ...(this.options.headers ?? {}) };
     if (hasBody) headers['Content-Type'] = 'application/json';
     const locale = this.options.getLocale?.();

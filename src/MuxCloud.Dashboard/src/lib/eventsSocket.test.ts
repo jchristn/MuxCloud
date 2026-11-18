@@ -21,7 +21,15 @@ describe('EventsClient', () => {
   it('delivers events, answers pings, and ignores junk', async () => {
     const sockets: FakeSocket[] = [];
     const onEvent = vi.fn();
-    const client = new EventsClient({ getUrl: () => 'ws://x/v1.0/events', socketFactory: (u) => { const s = new FakeSocket(u); sockets.push(s); return s; }, onEvent });
+    const client = new EventsClient({
+      getUrl: () => 'ws://x/v1.0/events',
+      socketFactory: (u) => {
+        const s = new FakeSocket(u);
+        sockets.push(s);
+        return s;
+      },
+      onEvent,
+    });
     client.start();
     await Promise.resolve();
     const s = sockets[0];
@@ -43,10 +51,17 @@ describe('EventsClient', () => {
     const onUnauthorized = vi.fn();
     const client = new EventsClient({
       getUrl: () => 'ws://x',
-      socketFactory: (u) => { const s = new FakeSocket(u); sockets.push(s); return s; },
+      socketFactory: (u) => {
+        const s = new FakeSocket(u);
+        sockets.push(s);
+        return s;
+      },
       onEvent: () => undefined,
       onUnauthorized,
-      setTimer: (fn, ms) => { timers.push({ fn, ms }); return timers.length; },
+      setTimer: (fn, ms) => {
+        timers.push({ fn, ms });
+        return timers.length;
+      },
       clearTimer: () => undefined,
     });
     client.start();

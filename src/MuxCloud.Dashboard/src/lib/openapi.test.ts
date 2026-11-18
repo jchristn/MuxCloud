@@ -7,7 +7,13 @@ const doc = {
       get: { tags: ['Machines'], summary: 'Get machine' },
       delete: { tags: ['Machines'], summary: 'Delete machine' },
     },
-    '/v1.0/api/machines': { get: { tags: ['Machines'], summary: 'List', parameters: [{ name: 'online', in: 'query', schema: { type: 'boolean' } }] } },
+    '/v1.0/api/machines': {
+      get: {
+        tags: ['Machines'],
+        summary: 'List',
+        parameters: [{ name: 'online', in: 'query', schema: { type: 'boolean' } }],
+      },
+    },
     '/v1.0/api/health': { get: { summary: 'Health' } },
   },
 };
@@ -30,6 +36,8 @@ describe('openapi helpers', () => {
     expect(searchOperations(ops, 'health')).toHaveLength(1);
   });
   it('quotes curl safely', () => {
-    expect(curlSnippet({ method: 'POST', url: "http://h/x'y", headers: {}, body: '{"a":1}' })).toContain("'http://h/x'\\''y'");
+    expect(curlSnippet({ method: 'POST', url: "http://h/x'y", headers: {}, body: '{"a":1}' })).toContain(
+      "'http://h/x'\\''y'",
+    );
   });
 });

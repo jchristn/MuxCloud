@@ -6,7 +6,10 @@ import { machinesApi } from './machines';
 import { relayApi } from './relay';
 
 function json(status: number, body: unknown, headers: Record<string, string> = {}): Response {
-  return new Response(body === undefined ? null : JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...headers } });
+  return new Response(body === undefined ? null : JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...headers },
+  });
 }
 
 describe('ApiClient', () => {
@@ -21,8 +24,16 @@ describe('ApiClient', () => {
   });
 
   it('adds the bearer token and Accept-Language in bearer mode', async () => {
-    const fetchImpl = vi.fn(async () => json(200, { user: {}, sessionId: 's', entitlements: { accountId: 'a', planCode: 'free', features: [] } }));
-    const client = new ApiClient({ baseUrl: 'https://app.usemux.ai/', authMode: 'bearer', getAccessToken: () => 'mca_1', getLocale: () => 'de', fetchImpl });
+    const fetchImpl = vi.fn(async () =>
+      json(200, { user: {}, sessionId: 's', entitlements: { accountId: 'a', planCode: 'free', features: [] } }),
+    );
+    const client = new ApiClient({
+      baseUrl: 'https://app.usemux.ai/',
+      authMode: 'bearer',
+      getAccessToken: () => 'mca_1',
+      getLocale: () => 'de',
+      fetchImpl,
+    });
     await authApi.me(client);
     const [url, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe('https://app.usemux.ai/v1.0/api/auth/me');
@@ -33,7 +44,11 @@ describe('ApiClient', () => {
   });
 
   it('refreshes once on 401 and retries (cookie mode)', async () => {
-    const responses = [json(401, { error: 'Unauthorized' }), json(200, { sessionId: 's2' }), json(200, { id: 'usr_1' })];
+    const responses = [
+      json(401, { error: 'Unauthorized' }),
+      json(200, { sessionId: 's2' }),
+      json(200, { id: 'usr_1' }),
+    ];
     const fetchImpl = vi.fn(async () => responses.shift()!);
     const client = new ApiClient({ fetchImpl });
     const user = await client.get<{ id: string }>('/v1.0/api/account');
@@ -60,12 +75,17 @@ describe('ApiClient', () => {
   it('does not refresh for the login route itself', async () => {
     const fetchImpl = vi.fn(async () => json(401, { error: 'InvalidCredentials', message: 'nope' }));
     const client = new ApiClient({ fetchImpl });
-    await expect(authApi.login(client, { email: 'a@b.c', password: 'x' })).rejects.toMatchObject({ code: 'InvalidCredentials', status: 401 });
+    await expect(authApi.login(client, { email: 'a@b.c', password: 'x' })).rejects.toMatchObject({
+      code: 'InvalidCredentials',
+      status: 401,
+    });
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
   it('parses error bodies and Retry-After', async () => {
-    const fetchImpl = vi.fn(async () => json(429, { error: 'TooManyAttempts', message: 'slow down' }, { 'Retry-After': '60' }));
+    const fetchImpl = vi.fn(async () =>
+      json(429, { error: 'TooManyAttempts', message: 'slow down' }, { 'Retry-After': '60' }),
+    );
     const client = new ApiClient({ fetchImpl });
     const error = (await client.post('/v1.0/api/auth/login', {}).catch((e) => e)) as ApiError;
     expect(error).toBeInstanceOf(ApiError);
@@ -75,7 +95,11 @@ describe('ApiClient', () => {
   });
 
   it('turns network failures into NetworkError and 204 into null', async () => {
-    const failing = new ApiClient({ fetchImpl: vi.fn(async () => { throw new TypeError('offline'); }) });
+    const failing = new ApiClient({
+      fetchImpl: vi.fn(async () => {
+        throw new TypeError('offline');
+      }),
+    });
     await expect(failing.get('/x')).rejects.toMatchObject({ code: 'NetworkError', status: 0 });
     const ok = new ApiClient({ fetchImpl: vi.fn(async () => new Response(null, { status: 204 })) });
     expect(await ok.delete('/x')).toBeNull();
@@ -86,6 +110,8 @@ describe('ApiClient', () => {
     const client = new ApiClient({ baseUrl: 'https://app.usemux.ai' });
     expect(client.wsUrl('/v1.0/events', { ticket: 'wst_1' })).toBe('wss://app.usemux.ai/v1.0/events?ticket=wst_1');
     const sameOrigin = new ApiClient();
-    expect(sameOrigin.wsUrl('/v1.0/events', undefined, 'http://127.0.0.1:5173')).toBe('ws://127.0.0.1:5173/v1.0/events');
+    expect(sameOrigin.wsUrl('/v1.0/events', undefined, 'http://127.0.0.1:5173')).toBe(
+      'ws://127.0.0.1:5173/v1.0/events',
+    );
   });
 });

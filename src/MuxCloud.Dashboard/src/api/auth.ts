@@ -14,11 +14,13 @@ const base = '/v1.0/api/auth';
 
 /** Auth routes (REST_API.md "Auth"). */
 export const authApi = {
-  signup: (c: ApiClient, request: SignupRequest) => c.post<SignupResponse>(base + '/signup', request, { skipRefresh: true }),
+  signup: (c: ApiClient, request: SignupRequest) =>
+    c.post<SignupResponse>(base + '/signup', request, { skipRefresh: true }),
   verify: (c: ApiClient, token: string) => c.post<VerifyResponse>(base + '/verify', { token }, { skipRefresh: true }),
   resendVerification: (c: ApiClient, email: string) =>
     c.post<AcceptedResponse>(base + '/verify/resend', { email }, { skipRefresh: true }),
-  login: (c: ApiClient, request: LoginRequest) => c.post<LoginResponse>(base + '/login', request, { skipRefresh: true }),
+  login: (c: ApiClient, request: LoginRequest) =>
+    c.post<LoginResponse>(base + '/login', request, { skipRefresh: true }),
   /** Cookie mode: pass no token. Bearer mode: pass the refresh token. */
   refresh: (c: ApiClient, refreshToken?: string) =>
     c.post<LoginResponse>(base + '/refresh', refreshToken ? { refreshToken } : {}, { skipRefresh: true }),

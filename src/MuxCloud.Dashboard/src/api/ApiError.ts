@@ -8,7 +8,13 @@ export class ApiError extends Error {
   readonly retryAfterSeconds: number | null;
   readonly body: unknown;
 
-  constructor(status: number, code: string, message: string, retryAfterSeconds: number | null = null, body: unknown = null) {
+  constructor(
+    status: number,
+    code: string,
+    message: string,
+    retryAfterSeconds: number | null = null,
+    body: unknown = null,
+  ) {
     super(message || code);
     this.name = 'ApiError';
     this.status = status;

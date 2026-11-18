@@ -2,13 +2,26 @@ import { describe, expect, it } from 'vitest';
 import type { Machine } from '../types';
 import { filterConversations, mapWithConcurrency, mergeConversations } from './conversations';
 
-const machine = (id: string): Machine => ({ id, name: 'host-' + id, online: true, activeRuns: 0, awaitingApproval: 0, remoteToolApproval: true, revoked: false, createdUtc: 'x' });
+const machine = (id: string): Machine => ({
+  id,
+  name: 'host-' + id,
+  online: true,
+  activeRuns: 0,
+  awaitingApproval: 0,
+  remoteToolApproval: true,
+  revoked: false,
+  createdUtc: 'x',
+});
 
 describe('conversation fan-out', () => {
   it('merges and sorts newest first, then filters', () => {
     const rows = mergeConversations([
       { machine: machine('a'), sessions: [{ Id: '1', Title: 'Refactor', UpdatedUtc: '2026-01-01' }], errorCode: null },
-      { machine: machine('b'), sessions: [{ Id: '2', Title: 'Tests', UpdatedUtc: '2026-02-01', Labels: ['ci'] }], errorCode: null },
+      {
+        machine: machine('b'),
+        sessions: [{ Id: '2', Title: 'Tests', UpdatedUtc: '2026-02-01', Labels: ['ci'] }],
+        errorCode: null,
+      },
       { machine: machine('c'), sessions: null, errorCode: 'MachineOffline' },
     ]);
     expect(rows.map((r) => r.session.Id)).toEqual(['2', '1']);

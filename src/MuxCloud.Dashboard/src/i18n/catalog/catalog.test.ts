@@ -11,11 +11,11 @@ describe('catalog', () => {
     expect(normalizeLocale(null)).toBe('en');
     expect(isRtl('ar')).toBe(true);
   });
-  it('every catalog present has exactly the English keys', () => {
+  it('has a resource for every registered locale with the same keys as English', () => {
     const keys = flattenKeys(en).sort();
     for (const locale of LOCALES) {
       const catalog = resources[locale.code];
-      if (!catalog) continue;
+      expect(catalog, locale.code).toBeDefined();
       expect(flattenKeys(catalog.translation).sort(), locale.code).toEqual(keys);
     }
   });

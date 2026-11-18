@@ -25,7 +25,14 @@ export const LOCALES: LocaleMeta[] = [
   { code: 'ms', englishName: 'Malay', nativeName: 'Bahasa Melayu', dir: 'ltr', fallback: 'en' },
   { code: 'hi', englishName: 'Hindi', nativeName: 'हिन्दी', dir: 'ltr', fallback: 'en' },
   { code: 'ja', englishName: 'Japanese', nativeName: '日本語', dir: 'ltr', fallback: 'en' },
-  { code: 'qps-ploc', englishName: 'Pseudo (expansion)', nativeName: 'Ƥşḗŭḓǿ', dir: 'ltr', fallback: 'en', pseudo: true },
+  {
+    code: 'qps-ploc',
+    englishName: 'Pseudo (expansion)',
+    nativeName: 'Ƥşḗŭḓǿ',
+    dir: 'ltr',
+    fallback: 'en',
+    pseudo: true,
+  },
   { code: 'qps-rtl', englishName: 'Pseudo (RTL)', nativeName: 'Pseudo RTL', dir: 'rtl', fallback: 'en', pseudo: true },
 ];
 

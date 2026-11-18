@@ -13,7 +13,9 @@ export function applyMachineEvent(machines: Machine[], event: AccountEvent): Mac
       return next;
     }
     case 'machine.removed':
-      return machines.some((m) => m.id === event.machineId) ? machines.filter((m) => m.id !== event.machineId) : machines;
+      return machines.some((m) => m.id === event.machineId)
+        ? machines.filter((m) => m.id !== event.machineId)
+        : machines;
     default:
       return machines;
   }

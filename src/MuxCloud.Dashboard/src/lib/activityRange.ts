@@ -30,14 +30,22 @@ export function rangeToParams(rangeId: RangeId, now: number = Date.now()): Range
   const bucketMs = preset.bucketMinutes * 60_000;
   const end = Math.ceil(now / bucketMs) * bucketMs;
   const start = end - bucketMs * preset.bucketCount;
-  return { fromUtc: new Date(start).toISOString(), toUtc: new Date(end).toISOString(), bucketMinutes: preset.bucketMinutes };
+  return {
+    fromUtc: new Date(start).toISOString(),
+    toUtc: new Date(end).toISOString(),
+    bucketMinutes: preset.bucketMinutes,
+  };
 }
 
 /**
  * Exactly `bucketCount` buckets covering the range, with zero counts where the server returned none. Never
  * trusts the server to fill gaps.
  */
-export function normalizeBuckets(summary: RequestHistorySummary | null, params: RangeParams, bucketCount: number): RequestHistoryBucket[] {
+export function normalizeBuckets(
+  summary: RequestHistorySummary | null,
+  params: RangeParams,
+  bucketCount: number,
+): RequestHistoryBucket[] {
   const bucketMs = params.bucketMinutes * 60_000;
   const start = new Date(params.fromUtc).getTime();
   const byStart = new Map<number, RequestHistoryBucket>();
