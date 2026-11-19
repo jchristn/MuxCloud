@@ -183,7 +183,7 @@ The machine opens a WebSocket to its own `ws://127.0.0.1:<rest.port><path>` with
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `kind` | string | `status`, `approval_requested`, or `run_completed` |
+| `kind` | string | `status`, `approval_requested` (a tool approval or an `ask_user` question is waiting), or `run_completed` |
 | `muxVersion` | string | Installed version |
 | `machineName` | string | Name chosen on the machine |
 | `activeRuns` | integer | Runs in progress |
@@ -192,7 +192,7 @@ The machine opens a WebSocket to its own `ws://127.0.0.1:<rest.port><path>` with
 | `sessionId`, `runId` | string | For `approval_requested` and `run_completed`, the run concerned, for deep links |
 | `title` | string | Conversation title for a notification, or empty |
 
-The cloud updates the machine record, publishes `machine.updated` on the events socket, and sends push notifications for `approval_requested` and `run_completed` to the user's registered devices. Notifications carry the machine name, title, and deep link only.
+The cloud updates the machine record, publishes `machine.updated` on the events socket, and sends push notifications for `approval_requested` and `run_completed` to the user's registered devices. A run waiting on an `ask_user` question reports `approval_requested` too, so it notifies the same way. Notifications carry the machine name, title, and deep link only.
 
 ### 1.7 Capabilities
 
@@ -296,6 +296,6 @@ Every message is `{ "type": "...", "timestampUtc": "...", ... }`.
 
 ## 3. Relayed machine WebSocket (`/m/{machineId}/v1.0/ws`)
 
-The cloud dashboard and the mobile app open the machine's own mux WebSocket through the relay. Authentication is the same as the events socket (cookie and Origin for browsers, ticket for mobile). After authentication, the cloud checks that the machine belongs to the user, that the plan includes `web.access` (cookie) or `mobile.access` (ticket), and that the machine is online. Failures close the client socket with `4401` (not authenticated), `4404` (machine not found), `4402` (entitlement), or `4503` (machine offline, or the tunnel's stream limit is reached). It then opens a `ws.*` channel on the machine's tunnel and passes frames through untouched. The frames are mux's own `/v1.0/ws` protocol, including `subscribe`, `approve`, run event frames, and `approval_requested`. They are documented in mux's `WEBSOCKETS_API.md`.
+The cloud dashboard and the mobile app open the machine's own mux WebSocket through the relay. Authentication is the same as the events socket (cookie and Origin for browsers, ticket for mobile). After authentication, the cloud checks that the machine belongs to the user, that the plan includes `web.access` (cookie) or `mobile.access` (ticket), and that the machine is online. Failures close the client socket with `4401` (not authenticated), `4404` (machine not found), `4402` (entitlement), or `4503` (machine offline, or the tunnel's stream limit is reached). It then opens a `ws.*` channel on the machine's tunnel and passes frames through untouched. The frames are mux's own `/v1.0/ws` protocol, including `subscribe`, `approve`, `answer`, and run event frames such as `approval_requested`, `ask_user`, and `ask_user_resolved`. They are documented in mux's `WEBSOCKETS_API.md`.
 
 When the tunnel drops, every relayed socket for that machine closes with `1001`. Clients reconnect when `machine.online` arrives on the events socket.

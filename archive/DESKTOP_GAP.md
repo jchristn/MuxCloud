@@ -1,4 +1,4 @@
-# Desktop vs mobile gap
+# Desktop vs mobile gap (archived)
 
 What the Mux desktop app (`~/Code/Mux`, `src/Mux.Desktop`) can do that the Mux Cloud mobile app cannot, as of
 2026-11-18 (Mux `feature/v2.0.0` at 32f78a8, MuxCloud `main`). `parity.json` compares the app with the local web
