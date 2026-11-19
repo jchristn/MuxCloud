@@ -393,6 +393,6 @@ export const jaParity: ParityCatalog = {
     bad: '信頼の値は次のいずれかです: {{list}}',
   },
   common: {
-    needsMux2: 'この機能にはマシン上の mux 2.0 以降が必要です。',
+    unsupported: 'このマシンの mux はまだこの機能に対応していません。使うにはマシンの mux を更新してください。',
   },
 };

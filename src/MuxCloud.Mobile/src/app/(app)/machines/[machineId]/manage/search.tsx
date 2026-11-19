@@ -4,7 +4,7 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '@/components/Sheet';
 import { Badge, Button, Empty, ErrorBox, Field, ListRow, Loading, Notice, Screen, Section, Segmented, T, ToggleRow } from '@/components/ui';
-import { isMissingRoute } from '@/lib/muxVersion';
+import { isMissingRoute } from '@/lib/routeSupport';
 import { useAsync } from '@/state/useAsync';
 import { useMachineApi } from '@/state/useMachineApi';
 import type { MuxSearchProvider, MuxSearchSettings } from '@/types/mux';
@@ -95,7 +95,7 @@ export default function SearchScreen() {
     <Screen refreshControl={<RefreshControl refreshing={settings.loading && !!s} onRefresh={() => void settings.reload()} />}>
       <Stack.Screen options={{ title: t('mobile.search.title') }} />
       <T variant="muted">{t('mobile.search.intro')}</T>
-      {isMissingRoute(settings.error) ? <Notice tone="warning" text={t('mobile.common.needsMux2')} /> : settings.error ? <ErrorBox error={settings.error} onRetry={() => void settings.reload()} /> : null}
+      {isMissingRoute(settings.error) ? <Notice tone="warning" text={t('mobile.common.unsupported')} /> : settings.error ? <ErrorBox error={settings.error} onRetry={() => void settings.reload()} /> : null}
       {error ? <ErrorBox error={error} /> : null}
       {settings.loading && !s ? <Loading /> : null}
       {s ? (

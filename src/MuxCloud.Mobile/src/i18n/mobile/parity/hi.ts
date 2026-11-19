@@ -393,6 +393,6 @@ export const hiParity: ParityCatalog = {
     bad: 'भरोसा इनमें से एक हो सकता है: {{list}}',
   },
   common: {
-    needsMux2: 'इसके लिए मशीन पर mux 2.0 या नया वर्शन चाहिए।',
+    unsupported: 'इस मशीन का mux अभी इसे सपोर्ट नहीं करता। इसे इस्तेमाल करने के लिए मशीन पर mux अपडेट करें।',
   },
 };

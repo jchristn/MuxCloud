@@ -76,7 +76,7 @@ export interface MuxChatRequest {
   PlanMode?: boolean;
   /** Run tools that would prompt without asking; the machine honors it only when this caller may approve tools. */
   AutoApproveTools?: boolean;
-  /** Stream `ask_user` questions and wait for answers (mux 2.0.0 and later). */
+  /** Stream `ask_user` questions and wait for answers (ignored by a mux without ask_user). */
   AskUser?: boolean;
 }
 
@@ -113,7 +113,7 @@ export interface MuxToolEvent {
   Name: string;
   Status: 'running' | 'ok' | 'fail' | string;
   ElapsedMs?: number;
-  /** Raw JSON arguments, on the `running` event (mux 2.0.0 and later). */
+  /** Raw JSON arguments, on the `running` event (newer mux). */
   Arguments?: string | null;
   /** The tool's output on the finished event, cut to 8000 characters (`ResultTruncated`). */
   Result?: string | null;

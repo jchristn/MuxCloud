@@ -28,7 +28,7 @@ const HINTS: FieldHints = {
 export default function SettingsScreen() {
   const { machineId } = useLocalSearchParams<{ machineId: string }>();
   const { t } = useTranslation();
-  // Fields mux 2.0.0 added to /settings (older machines simply do not send them).
+  // Newer /settings fields (a machine whose mux lacks them simply does not send them, and they do not appear).
   const hints: FieldHints = {
     ...HINTS,
     SystemPromptPath: { nullable: true, hint: t('mobile.settingsForm.systemPromptPath') },

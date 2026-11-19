@@ -621,7 +621,7 @@
     {
       "id": "settings.form",
       "view": "settings",
-      "feature": "Every mux setting, including REST, Mux Cloud, and the 2.0 fields (system prompt path, token budget, safety margin, token ratio, skill refresh, skills folder, telemetry)",
+      "feature": "Every mux setting, including REST, Mux Cloud, and the newer fields (system prompt path, token budget, safety margin, token ratio, skill refresh, skills folder, telemetry)",
       "status": "implemented",
       "screen": "app/(app)/machines/[machineId]/manage/settings.tsx",
       "api": [

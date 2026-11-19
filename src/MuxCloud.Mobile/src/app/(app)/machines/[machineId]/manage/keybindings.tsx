@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { RefreshControl, View } from 'react-native';
 import { Redirect, Stack, useLocalSearchParams } from 'expo-router';
-import { ApiError } from '@dashboard/api';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '@/components/Sheet';
 import { Badge, Button, ErrorBox, Field, KeyValues, ListRow, Loading, Notice, Screen, Section, T } from '@/components/ui';
 import { groupCommands, normalizeChord, overridesAfter } from '@/lib/keybindings';
+import { isMissingRoute } from '@/lib/routeSupport';
 import { useAsync } from '@/state/useAsync';
 import { useMachineApi } from '@/state/useMachineApi';
 import type { MuxKeybindingCommand } from '@/types/mux';
@@ -45,8 +45,8 @@ export default function KeybindingsScreen() {
 
   const chordLabel = (c: MuxKeybindingCommand) => c.EffectiveChord || t('mobile.keys.unbound');
 
-  // mux before 2.0 has no command catalog: edit the raw overrides instead, as the app did before.
-  if (commands.error instanceof ApiError && commands.error.status === 404) {
+  // A mux without the command catalog route: edit the raw overrides instead, as the app did before.
+  if (isMissingRoute(commands.error)) {
     return <Redirect href={{ pathname: '/machines/[machineId]/manage/[resource]', params: { machineId, resource: 'keybindings-overrides' } }} />;
   }
 

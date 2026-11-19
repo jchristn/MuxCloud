@@ -393,6 +393,6 @@ export const arParity: ParityCatalog = {
     bad: 'قيمة الثقة إحدى: {{list}}',
   },
   common: {
-    needsMux2: 'يتطلب هذا الإصدار 2.0 من mux أو أحدث على الجهاز.',
+    unsupported: 'لا يدعم mux على هذا الجهاز هذه الميزة بعد. حدّث mux على الجهاز لاستخدامها.',
   },
 };

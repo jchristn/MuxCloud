@@ -393,6 +393,6 @@ export const ptParity: ParityCatalog = {
     bad: 'A confiança pode ser: {{list}}',
   },
   common: {
-    needsMux2: 'Isto requer o mux 2.0 ou mais recente na máquina.',
+    unsupported: 'O mux desta máquina ainda não oferece suporte a isto. Atualize o mux na máquina para usar.',
   },
 };

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { formatRelativeTime } from '@dashboard/lib';
 import { Sheet } from '@/components/Sheet';
 import { Badge, Button, Empty, ErrorBox, KeyValues, ListRow, Loading, Notice, Screen, T } from '@/components/ui';
-import { isMissingRoute } from '@/lib/muxVersion';
+import { isMissingRoute } from '@/lib/routeSupport';
 import { useAsync } from '@/state/useAsync';
 import { useMachineApi } from '@/state/useMachineApi';
 import type { MuxProcess, MuxProcessOutput } from '@/types/mux';
@@ -121,7 +121,7 @@ export default function ProcessesScreen() {
         <Button title={t('mobile.processes.clear')} kind="secondary" disabled={items.every((x) => x.Running)} onPress={() => void clear()} />
       </View>
       {message ? <Notice tone="success" text={message} /> : null}
-      {isMissingRoute(list.error) ? <Notice tone="warning" text={t('mobile.common.needsMux2')} /> : list.error ? <ErrorBox error={list.error} onRetry={() => void list.reload()} /> : null}
+      {isMissingRoute(list.error) ? <Notice tone="warning" text={t('mobile.common.unsupported')} /> : list.error ? <ErrorBox error={list.error} onRetry={() => void list.reload()} /> : null}
       {error ? <ErrorBox error={error} /> : null}
       {list.loading && !list.data ? <Loading /> : null}
       {list.data && items.length === 0 ? <Empty title={t('mobile.processes.none')} body={t('mobile.processes.noneBody')} /> : null}

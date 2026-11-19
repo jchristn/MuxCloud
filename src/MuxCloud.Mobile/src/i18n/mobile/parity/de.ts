@@ -393,6 +393,6 @@ export const deParity: ParityCatalog = {
     bad: 'Mögliche Werte: {{list}}',
   },
   common: {
-    needsMux2: 'Dafür braucht der Rechner mux 2.0 oder neuer.',
+    unsupported: 'Das mux auf diesem Rechner unterstützt das noch nicht. Aktualisiere mux auf dem Rechner, um es zu nutzen.',
   },
 };

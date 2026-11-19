@@ -393,6 +393,6 @@ export const msParity: ParityCatalog = {
     bad: 'Kepercayaan ialah salah satu daripada: {{list}}',
   },
   common: {
-    needsMux2: 'Ini memerlukan mux 2.0 atau lebih baharu pada mesin.',
+    unsupported: 'mux pada mesin ini belum menyokong ciri ini. Kemas kini mux pada mesin untuk menggunakannya.',
   },
 };

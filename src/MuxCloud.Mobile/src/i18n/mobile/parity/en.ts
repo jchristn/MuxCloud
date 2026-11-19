@@ -396,6 +396,6 @@ export const enParity = {
     bad: 'Trust is one of: {{list}}',
   },
   common: {
-    needsMux2: 'This needs mux 2.0 or later on the machine.',
+    unsupported: 'This machine\'s mux doesn\'t support this yet. Update mux on the machine to use it.',
   },
 };

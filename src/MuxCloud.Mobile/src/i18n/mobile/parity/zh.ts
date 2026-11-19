@@ -393,6 +393,6 @@ export const zhParity: ParityCatalog = {
     bad: '信任级别可选：{{list}}',
   },
   common: {
-    needsMux2: '此功能需要机器上安装 mux 2.0 或更高版本。',
+    unsupported: '此机器上的 mux 尚不支持此功能。请在机器上更新 mux 后使用。',
   },
 };

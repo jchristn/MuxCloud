@@ -393,6 +393,6 @@ export const itParity: ParityCatalog = {
     bad: 'La fiducia può essere: {{list}}',
   },
   common: {
-    needsMux2: 'Serve mux 2.0 o successivo sulla macchina.',
+    unsupported: 'Il mux di questa macchina non lo supporta ancora. Aggiorna mux sulla macchina per usarlo.',
   },
 };

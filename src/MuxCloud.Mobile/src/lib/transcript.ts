@@ -96,7 +96,7 @@ export function applyChatEvent(turn: Turn, event: ChatStreamEvent): Turn {
       break;
     case 'tool': {
       const existing = turn.tools.find((t) => t.id === event.tool.Id);
-      // mux 2.0.0 sends the arguments on the running event and the (possibly truncated) result on the finished one.
+      // Newer mux sends the arguments on the running event and the (possibly truncated) result on the finished one.
       const result = event.tool.Result ? event.tool.Result + (event.tool.ResultTruncated ? '\n...' : '') : undefined;
       if (existing) {
         existing.status = event.tool.Status;

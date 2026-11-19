@@ -6,7 +6,7 @@ import { formatNumber } from '@dashboard/lib';
 import { EFFORT_LEVELS, TRUST_LEVELS } from '@/lib/chatCommands';
 import { contextPercent, tokensPerTurn } from '@/lib/chatStats';
 import { formatDuration } from '@/lib/duration';
-import { isMissingRoute } from '@/lib/muxVersion';
+import { isMissingRoute } from '@/lib/routeSupport';
 import type { Turn } from '@/lib/transcript';
 import type { MuxApi } from '@/relay/muxApi';
 import { loadPromptHistory } from '@/storage/chatStore';
@@ -390,7 +390,7 @@ export function TrustSheet({
   return (
     <Sheet visible={visible} title={t('mobile.trust.title')} onClose={onClose}>
       <T variant="muted">{t('mobile.trust.intro')}</T>
-      {isMissingRoute(error) ? <Notice tone="warning" text={t('mobile.common.needsMux2')} /> : error ? <ErrorBox error={error} /> : null}
+      {isMissingRoute(error) ? <Notice tone="warning" text={t('mobile.common.unsupported')} /> : error ? <ErrorBox error={error} /> : null}
       {!trust && !error ? <Loading /> : null}
       {trust ? (
         <>

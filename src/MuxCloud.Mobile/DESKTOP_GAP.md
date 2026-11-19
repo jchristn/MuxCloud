@@ -78,7 +78,7 @@ Totals: 90 desktop capabilities. **79 available, 1 partial, 10 missing.** The mi
 - `/trust` with all, playbooks only, ignore, and reset.
 - Background processes screen (`/processes`): list, live output, stop, stop all, clear finished.
 - Web search providers screen (`/search`).
-- The 2.0 settings fields, with localized hints.
+- The new settings fields, with localized hints.
 - Keybindings screen: every command with its default and current chord, search, edit, unbind, reset.
 - Live tool cards: arguments while running, then the result.
 - Attached-files notice under the prompt, live and for saved turns.
