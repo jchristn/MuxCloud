@@ -1,6 +1,8 @@
-import type { MobileCatalog } from './en';
+import type { BaseCatalog, MobileCatalog } from './en';
+import { mergeCatalog } from './merge';
+import { hiParity } from './parity/hi';
 
-export const hi: MobileCatalog = {
+const base: BaseCatalog = {
   common: { back: 'वापस', confirm: 'पुष्टि करें', all: 'सभी', name: 'नाम', filter: 'फ़िल्टर', details: 'विवरण', less: 'कम' },
   auth: { server: 'सर्वर: {{url}}', changeServer: 'सर्वर बदलें', insecure: 'यह सर्वर बिना एन्क्रिप्शन वाला HTTP इस्तेमाल करता है। आपका पासवर्ड और बातचीत बिना एन्क्रिप्शन के भेजी जाती हैं। अपने नेटवर्क के बाहर HTTPS इस्तेमाल करें।', readTerms: 'सेवा की शर्तें', readPrivacy: 'गोपनीयता नीति', verifyCode: 'सत्यापन कोड', verifyCodeHint: 'वैकल्पिक: ईमेल के लिंक के आखिर का कोड यहां चिपकाएं।', verifyButton: 'सत्यापित करें', emailRequired: 'अपना ईमेल पता डालें।' },
   server: { title: 'Mux Cloud सर्वर', subtitle: 'app.usemux.ai या अपना होस्ट किया हुआ Mux Cloud सर्वर इस्तेमाल करें।', url: 'सर्वर URL', connect: 'कनेक्ट करें', useDefault: 'app.usemux.ai इस्तेमाल करें', invalid: 'https://app.usemux.ai जैसा URL डालें।', notMuxCloud: 'इस पते ने जवाब दिया, लेकिन यह Mux Cloud सर्वर नहीं है।', unreachable: '{{url}} तक नहीं पहुंच सके। पता जांचें और देखें कि सर्वर चल रहा है।' },
@@ -42,3 +44,5 @@ export const hi: MobileCatalog = {
   },
   lock: { title: 'Mux लॉक है', unlock: 'अनलॉक करें', prompt: 'Mux अनलॉक करें' },
 };
+
+export const hi: MobileCatalog = mergeCatalog(base, hiParity);

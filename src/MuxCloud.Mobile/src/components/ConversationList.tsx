@@ -1,10 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { formatRelativeTime } from '@dashboard/lib';
 import type { MuxApi } from '@/relay/muxApi';
 import { useAsync } from '@/state/useAsync';
 import { facetsOf, filterSessions, folderName } from '@/lib/sessions';
+import { sessionStatuses, type SessionStatus } from '@/lib/chatStats';
+import { loadSeen, seenBaseline } from '@/storage/chatStore';
+import { useTheme } from '@/theme/ThemeContext';
 import type { MuxSessionSummary } from '@/types/mux';
 import { spacing } from '@/theme/palette';
 import { SessionActions } from './SessionActions';
@@ -27,6 +30,7 @@ export function ConversationList({
   header?: React.ReactNode;
 }) {
   const { t, i18n } = useTranslation();
+  const p = useTheme();
   const sessions = useAsync(() => (online ? api.sessions().then((r) => r.Items ?? []) : Promise.resolve([] as MuxSessionSummary[])), [api, online]);
   const [search, setSearch] = useState('');
   const [facet, setFacet] = useState('');
@@ -36,6 +40,21 @@ export function ConversationList({
   const all = useMemo(() => sessions.data ?? [], [sessions.data]);
   const visible = useMemo(() => filterSessions(all, search, facet), [all, search, facet]);
   const facets = useMemo(() => facetsOf(all), [all]);
+  // Status dots: live runs (GET /runs) and conversations changed since this device last opened them.
+  const runs = useAsync(() => (online ? api.runs().then((r) => r.Items ?? []) : Promise.resolve([])), [api, online, sessions.data]);
+  const [seen, setSeen] = useState<{ map: Record<string, number>; baseline: number } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void Promise.all([loadSeen(api.machineId), seenBaseline()]).then(([map, baseline]) => alive && setSeen({ map, baseline }));
+    return () => {
+      alive = false;
+    };
+  }, [api.machineId, sessions.data, selectedId]);
+  const statuses = useMemo(
+    () => (seen ? sessionStatuses(runs.data ?? [], all, seen.map, seen.baseline) : ({} as Record<string, SessionStatus>)),
+    [runs.data, all, seen],
+  );
+  const dotColor: Record<SessionStatus, string> = { running: p.accent, approval: p.warning, error: p.danger, unread: p.info };
 
   const deletePicked = () =>
     Alert.alert(t('mobile.session.bulkDeleteTitle', { count: picked.length }), t('mobile.session.deleteBody'), [
@@ -87,9 +106,17 @@ export function ConversationList({
       {online && all.length > 0 && visible.length === 0 ? <Empty title={t('conversations.noMatches')} /> : null}
       {visible.map((s) => {
         const isPicked = picked.includes(s.Id);
+        const status = s.Id === selectedId && statuses[s.Id] === 'unread' ? undefined : statuses[s.Id];
         return (
           <ListRow
             key={s.Id}
+            leading={
+              <View
+                style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: status ? dotColor[status] : 'transparent' }}
+                accessibilityElementsHidden
+                importantForAccessibility="no"
+              />
+            }
             title={s.Title || t('conversations.untitled')}
             subtitle={[s.UpdatedUtc ? formatRelativeTime(i18n.language, s.UpdatedUtc) : '', folderName(s.WorkingDirectory), s.Model].filter(Boolean).join(' · ')}
             selected={selecting ? isPicked : selectedId === s.Id}
@@ -106,7 +133,7 @@ export function ConversationList({
               else onSelect(s.Id);
             }}
             onLongPress={() => setManaging(s)}
-            accessibilityLabel={(s.Title || t('conversations.untitled')) + '. ' + t('mobile.session.longPressHint')}
+            accessibilityLabel={(s.Title || t('conversations.untitled')) + (status ? '. ' + t('mobile.status.' + status) : '') + '. ' + t('mobile.session.longPressHint')}
           />
         );
       })}

@@ -1,6 +1,8 @@
-import type { MobileCatalog } from './en';
+import type { BaseCatalog, MobileCatalog } from './en';
+import { mergeCatalog } from './merge';
+import { esParity } from './parity/es';
 
-export const es: MobileCatalog = {
+const base: BaseCatalog = {
   common: { back: 'Atrás', confirm: 'Confirmar', all: 'Todo', name: 'Nombre', filter: 'Filtrar', details: 'Detalles', less: 'Menos' },
   auth: {
     server: 'Servidor: {{url}}',
@@ -280,3 +282,5 @@ export const es: MobileCatalog = {
     prompt: 'Desbloquear Mux',
   },
 };
+
+export const es: MobileCatalog = mergeCatalog(base, esParity);

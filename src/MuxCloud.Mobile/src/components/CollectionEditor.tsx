@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, RefreshControl, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { spacing } from '@/theme/palette';
@@ -11,6 +11,8 @@ export type Item = Record<string, unknown>;
 export interface RowAction {
   label: string;
   onPress: (item: Item) => Promise<void> | void;
+  /** Close the edit sheet before running (the action opens its own sheet). */
+  closesEditor?: boolean;
 }
 
 /**
@@ -35,6 +37,8 @@ export function CollectionEditor({
   actions,
   addLabel,
   emptyLabel,
+  status,
+  extraButtons,
 }: {
   title: string;
   intro?: string;
@@ -54,6 +58,10 @@ export function CollectionEditor({
   addLabel?: string;
   /** Empty-list title; defaults to a generic phrase. */
   emptyLabel?: string;
+  /** A status indicator shown before each row (MCP connection state). */
+  status?: (item: Item) => React.ReactNode;
+  /** Buttons under the Add button (Test all). */
+  extraButtons?: React.ReactNode;
 }) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState<{ index: number; draft: Item } | null>(null);
@@ -110,6 +118,7 @@ export function CollectionEditor({
     <Screen refreshControl={<RefreshControl refreshing={loading && items !== null} onRefresh={reload} />}>
       {intro ? <T variant="muted">{intro}</T> : null}
       <Button title={addLabel ?? t('common.add')} onPress={() => setEditing({ index: -1, draft: { ...template } })} />
+      {extraButtons}
       {error ? <ErrorBox error={error} onRetry={reload} /> : null}
       {loading && items === null ? <Loading /> : null}
       {!loading && !error && list.length === 0 ? <Empty title={emptyLabel ?? t('mobile.form.emptyTitle', { name: title })} /> : null}
@@ -119,6 +128,7 @@ export function CollectionEditor({
             key={String(item[keyField] ?? index)}
             title={String(item[keyField] ?? '') || t('mobile.form.unnamed')}
             subtitle={subtitle?.(item)}
+            leading={status?.(item)}
             trailing={
               <View style={{ gap: spacing.xs, alignItems: 'flex-end' }}>
                 {(badges?.(item) ?? []).map((b) => (
@@ -148,8 +158,15 @@ export function CollectionEditor({
                     title={a.label}
                     kind="secondary"
                     onPress={async () => {
+                      const item = list[editing.index];
+                      if (a.closesEditor) {
+                        setEditing(null);
+                        // Let the edit sheet finish closing before the action opens its own (iOS shows one modal at a time).
+                        setTimeout(() => void Promise.resolve(a.onPress(item)).catch((e) => setSaveError(e)), 400);
+                        return;
+                      }
                       try {
-                        await a.onPress(list[editing.index]);
+                        await a.onPress(item);
                       } catch (e) {
                         setSaveError(e);
                       }

@@ -1,6 +1,8 @@
-import type { MobileCatalog } from './en';
+import type { BaseCatalog, MobileCatalog } from './en';
+import { mergeCatalog } from './merge';
+import { frParity } from './parity/fr';
 
-export const fr: MobileCatalog = {
+const base: BaseCatalog = {
   common: { back: 'Retour', confirm: 'Confirmer', all: 'Tout', name: 'Nom', filter: 'Filtrer', details: 'Détails', less: 'Moins' },
   auth: { server: 'Serveur : {{url}}', changeServer: 'Changer de serveur', insecure: 'Ce serveur utilise HTTP non chiffré. Votre mot de passe et vos conversations circulent sans chiffrement. Utilisez HTTPS en dehors de votre propre réseau.', readTerms: "Conditions d'utilisation", readPrivacy: 'Politique de confidentialité', verifyCode: 'Code de vérification', verifyCodeHint: "Facultatif : collez le code figurant à la fin du lien de l'e-mail.", verifyButton: 'Vérifier', emailRequired: 'Saisissez votre adresse e-mail.' },
   server: { title: 'Serveur Mux Cloud', subtitle: 'Utilisez app.usemux.ai ou un serveur Mux Cloud que vous hébergez.', url: 'URL du serveur', connect: 'Se connecter', useDefault: 'Utiliser app.usemux.ai', invalid: 'Saisissez une URL comme https://app.usemux.ai.', notMuxCloud: "Cette adresse a répondu, mais ce n'est pas un serveur Mux Cloud.", unreachable: 'Impossible de joindre {{url}}. Vérifiez l\'adresse et que le serveur est démarré.' },
@@ -42,3 +44,5 @@ export const fr: MobileCatalog = {
   },
   lock: { title: 'Mux est verrouillé', unlock: 'Déverrouiller', prompt: 'Déverrouiller Mux' },
 };
+
+export const fr: MobileCatalog = mergeCatalog(base, frParity);

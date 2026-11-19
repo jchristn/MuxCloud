@@ -122,7 +122,8 @@ describe('machine socket', () => {
       ],
     });
     expect(turns.map((t) => t.role + ':' + t.content)).toEqual(['user:read it', 'assistant:', 'assistant:done']);
-    expect(turns[1].tools).toEqual([{ id: 't1', name: 'read_file', status: 'ok' }]);
+    // Saved turns keep the tool's arguments and result for the expandable tool card.
+    expect(turns[1].tools).toEqual([{ id: 't1', name: 'read_file', status: 'ok', arguments: '{}', result: 'file text' }]);
   });
 });
 

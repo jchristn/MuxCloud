@@ -332,3 +332,122 @@ export interface MuxWsFrame {
   code?: string;
   message?: string;
 }
+
+/** `GET /runs/{id}`: one run's counters, current tool, last error, and task plan (kept ~5 minutes after it ends). */
+export interface MuxRunTask {
+  Id: string;
+  Title: string;
+  Status: string;
+}
+
+export interface MuxRunState extends MuxRunSummary {
+  IterationsCompleted: number;
+  ToolCallCount: number;
+  ErrorCount: number;
+  InputTokens: number;
+  OutputTokens: number;
+  TotalTokens: number;
+  FinalEstimatedTokens: number;
+  CurrentToolName?: string | null;
+  LastError?: string | null;
+  TotalTaskCount: number;
+  CompletedTaskCount: number;
+  Tasks: MuxRunTask[];
+}
+
+/** `POST /model/load`: whether the endpoint's model is ready. */
+export interface MuxModelLoad {
+  Ok: boolean;
+  Reachable: boolean;
+  Error?: string | null;
+}
+
+/** `GET /context/instructions`: the project instruction files a run in a folder loads. */
+export interface MuxInstructions {
+  WorkingDirectory: string;
+  Enabled: boolean;
+  Sources: string[];
+  DroppedSources: string[];
+  TotalBytes: number;
+  Truncated: boolean;
+  Text: string;
+}
+
+/** `GET /files/complete`: `@` mention completion. */
+export interface MuxFileCompletion {
+  WorkingDirectory: string;
+  Prefix: string;
+  Paths: string[];
+  Mentions: string[];
+}
+
+/** `GET /memory`: memories visible from a folder (project first, then global). */
+export interface MuxMemory {
+  Name: string;
+  Scope: 'project' | 'global' | string;
+  Description: string;
+  Content: string;
+  CreatedUtc?: string;
+  UpdatedUtc?: string;
+}
+
+export interface MuxMemoryList {
+  WorkingDirectory: string;
+  ProjectKey?: string;
+  Enabled: boolean;
+  Memories: MuxMemory[];
+}
+
+/** `GET /worktrees`: an isolated git worktree mux made for a subagent or job. */
+export interface MuxWorktree {
+  Name: string;
+  Path: string;
+  Branch: string;
+  Head?: string;
+  BaseCommit?: string;
+  Kind?: string;
+  CreatedUtc?: string;
+  Exists: boolean;
+  Dirty: boolean;
+  CommitsAhead: number;
+}
+
+/** `POST /mcp-servers/validate`. */
+export interface MuxMcpValidation {
+  Name: string;
+  Connected: boolean;
+  Method?: string;
+  ToolCount: number;
+  Tools?: (string | { Name?: string; Description?: string })[];
+  Error?: string | null;
+  Details?: string | null;
+  ElapsedMs?: number;
+}
+
+/** Usage filters shared by the usage routes (`from`/`to` override `range`). */
+export interface MuxUsageQuery {
+  range?: MuxUsageRange;
+  from?: number;
+  to?: number;
+  endpoint?: string;
+  session?: string;
+  model?: string;
+  success?: boolean;
+  page?: number;
+  pageSize?: number;
+}
+
+/** `GET /usage/timeseries/split`: one series per dimension value. */
+export interface MuxUsageSeries {
+  Key: string;
+  IsOther: boolean;
+  Buckets: { BucketStartUnixMs: number; Metrics?: Record<string, unknown> }[];
+}
+
+/** `GET /usage/events` page. */
+export interface MuxUsageEventsPage {
+  Items: Record<string, unknown>[];
+  TotalCount: number;
+  PageNumber: number;
+  PageSize: number;
+}

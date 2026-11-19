@@ -1,6 +1,8 @@
-import type { MobileCatalog } from './en';
+import type { BaseCatalog, MobileCatalog } from './en';
+import { mergeCatalog } from './merge';
+import { ruParity } from './parity/ru';
 
-export const ru: MobileCatalog = {
+const base: BaseCatalog = {
   common: { back: 'Назад', confirm: 'Подтвердить', all: 'Все', name: 'Имя', filter: 'Фильтр', details: 'Подробнее', less: 'Свернуть' },
   auth: { server: 'Сервер: {{url}}', changeServer: 'Сменить сервер', insecure: 'Этот сервер использует незашифрованный HTTP. Пароль и разговоры передаются без шифрования. За пределами своей сети используйте HTTPS.', readTerms: 'Условия использования', readPrivacy: 'Политика конфиденциальности', verifyCode: 'Код подтверждения', verifyCodeHint: 'Необязательно: вставьте код из конца ссылки в письме.', verifyButton: 'Подтвердить', emailRequired: 'Введите адрес электронной почты.' },
   server: { title: 'Сервер Mux Cloud', subtitle: 'Используйте app.usemux.ai или собственный сервер Mux Cloud.', url: 'Адрес сервера', connect: 'Подключиться', useDefault: 'Использовать app.usemux.ai', invalid: 'Введите адрес вида https://app.usemux.ai.', notMuxCloud: 'Этот адрес ответил, но это не сервер Mux Cloud.', unreachable: 'Не удалось подключиться к {{url}}. Проверьте адрес и что сервер запущен.' },
@@ -42,3 +44,5 @@ export const ru: MobileCatalog = {
   },
   lock: { title: 'Mux заблокирован', unlock: 'Разблокировать', prompt: 'Разблокировать Mux' },
 };
+
+export const ru: MobileCatalog = mergeCatalog(base, ruParity);

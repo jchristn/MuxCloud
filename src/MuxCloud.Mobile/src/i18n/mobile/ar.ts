@@ -1,6 +1,8 @@
-import type { MobileCatalog } from './en';
+import type { BaseCatalog, MobileCatalog } from './en';
+import { mergeCatalog } from './merge';
+import { arParity } from './parity/ar';
 
-export const ar: MobileCatalog = {
+const base: BaseCatalog = {
   common: { back: 'رجوع', confirm: 'تأكيد', all: 'الكل', name: 'الاسم', filter: 'تصفية', details: 'التفاصيل', less: 'أقل' },
   auth: { server: 'الخادم: {{url}}', changeServer: 'تغيير الخادم', insecure: 'يستخدم هذا الخادم HTTP غير المشفّر. تنتقل كلمة المرور والمحادثات دون تشفير. استخدم HTTPS لأي اتصال خارج شبكتك.', readTerms: 'شروط الخدمة', readPrivacy: 'سياسة الخصوصية', verifyCode: 'رمز التحقق', verifyCodeHint: 'اختياري: الصق الرمز من نهاية الرابط في البريد.', verifyButton: 'تحقق', emailRequired: 'أدخل عنوان بريدك الإلكتروني.' },
   server: { title: 'خادم Mux Cloud', subtitle: 'استخدم app.usemux.ai أو خادم Mux Cloud تستضيفه بنفسك.', url: 'عنوان الخادم', connect: 'اتصال', useDefault: 'استخدام app.usemux.ai', invalid: 'أدخل عنوانًا مثل https://app.usemux.ai.', notMuxCloud: 'استجاب هذا العنوان، لكنه ليس خادم Mux Cloud.', unreachable: 'تعذّر الوصول إلى {{url}}. تحقق من العنوان ومن أن الخادم يعمل.' },
@@ -42,3 +44,5 @@ export const ar: MobileCatalog = {
   },
   lock: { title: 'Mux مقفل', unlock: 'فتح القفل', prompt: 'فتح قفل Mux' },
 };
+
+export const ar: MobileCatalog = mergeCatalog(base, arParity);

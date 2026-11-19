@@ -5,8 +5,17 @@ import type {
   MuxCheckpointStatus,
   MuxEndpoint,
   MuxEndpointSummary,
+  MuxFileCompletion,
+  MuxInstructions,
+  MuxMcpValidation,
+  MuxMemoryList,
+  MuxModelLoad,
+  MuxRunState,
+  MuxUsageEventsPage,
+  MuxUsageQuery,
+  MuxUsageSeries,
+  MuxWorktree,
   MuxListResponse,
-  MuxMemoryEntry,
   MuxModelList,
   MuxOverview,
   MuxPluginConfig,
@@ -32,6 +41,23 @@ import type {
 export type MuxJson = Record<string, unknown>;
 
 const enc = encodeURIComponent;
+
+/** Query string for the usage routes: a window (`from`/`to` win over `range`) plus filters. */
+export function usageQuery(q: MuxUsageQuery & { [key: string]: unknown }): string {
+  const parts: string[] = [];
+  for (const [key, value] of Object.entries(q)) {
+    if (value === undefined || value === null || value === '') continue;
+    if (key === 'range' && (q.from !== undefined || q.to !== undefined)) continue;
+    parts.push(enc(key) + '=' + enc(String(value)));
+  }
+  return parts.length ? '?' + parts.join('&') : '';
+}
+
+const wd = (dir?: string | null) => (dir ? 'workingDirectory=' + enc(dir) : '');
+const qs = (...parts: string[]) => {
+  const kept = parts.filter(Boolean);
+  return kept.length ? '?' + kept.join('&') : '';
+};
 
 /**
  * Typed calls to a machine's own mux API through the relay (`/m/{machineId}/v1.0/api/...`). Under the parity rule every
@@ -62,9 +88,12 @@ export function muxApi(client: ApiClient, machineId: string) {
     approve: (runId: string, toolCallId: string, decision: string) =>
       post<MuxJson>('/v1.0/api/chat/approve', { RunId: runId, ToolCallId: toolCallId, Decision: decision }),
     runs: () => get<MuxListResponse<MuxRunSummary>>('/v1.0/api/runs'),
-    run: (runId: string) => get<MuxJson>('/v1.0/api/runs/' + enc(runId)),
+    run: (runId: string) => get<MuxRunState>('/v1.0/api/runs/' + enc(runId)),
     cancelRun: (runId: string) => post<MuxRunCancelReply>('/v1.0/api/runs/' + enc(runId) + '/cancel', {}),
-    loadModel: (endpoint: string) => post<MuxJson>('/v1.0/api/model/load', { Endpoint: endpoint }),
+    loadModel: (endpoint: string) => post<MuxModelLoad>('/v1.0/api/model/load', { Endpoint: endpoint }),
+    instructions: (workingDirectory?: string | null) => get<MuxInstructions>('/v1.0/api/context/instructions' + qs(wd(workingDirectory))),
+    completeFiles: (prefix: string, workingDirectory?: string | null, max = 20) =>
+      get<MuxFileCompletion>('/v1.0/api/files/complete' + qs('prefix=' + enc(prefix), wd(workingDirectory), 'max=' + max)),
 
     endpoints: () => get<MuxListResponse<MuxEndpointSummary>>('/v1.0/api/endpoints'),
     endpointsDetail: () => get<MuxListResponse<MuxEndpoint>>('/v1.0/api/endpoints/detail'),
@@ -83,7 +112,7 @@ export function muxApi(client: ApiClient, machineId: string) {
     collection: (path: string) => get<MuxListResponse<MuxJson>>(path),
     saveCollection: (path: string, items: MuxJson[]) => put<MuxListResponse<MuxJson>>(path, { Items: items }),
     deleteNamed: (path: string, name: string) => del<MuxListResponse<MuxJson>>(path + '?name=' + enc(name)),
-    validateMcp: (name: string) => post<MuxJson>('/v1.0/api/mcp-servers/validate', { Name: name }),
+    validateMcp: (name: string) => post<MuxMcpValidation>('/v1.0/api/mcp-servers/validate', { Name: name }),
 
     hooks: () => get<MuxPluginConfig>('/v1.0/api/hooks'),
     saveHooks: (config: MuxPluginConfig) => put<MuxPluginConfig>('/v1.0/api/hooks', config),
@@ -109,15 +138,17 @@ export function muxApi(client: ApiClient, machineId: string) {
     removePack: (pack: string, skill?: string) => post<MuxJson>('/v1.0/api/skills/packs/remove', { Pack: pack, Skill: skill }),
 
     usageFilters: () => get<MuxUsageFilters>('/v1.0/api/usage/filters'),
-    usageSummary: (range: MuxUsageRange) => get<MuxUsageSummary>('/v1.0/api/usage/summary?range=' + enc(range)),
-    usageTimeseries: (range: MuxUsageRange) =>
-      get<MuxListResponse<MuxUsageBucket>>('/v1.0/api/usage/timeseries?range=' + enc(range)),
-    usageBreakdown: (range: MuxUsageRange, dimension: string) =>
-      get<MuxListResponse<MuxJson>>('/v1.0/api/usage/breakdown?range=' + enc(range) + '&dimension=' + enc(dimension)),
-    usageHeatmap: (range: MuxUsageRange, tzOffsetMinutes: number) =>
-      get<MuxJson>('/v1.0/api/usage/heatmap?range=' + enc(range) + '&tzOffsetMinutes=' + tzOffsetMinutes),
-    usageErrors: (range: MuxUsageRange) => get<MuxListResponse<MuxJson>>('/v1.0/api/usage/errors?range=' + enc(range)),
-    usageEvents: (range: MuxUsageRange) => get<MuxListResponse<MuxJson>>('/v1.0/api/usage/events?range=' + enc(range)),
+    usageSummary: (range: MuxUsageRange, filters: MuxUsageQuery = {}) => get<MuxUsageSummary>('/v1.0/api/usage/summary' + usageQuery({ range, ...filters })),
+    usageSplit: (range: MuxUsageRange, dimension: string, filters: MuxUsageQuery = {}) =>
+      get<MuxListResponse<MuxUsageSeries>>('/v1.0/api/usage/timeseries/split' + usageQuery({ range, ...filters, dimension })),
+    usageTimeseries: (range: MuxUsageRange, filters: MuxUsageQuery = {}) =>
+      get<MuxListResponse<MuxUsageBucket>>('/v1.0/api/usage/timeseries' + usageQuery({ range, ...filters })),
+    usageBreakdown: (range: MuxUsageRange, dimension: string, filters: MuxUsageQuery = {}) =>
+      get<MuxListResponse<MuxJson>>('/v1.0/api/usage/breakdown' + usageQuery({ range, ...filters, dimension })),
+    usageHeatmap: (range: MuxUsageRange, tzOffsetMinutes: number, filters: MuxUsageQuery = {}) =>
+      get<MuxJson>('/v1.0/api/usage/heatmap' + usageQuery({ range, ...filters, tzOffsetMinutes })),
+    usageErrors: (range: MuxUsageRange, filters: MuxUsageQuery = {}) => get<MuxListResponse<MuxJson>>('/v1.0/api/usage/errors' + usageQuery({ range, ...filters })),
+    usageEvents: (range: MuxUsageRange, filters: MuxUsageQuery = {}) => get<MuxUsageEventsPage>('/v1.0/api/usage/events' + usageQuery({ range, ...filters })),
     pricing: () => get<MuxPricingTable>('/v1.0/api/usage/pricing'),
     savePricing: (table: MuxPricingTable) => put<MuxPricingTable>('/v1.0/api/usage/pricing', table),
 
@@ -126,15 +157,16 @@ export function muxApi(client: ApiClient, machineId: string) {
     savePalette: (body: { Palette: MuxJson; Activate: boolean }) => put<MuxJson>('/v1.0/api/palettes', body),
     deletePalette: (id: string) => del<MuxJson>('/v1.0/api/palettes?id=' + enc(id)),
 
-    memory: () => get<MuxListResponse<MuxMemoryEntry> & MuxJson>('/v1.0/api/memory'),
-    saveMemory: (entry: MuxJson) => post<MuxJson>('/v1.0/api/memory', entry),
-    deleteMemory: (name: string, scope?: string) =>
-      del<MuxJson>('/v1.0/api/memory?name=' + enc(name) + (scope ? '&scope=' + enc(scope) : '')),
+    memory: (workingDirectory?: string | null) => get<MuxMemoryList>('/v1.0/api/memory' + qs(wd(workingDirectory))),
+    saveMemory: (entry: { Name: string; Description: string; Content: string; Scope: string; WorkingDirectory?: string | null }) =>
+      post<MuxJson>('/v1.0/api/memory', entry),
+    deleteMemory: (name: string, scope?: string, workingDirectory?: string | null) =>
+      del<MuxJson>('/v1.0/api/memory' + qs('name=' + enc(name), scope ? 'scope=' + enc(scope) : '', wd(workingDirectory))),
 
-    worktrees: () => get<MuxListResponse<MuxJson> & MuxJson>('/v1.0/api/worktrees'),
-    pruneWorktrees: () => post<MuxJson>('/v1.0/api/worktrees/prune', {}),
-    deleteWorktree: (name: string, force: boolean) =>
-      del<MuxJson>('/v1.0/api/worktrees?name=' + enc(name) + '&force=' + (force ? 'true' : 'false')),
+    worktrees: (workingDirectory?: string | null) => get<MuxListResponse<MuxWorktree>>('/v1.0/api/worktrees' + qs(wd(workingDirectory))),
+    pruneWorktrees: (workingDirectory?: string | null) => post<MuxJson>('/v1.0/api/worktrees/prune' + qs(wd(workingDirectory)), {}),
+    deleteWorktree: (name: string, force: boolean, workingDirectory?: string | null) =>
+      del<MuxJson>('/v1.0/api/worktrees' + qs('name=' + enc(name), 'force=' + (force ? 'true' : 'false'), wd(workingDirectory))),
 
     checkpoints: (workingDirectory: string) =>
       get<MuxCheckpointStatus>('/v1.0/api/checkpoints?workingDirectory=' + enc(workingDirectory)),

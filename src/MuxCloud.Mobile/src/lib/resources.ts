@@ -155,4 +155,4 @@ export function collectionFor(segment: string): CollectionResource | undefined {
 }
 
 /** Bespoke management screens (not generic collections), in menu order. */
-export const SCREENS = ['settings', 'catalog', 'skills', 'usage', 'pricing', 'palettes'] as const;
+export const SCREENS = ['settings', 'catalog', 'skills', 'memory', 'worktrees', 'usage', 'pricing', 'palettes'] as const;

@@ -1,6 +1,8 @@
-import type { MobileCatalog } from './en';
+import type { BaseCatalog, MobileCatalog } from './en';
+import { mergeCatalog } from './merge';
+import { jaParity } from './parity/ja';
 
-export const ja: MobileCatalog = {
+const base: BaseCatalog = {
   common: { back: '戻る', confirm: '確認', all: 'すべて', name: '名前', filter: '絞り込み', details: '詳細', less: '閉じる' },
   auth: { server: 'サーバー: {{url}}', changeServer: 'サーバーを変更', insecure: 'このサーバーは暗号化されていない HTTP を使用しています。パスワードと会話は暗号化されずに送信されます。自分のネットワーク外では HTTPS を使ってください。', readTerms: '利用規約', readPrivacy: 'プライバシーポリシー', verifyCode: '確認コード', verifyCodeHint: '任意: メールのリンク末尾にあるコードを貼り付けます。', verifyButton: '確認する', emailRequired: 'メールアドレスを入力してください。' },
   server: { title: 'Mux Cloud サーバー', subtitle: 'app.usemux.ai か、自分でホストする Mux Cloud サーバーを使います。', url: 'サーバー URL', connect: '接続', useDefault: 'app.usemux.ai を使う', invalid: 'https://app.usemux.ai のような URL を入力してください。', notMuxCloud: 'このアドレスは応答しましたが、Mux Cloud サーバーではありません。', unreachable: '{{url}} に接続できません。アドレスと、サーバーが起動していることを確認してください。' },
@@ -42,3 +44,5 @@ export const ja: MobileCatalog = {
   },
   lock: { title: 'Mux はロックされています', unlock: 'ロック解除', prompt: 'Mux のロックを解除' },
 };
+
+export const ja: MobileCatalog = mergeCatalog(base, jaParity);

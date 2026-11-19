@@ -3,7 +3,8 @@ import { Alert, RefreshControl, Switch, View } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '@/components/Sheet';
-import { Badge, Button, ErrorBox, Field, ListRow, Loading, Screen, Section, Segmented, T } from '@/components/ui';
+import { Badge, Button, ErrorBox, Field, ListRow, Loading, Notice, Screen, Section, Segmented, T, ToggleRow } from '@/components/ui';
+import { buildSkillMarkdown, isValidSkillId, SKILL_INTERPRETERS, skillIdFromTitle, type SkillScaffold } from '@/lib/skillScaffold';
 import { useAsync } from '@/state/useAsync';
 import { useMachineApi } from '@/state/useMachineApi';
 import type { MuxSkill, MuxSkillPack } from '@/types/mux';
@@ -23,6 +24,9 @@ export default function Skills() {
   const [category, setCategory] = useState('');
   const [editing, setEditing] = useState<{ name: string; body: string; category: string; isNew: boolean } | null>(null);
   const [pack, setPack] = useState<MuxSkillPack | null>(null);
+  // The desktop-style scaffold form; idEdited stops the id from following the title once the user types one.
+  const [scaffold, setScaffold] = useState<(SkillScaffold & { idEdited: boolean }) | null>(null);
+  const [scaffoldError, setScaffoldError] = useState<string | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [busy, setBusy] = useState(false);
   const list = useMemo(() => (skills.data ?? []).filter((s) => !category || s.Category === category), [skills.data, category]);
@@ -61,6 +65,57 @@ export default function Skills() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const newScaffold = () => {
+    setScaffoldError(null);
+    setScaffold({ id: '', title: '', description: '', interpreter: 'bash', mutating: false, idEdited: false });
+  };
+
+  /** Validates the scaffold like the desktop dialog; returns the id, or null after showing the problem. */
+  const scaffoldId = (): string | null => {
+    const id = scaffold?.id.trim() ?? '';
+    if (!id) {
+      setScaffoldError(t('mobile.skills.idRequired'));
+      return null;
+    }
+    if (!isValidSkillId(id)) {
+      setScaffoldError(t('mobile.skills.idInvalid'));
+      return null;
+    }
+    if ((skills.data ?? []).some((s) => s.Name === id)) {
+      setScaffoldError(t('mobile.skills.idTaken', { id }));
+      return null;
+    }
+    return id;
+  };
+
+  const createScaffold = async () => {
+    if (!scaffold) return;
+    const id = scaffoldId();
+    if (!id) return;
+    setBusy(true);
+    setScaffoldError(null);
+    try {
+      const r = await api.createSkill(id, buildSkillMarkdown({ ...scaffold, id }));
+      skills.setData(r.Items ?? skills.data);
+      setScaffold(null);
+      void skills.reload();
+    } catch (e) {
+      setScaffoldError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /** Hands the generated SKILL.md to the raw editor for authors who want to change more than the form covers. */
+  const editScaffold = () => {
+    if (!scaffold) return;
+    const id = scaffoldId();
+    if (!id) return;
+    const body = buildSkillMarkdown({ ...scaffold, id });
+    setScaffold(null);
+    setTimeout(() => setEditing({ name: id, body, category: '', isNew: true }), 400);
   };
 
   const remove = (name: string) =>
@@ -112,7 +167,7 @@ export default function Skills() {
       {error ? <ErrorBox error={error} /> : null}
       {tab === 'skills' ? (
         <>
-          <Button title={t('mobile.skills.create')} onPress={() => setEditing({ name: '', body: '---\nname: \ndescription: \n---\n\n', category: '', isNew: true })} />
+          <Button title={t('mobile.skills.create')} onPress={newScaffold} />
           {cats.length > 0 ? <Segmented scroll value={category} onChange={setCategory} options={[{ value: '', label: t('mobile.common.all') }, ...cats.map((c) => ({ value: c, label: c }))]} /> : null}
           {skills.loading && !skills.data ? <Loading /> : null}
           {skills.error ? <ErrorBox error={skills.error} onRetry={() => void skills.reload()} /> : null}
@@ -162,6 +217,69 @@ export default function Skills() {
         {editing?.isNew ? <Field label={t('mobile.common.name')} value={editing.name} onChangeText={(name) => setEditing({ ...editing, name })} autoCapitalize="none" /> : null}
         {editing && !editing.isNew ? <Field label={t('mobile.skills.category')} hint={t('mobile.skills.categoryHint')} value={editing.category} onChangeText={(category) => setEditing({ ...editing, category })} autoCapitalize="none" /> : null}
         {editing ? <Field label="SKILL.md" multiline value={editing.body} onChangeText={(body) => setEditing({ ...editing, body })} autoCapitalize="none" autoCorrect={false} style={{ minHeight: 280, fontFamily: 'Menlo' }} /> : null}
+      </Sheet>
+      <Sheet
+        visible={scaffold !== null}
+        title={t('mobile.skills.create')}
+        onClose={() => setScaffold(null)}
+        footer={
+          <>
+            <Button title={t('mobile.skills.createSkill')} busy={busy} onPress={() => void createScaffold()} />
+            <Button title={t('mobile.skills.editFirst')} kind="secondary" onPress={editScaffold} />
+          </>
+        }
+      >
+        {scaffold ? (
+          <>
+            <T variant="muted">{t('mobile.skills.scaffoldIntro')}</T>
+            <Field
+              label={t('mobile.skills.title')}
+              hint={t('mobile.skills.titleHint')}
+              value={scaffold.title}
+              onChangeText={(title) => setScaffold({ ...scaffold, title, id: scaffold.idEdited ? scaffold.id : skillIdFromTitle(title) })}
+            />
+            <Field
+              label={t('mobile.skills.id')}
+              hint={t('mobile.skills.idHint')}
+              value={scaffold.id}
+              placeholder="my-skill"
+              onChangeText={(id) => {
+                setScaffoldError(null);
+                setScaffold({ ...scaffold, id, idEdited: id.length > 0 });
+              }}
+              autoCapitalize="none"
+              autoCorrect={false}
+              error={scaffold.id && !isValidSkillId(scaffold.id.trim()) ? t('mobile.skills.idInvalid') : null}
+            />
+            <Field
+              label={t('mobile.skills.description')}
+              hint={t('mobile.skills.descriptionHint')}
+              value={scaffold.description}
+              onChangeText={(description) => setScaffold({ ...scaffold, description })}
+              multiline
+            />
+            <View style={{ gap: spacing.xs }}>
+              <T variant="small" style={{ fontWeight: '600', color: p.text }}>
+                {t('mobile.skills.interpreter')}
+              </T>
+              <Segmented
+                value={(SKILL_INTERPRETERS as readonly string[]).includes(scaffold.interpreter) ? scaffold.interpreter : ''}
+                onChange={(interpreter) => setScaffold({ ...scaffold, interpreter })}
+                options={SKILL_INTERPRETERS.map((i) => ({ value: i, label: i }))}
+              />
+            </View>
+            <Field
+              label={t('mobile.skills.otherInterpreter')}
+              hint={t('mobile.skills.interpreterHint')}
+              value={scaffold.interpreter}
+              onChangeText={(interpreter) => setScaffold({ ...scaffold, interpreter: interpreter.trim() })}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <ToggleRow label={t('mobile.skills.mutatingLabel')} hint={t('mobile.skills.mutatingHint')} value={scaffold.mutating} onChange={(mutating) => setScaffold({ ...scaffold, mutating })} />
+            {scaffoldError ? <Notice tone="danger" text={scaffoldError} /> : null}
+          </>
+        ) : null}
       </Sheet>
       <Sheet visible={pack !== null} title={String(pack?.Title || pack?.Id || '')} onClose={() => setPack(null)}>
         {pack ? (

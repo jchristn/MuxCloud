@@ -1,6 +1,8 @@
-import type { MobileCatalog } from './en';
+import type { BaseCatalog, MobileCatalog } from './en';
+import { mergeCatalog } from './merge';
+import { msParity } from './parity/ms';
 
-export const ms: MobileCatalog = {
+const base: BaseCatalog = {
   common: { back: 'Kembali', confirm: 'Sahkan', all: 'Semua', name: 'Nama', filter: 'Tapis', details: 'Butiran', less: 'Kurang' },
   auth: { server: 'Pelayan: {{url}}', changeServer: 'Tukar pelayan', insecure: 'Pelayan ini menggunakan HTTP tanpa penyulitan. Kata laluan dan perbualan anda dihantar tanpa disulitkan. Gunakan HTTPS untuk apa-apa di luar rangkaian anda sendiri.', readTerms: 'Terma Perkhidmatan', readPrivacy: 'Dasar Privasi', verifyCode: 'Kod pengesahan', verifyCodeHint: 'Pilihan: tampal kod di hujung pautan dalam e-mel.', verifyButton: 'Sahkan', emailRequired: 'Masukkan alamat e-mel anda.' },
   server: { title: 'Pelayan Mux Cloud', subtitle: 'Gunakan app.usemux.ai, atau pelayan Mux Cloud yang anda hos sendiri.', url: 'URL pelayan', connect: 'Sambung', useDefault: 'Guna app.usemux.ai', invalid: 'Masukkan URL seperti https://app.usemux.ai.', notMuxCloud: 'Alamat itu menjawab, tetapi ia bukan pelayan Mux Cloud.', unreachable: 'Tidak dapat mencapai {{url}}. Semak alamat dan pastikan pelayan sedang berjalan.' },
@@ -42,3 +44,5 @@ export const ms: MobileCatalog = {
   },
   lock: { title: 'Mux dikunci', unlock: 'Buka kunci', prompt: 'Buka kunci Mux' },
 };
+
+export const ms: MobileCatalog = mergeCatalog(base, msParity);

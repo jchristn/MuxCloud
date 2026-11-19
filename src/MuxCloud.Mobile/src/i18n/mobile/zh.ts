@@ -1,6 +1,8 @@
-import type { MobileCatalog } from './en';
+import type { BaseCatalog, MobileCatalog } from './en';
+import { mergeCatalog } from './merge';
+import { zhParity } from './parity/zh';
 
-export const zh: MobileCatalog = {
+const base: BaseCatalog = {
   common: { back: '返回', confirm: '确认', all: '全部', name: '名称', filter: '筛选', details: '详情', less: '收起' },
   auth: { server: '服务器：{{url}}', changeServer: '更换服务器', insecure: '此服务器使用未加密的 HTTP。你的密码和对话在传输中不受加密保护。离开自己的网络时请使用 HTTPS。', readTerms: '服务条款', readPrivacy: '隐私政策', verifyCode: '验证码', verifyCodeHint: '可选：粘贴邮件链接末尾的验证码。', verifyButton: '验证', emailRequired: '请输入你的邮箱地址。' },
   server: { title: 'Mux Cloud 服务器', subtitle: '使用 app.usemux.ai，或你自己托管的 Mux Cloud 服务器。', url: '服务器地址', connect: '连接', useDefault: '使用 app.usemux.ai', invalid: '请输入类似 https://app.usemux.ai 的地址。', notMuxCloud: '该地址有响应，但不是 Mux Cloud 服务器。', unreachable: '无法连接 {{url}}。请检查地址，并确认服务器正在运行。' },
@@ -42,3 +44,5 @@ export const zh: MobileCatalog = {
   },
   lock: { title: 'Mux 已锁定', unlock: '解锁', prompt: '解锁 Mux' },
 };
+
+export const zh: MobileCatalog = mergeCatalog(base, zhParity);

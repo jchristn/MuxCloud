@@ -1,15 +1,46 @@
-import React, { useMemo } from 'react';
-import { Linking, ScrollView, StyleSheet, Text, View, type TextStyle } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View, type TextStyle } from 'react-native';
 import { marked, type Token, type Tokens } from 'marked';
 import { useTheme } from '@/theme/ThemeContext';
 import { font, radius, spacing } from '@/theme/palette';
 import type { Palette } from '@/theme/palette';
+import { splitDetails } from '@/lib/chatStats';
+import { CodeBlock } from './CodeBlock';
 
 /**
  * Markdown for assistant replies, rendered to native views (no WebView): headings, paragraphs, emphasis, inline and
- * fenced code, lists, quotes, rules, tables, and links (opened in the system browser). Raw HTML is shown as text.
+ * fenced code (syntax colored, with copy), lists, quotes, rules, tables, links (opened in the system browser), and
+ * collapsible `<details>` blocks. Other raw HTML is shown as text.
  */
 export function Markdown({ text }: { text: string }) {
+  const segments = useMemo(() => splitDetails(text ?? ''), [text]);
+  if (segments.length === 1 && segments[0].kind === 'markdown') return <MarkdownBody text={segments[0].text} />;
+  return (
+    <View style={{ gap: spacing.sm }}>
+      {segments.map((seg, i) => (seg.kind === 'markdown' ? <MarkdownBody key={i} text={seg.text} /> : <Details key={i} summary={seg.summary} body={seg.body} initiallyOpen={seg.open} />))}
+    </View>
+  );
+}
+
+function Details({ summary, body, initiallyOpen }: { summary: string; body: string; initiallyOpen: boolean }) {
+  const p = useTheme();
+  const [open, setOpen] = useState(initiallyOpen);
+  return (
+    <View style={{ borderWidth: 1, borderColor: p.line, borderRadius: radius.sm, overflow: 'hidden' }}>
+      <Pressable onPress={() => setOpen((v) => !v)} accessibilityRole="button" accessibilityState={{ expanded: open }} style={{ flexDirection: 'row', gap: spacing.sm, padding: spacing.md, backgroundColor: p.panelAlt }}>
+        <Text style={{ color: p.muted }}>{open ? '▾' : '▸'}</Text>
+        <Text style={{ flex: 1, color: p.text, fontWeight: '600', fontSize: font.body }}>{summary || '…'}</Text>
+      </Pressable>
+      {open ? (
+        <View style={{ padding: spacing.md }}>
+          <MarkdownBody text={body} />
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function MarkdownBody({ text }: { text: string }) {
   const p = useTheme();
   const tokens = useMemo(() => {
     try {
@@ -49,14 +80,10 @@ function block(token: Token, key: number, p: Palette): React.ReactNode {
         </Text>
       );
     }
-    case 'code':
-      return (
-        <ScrollView key={key} horizontal style={{ backgroundColor: p.codeBg, borderRadius: radius.sm }} contentContainerStyle={{ padding: spacing.md }}>
-          <Text selectable style={{ color: p.text, fontFamily: 'Menlo', fontSize: font.mono }}>
-            {(token as Tokens.Code).text}
-          </Text>
-        </ScrollView>
-      );
+    case 'code': {
+      const c = token as Tokens.Code;
+      return <CodeBlock key={key} code={c.text} lang={c.lang} />;
+    }
     case 'blockquote':
       return (
         <View key={key} style={{ borderLeftWidth: 3, borderLeftColor: p.line, paddingLeft: spacing.md, gap: spacing.xs }}>

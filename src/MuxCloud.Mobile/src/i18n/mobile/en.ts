@@ -3,7 +3,10 @@
  * conversations, errors, ...) comes from the dashboard catalog. Every locale has exactly these keys (`npm run
  * i18n:check`).
  */
-export const en = {
+import { mergeCatalog } from './merge';
+import { enParity } from './parity/en';
+
+const enBase = {
   common: { back: 'Back', confirm: 'Confirm', all: 'All', name: 'Name', filter: 'Filter', details: 'Details', less: 'Less' },
   auth: {
     server: 'Server: {{url}}',
@@ -284,7 +287,13 @@ export const en = {
   },
 };
 
+export const en = mergeCatalog(enBase, enParity);
+
 type Strings<T> = { [K in keyof T]: T[K] extends string ? string : Strings<T[K]> };
 
 /** The shape every mobile locale catalog must have. */
 export type MobileCatalog = Strings<typeof en>;
+/** The original catalog sections, before the desktop-parity strings are merged in. */
+export type BaseCatalog = Strings<typeof enBase>;
+/** The desktop-parity strings (`./parity/*.ts`). */
+export type ParityCatalog = Strings<typeof enParity>;

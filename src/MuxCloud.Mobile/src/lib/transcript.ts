@@ -7,6 +7,10 @@ export interface ToolLine {
   name: string;
   status: 'running' | 'ok' | 'fail' | string;
   elapsedMs?: number;
+  /** JSON arguments, when known (saved turns and mirrored runs). */
+  arguments?: string;
+  /** The tool's output, when known (saved turns). */
+  result?: string;
 }
 
 /** One rendered turn. `pending` marks the assistant turn still streaming. */
@@ -21,6 +25,10 @@ export interface Turn {
   pending?: boolean;
   error?: boolean;
   displayOnly?: boolean;
+  /** Run that produced this turn, for the turn info sheet (`GET /runs/{id}`). */
+  runId?: string;
+  /** Local-only rich content rendered instead of `content` (the clickable help card). */
+  card?: 'help';
 }
 
 /** A pending tool approval, from the SSE `approval` event or a WebSocket `approval_requested` frame. */
@@ -47,7 +55,10 @@ export function turnsFromDetail(detail: MuxSessionDetail | null): Turn[] {
       const last = turns[turns.length - 1];
       if (last && last.role === 'assistant') {
         const line = last.tools.find((t) => t.id === m.ToolCallId);
-        if (line) line.status = 'ok';
+        if (line) {
+          line.status = 'ok';
+          line.result = m.Content ?? '';
+        }
       }
       return;
     }
@@ -56,7 +67,7 @@ export function turnsFromDetail(detail: MuxSessionDetail | null): Turn[] {
       role: role === 'user' || role === 'system' ? role : 'assistant',
       content: m.Content ?? '',
       thinking: m.Reasoning ?? undefined,
-      tools: (m.ToolCalls ?? []).map((c) => ({ id: c.Id, name: c.Name, status: 'ok' })),
+      tools: (m.ToolCalls ?? []).map((c) => ({ id: c.Id, name: c.Name, status: 'ok', arguments: c.Arguments })),
       model: m.Model ?? undefined,
       stats: m.Stats ?? undefined,
       displayOnly: m.DisplayOnly,
@@ -118,7 +129,7 @@ export function applyRunFrame(turn: Turn, frame: MuxWsFrame): boolean {
       const id = frame.toolCall?.id ?? '';
       const existing = id ? turn.tools.find((t) => t.id === id) : undefined;
       if (existing) existing.status = 'running';
-      else turn.tools.push({ id, name: frame.toolCall?.name ?? '', status: 'running' });
+      else turn.tools.push({ id, name: frame.toolCall?.name ?? '', status: 'running', arguments: frame.toolCall?.arguments });
       return false;
     }
     case 'tool_call_completed': {

@@ -8,6 +8,8 @@ export interface Prefs {
   biometricLock: boolean;
   lastEmail: string;
   pushDeviceId: string | null;
+  /** Open the thinking section of replies by default. */
+  expandThinking: boolean;
 }
 
 export const DEFAULT_SERVER_URL = 'https://app.usemux.ai';
@@ -19,6 +21,7 @@ export const DEFAULT_PREFS: Prefs = {
   biometricLock: false,
   lastEmail: '',
   pushDeviceId: null,
+  expandThinking: false,
 };
 
 const KEY = 'muxcloud.prefs';

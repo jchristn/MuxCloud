@@ -1,6 +1,8 @@
-import type { MobileCatalog } from './en';
+import type { BaseCatalog, MobileCatalog } from './en';
+import { mergeCatalog } from './merge';
+import { deParity } from './parity/de';
 
-export const de: MobileCatalog = {
+const base: BaseCatalog = {
   common: { back: 'Zurück', confirm: 'Bestätigen', all: 'Alle', name: 'Name', filter: 'Filtern', details: 'Details', less: 'Weniger' },
   auth: { server: 'Server: {{url}}', changeServer: 'Server wechseln', insecure: 'Dieser Server nutzt unverschlüsseltes HTTP. Passwort und Unterhaltungen werden unverschlüsselt übertragen. Verwende HTTPS für alles außerhalb deines eigenen Netzwerks.', readTerms: 'Nutzungsbedingungen', readPrivacy: 'Datenschutzerklärung', verifyCode: 'Bestätigungscode', verifyCodeHint: 'Optional: Füge den Code vom Ende des Links aus der E-Mail ein.', verifyButton: 'Bestätigen', emailRequired: 'Gib deine E-Mail-Adresse ein.' },
   server: { title: 'Mux Cloud-Server', subtitle: 'Nutze app.usemux.ai oder einen selbst gehosteten Mux Cloud-Server.', url: 'Server-URL', connect: 'Verbinden', useDefault: 'app.usemux.ai verwenden', invalid: 'Gib eine URL wie https://app.usemux.ai ein.', notMuxCloud: 'Die Adresse hat geantwortet, ist aber kein Mux Cloud-Server.', unreachable: '{{url}} ist nicht erreichbar. Prüfe die Adresse und ob der Server läuft.' },
@@ -42,3 +44,5 @@ export const de: MobileCatalog = {
   },
   lock: { title: 'Mux ist gesperrt', unlock: 'Entsperren', prompt: 'Mux entsperren' },
 };
+
+export const de: MobileCatalog = mergeCatalog(base, deParity);
