@@ -13,7 +13,7 @@ passwords or keys in this file.
 - [ ] App record created in App Store Connect for `ai.usemux.app`.
 - [ ] Legal pages final (no `[PLACEHOLDER]` left) at `https://app.usemux.ai/legal/terms`, `/legal/privacy`,
       `/legal/account-deletion`.
-- [ ] Reviewer demo account and an always-online demo machine (section 8). Without a connected machine the app shows an
+- [x] Reviewer demo account and an always-online demo machine (section 8). Without a connected machine the app shows an
       empty list, which reviewers reject as incomplete (Apple 2.1 and 4.2, Play "Minimum functionality").
 - [ ] Store screenshots (section 7) and the Google Play feature graphic.
 - [ ] First Android upload done by hand to internal testing (Google requires it); later uploads use `eas submit`.
@@ -116,13 +116,14 @@ Mux AI is the mobile client for mux, an open-source coding agent that runs on th
 shows the user's connected computers ("machines") and lets them use mux on them remotely.
 
 A demo account with an always-online demo machine is provided:
-  Email: [PLACEHOLDER: demo account email]
-  Password: (entered in the console's sign-in field, not here)
+  Email: user@reviewer.com
+  Password: (entered in the console's sign-in credentials field)
 
 To try it:
 1. Sign in with the demo account. The machine "demo" appears as Online.
-2. Tap "demo", then "New conversation", and send a message such as "List the files in this folder".
-3. The reply streams in. When mux proposes a tool call, an approval card appears; tap Approve.
+2. Tap "demo", then "New conversation", and send a message such as "Explain what a to-do list app is."
+3. The reply streams in from the demo machine's small local model. Open the conversation list, the Manage menu
+   (endpoints, prompts, skills, usage), and the Account tab to see the rest of the app.
 
 The app has no in-app purchases. Accounts can be deleted in the app under Account, Delete account, or at
 https://app.usemux.ai/legal/account-deletion.
@@ -195,15 +196,32 @@ demo account and demo machine so no personal data appears; light mode for most, 
 
 ## 8. Reviewer demo account and machine
 
-Reviewers need a machine that is always online. Plan:
+Set up 2026-11-19 and verified end to end through Mux Cloud.
 
-1. Create `[PLACEHOLDER: demo account email]` on app.usemux.ai with a strong password (kept in the private ops folder).
-2. Run a dedicated mux hub as a service (on the Mux Cloud EC2 host or another always-on box) with its own config
-   directory, a demo project folder with a few harmless files, and one endpoint. Options for the endpoint: a low-cost
-   hosted model with a spending cap, or a small local model if the host can run one.
-3. Sign it in with `mux cloud login --name demo` under the demo account. Keep remote tool approval on so reviewers see
-   the approval flow; keep the demo folder disposable.
-4. Check it every few days during review; Apple and Google test at unpredictable times.
+| Item | Value |
+|---|---|
+| Account | `user@reviewer.com` (password in the private ops folder; email verified by an administrator) |
+| Machine | `demo` (`mch_mwnuk3ch_gtKHDQQn5JUHnCBqVNQ`), remote tool approval on |
+| Where | Docker on the Mux Cloud EC2 host, project `muxdemo` in `~/muxdemo` (repo: `docker/demo/`) |
+| Model | `gemma3:1b` in an `ollama/ollama:0.40.13` container (CPU; no ports published) |
+| Workspace | `docker/demo/workspace` (a tiny sample to-do project) |
+
+Gemma 3 models do not support tool calling, so mux sends their turns without tools: reviewers see streaming replies,
+conversations, and every management screen, but no tool approval card. The approval flow can be shown in the
+screenshots instead (taken against a tool-capable model).
+
+Operations (on the host):
+
+```
+cd ~/muxdemo
+docker compose ps
+docker compose exec mux-demo mux cloud status
+docker compose restart mux-demo
+```
+
+The containers restart with Docker, which starts on boot. Rebuild the hub image after mux changes with
+`docker buildx build --builder cloud-jchristn77-jchristn77 --platform linux/amd64 --load -t muxcloud-demo-mux:local
+-f docker/demo/mux.Dockerfile <clean Mux export>`, then `docker save | ssh ... docker load` and `docker compose up -d`.
 
 ## 9. Build and submit
 

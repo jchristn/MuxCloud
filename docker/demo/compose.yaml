@@ -1,0 +1,44 @@
+# App-review demo machine: a mux hub signed in to the reviewer account (user@reviewer.com), backed by a small local
+# model. Nothing is published to the host network; the hub reaches Mux Cloud through its outbound tunnel.
+#   docker compose up -d                       start
+#   docker compose exec ollama ollama pull gemma3:1b
+#   docker compose run --rm -i mux-demo cloud login --server https://app.usemux.ai \
+#       --email user@reviewer.com --name demo --password-stdin   (then: docker compose up -d mux-demo)
+name: muxdemo
+
+services:
+  ollama:
+    image: ollama/ollama:0.40.13
+    restart: unless-stopped
+    volumes:
+      - ollama:/root/.ollama
+    environment:
+      OLLAMA_KEEP_ALIVE: "24h"
+      OLLAMA_NUM_PARALLEL: "1"
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  mux-demo:
+    image: ${MUX_DEMO_IMAGE:-muxcloud-demo-mux:local}
+    restart: unless-stopped
+    depends_on:
+      - ollama
+    volumes:
+      - mux-config:/config
+      - ./workspace:/workspace
+    deploy:
+      resources:
+        limits:
+          memory: 768m
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+volumes:
+  ollama:
+  mux-config:
