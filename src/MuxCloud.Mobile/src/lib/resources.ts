@@ -20,6 +20,10 @@ export interface CollectionResource {
   deleteByName?: boolean;
   /** Part of the hooks document (`{Hooks, Commands}`), not a `{Items}` collection. */
   pluginPart?: 'Hooks' | 'Commands';
+  /** Reachable by route but not listed in the Manage menu (a fallback for older mux versions). */
+  hidden?: boolean;
+  /** Segment whose Add and empty-list strings this resource reuses. */
+  stringsFrom?: string;
 }
 
 const s = (v: unknown) => (v === null || v === undefined ? '' : String(v));
@@ -137,6 +141,20 @@ export const COLLECTIONS: CollectionResource[] = [
     template: { Name: '', Description: '', Command: '', Args: [], TimeoutMs: 30000 },
     hints: {},
     subtitle: (i) => s(i.Description) || s(i.Command),
+  },
+  {
+    // The raw override list, for machines on mux before 2.0 (no /keybindings/commands). The keybindings screen
+    // redirects here when the command catalog is missing.
+    segment: 'keybindings-overrides',
+    titleKey: 'mobile.manage.keybindings',
+    introKey: 'mobile.manage.keybindingsIntro',
+    path: '/v1.0/api/keybindings',
+    keyField: 'CommandId',
+    template: { CommandId: '', Chord: '' },
+    hints: { Chord: { nullable: true } },
+    subtitle: (i) => s(i.Chord),
+    hidden: true,
+    stringsFrom: 'keybindings',
   },
 ];
 

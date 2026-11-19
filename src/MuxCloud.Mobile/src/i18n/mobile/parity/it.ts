@@ -392,4 +392,7 @@ export const itParity: ParityCatalog = {
     set: '{{folder}}: {{level}}',
     bad: 'La fiducia può essere: {{list}}',
   },
+  common: {
+    needsMux2: 'Serve mux 2.0 o successivo sulla macchina.',
+  },
 };

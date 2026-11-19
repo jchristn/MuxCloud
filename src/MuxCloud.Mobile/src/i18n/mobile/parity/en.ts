@@ -395,4 +395,7 @@ export const enParity = {
     set: '{{folder}}: {{level}}',
     bad: 'Trust is one of: {{list}}',
   },
+  common: {
+    needsMux2: 'This needs mux 2.0 or later on the machine.',
+  },
 };

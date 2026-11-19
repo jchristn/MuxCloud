@@ -32,6 +32,7 @@ import {
   TRUST_LEVELS,
   type Suggestion,
 } from '@/lib/chatCommands';
+import { isMissingRoute } from '@/lib/muxVersion';
 import { addQuestion, questionFrom } from '@/lib/questions';
 import { contextPercent } from '@/lib/chatStats';
 import { markSeen, rememberPrompt } from '@/storage/chatStore';
@@ -774,6 +775,7 @@ export function ConversationView(props: ConversationViewProps) {
           );
         } catch (e) {
           if (e instanceof ApiError && e.status === 409) note(t('mobile.compact.busy'));
+          else if (isMissingRoute(e)) note(t('mobile.common.needsMux2'));
           else setError(e);
         }
         return;
@@ -787,7 +789,8 @@ export function ConversationView(props: ConversationViewProps) {
           const r = await api.setTrust(folder, level as MuxTrustLevel | 'reset');
           note(t('mobile.trust.set', { folder: r.ProjectRoot || r.WorkingDirectory, level: t('mobile.trust.' + r.Level) }));
         } catch (e) {
-          setError(e);
+          if (isMissingRoute(e)) note(t('mobile.common.needsMux2'));
+          else setError(e);
         }
         return;
       }

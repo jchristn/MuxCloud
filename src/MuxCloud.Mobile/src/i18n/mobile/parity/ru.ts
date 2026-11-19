@@ -392,4 +392,7 @@ export const ruParity: ParityCatalog = {
     set: '{{folder}}: {{level}}',
     bad: 'Допустимые значения: {{list}}',
   },
+  common: {
+    needsMux2: 'Для этого на компьютере нужен mux 2.0 или новее.',
+  },
 };

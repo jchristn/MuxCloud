@@ -392,4 +392,7 @@ export const jaParity: ParityCatalog = {
     set: '{{folder}}: {{level}}',
     bad: '信頼の値は次のいずれかです: {{list}}',
   },
+  common: {
+    needsMux2: 'この機能にはマシン上の mux 2.0 以降が必要です。',
+  },
 };

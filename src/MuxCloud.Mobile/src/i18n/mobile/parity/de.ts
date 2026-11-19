@@ -392,4 +392,7 @@ export const deParity: ParityCatalog = {
     set: '{{folder}}: {{level}}',
     bad: 'Mögliche Werte: {{list}}',
   },
+  common: {
+    needsMux2: 'Dafür braucht der Rechner mux 2.0 oder neuer.',
+  },
 };

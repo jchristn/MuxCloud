@@ -392,4 +392,7 @@ export const msParity: ParityCatalog = {
     set: '{{folder}}: {{level}}',
     bad: 'Kepercayaan ialah salah satu daripada: {{list}}',
   },
+  common: {
+    needsMux2: 'Ini memerlukan mux 2.0 atau lebih baharu pada mesin.',
+  },
 };

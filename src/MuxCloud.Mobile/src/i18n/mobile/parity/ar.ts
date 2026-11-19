@@ -392,4 +392,7 @@ export const arParity: ParityCatalog = {
     set: '{{folder}}: {{level}}',
     bad: 'قيمة الثقة إحدى: {{list}}',
   },
+  common: {
+    needsMux2: 'يتطلب هذا الإصدار 2.0 من mux أو أحدث على الجهاز.',
+  },
 };

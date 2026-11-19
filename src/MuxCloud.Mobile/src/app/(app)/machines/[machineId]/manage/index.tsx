@@ -76,7 +76,7 @@ export default function Manage() {
       ) : null}
       <Section title={t('mobile.manage.configure')}>
         <View style={{ marginHorizontal: -spacing.lg }}>
-          {COLLECTIONS.map((c) => (
+          {COLLECTIONS.filter((c) => !c.hidden).map((c) => (
             <ListRow key={c.segment} title={t(c.titleKey)} subtitle={t(c.introKey)} onPress={() => go(c.segment)} />
           ))}
           {SCREENS.map((segment) => (

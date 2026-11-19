@@ -392,4 +392,7 @@ export const hiParity: ParityCatalog = {
     set: '{{folder}}: {{level}}',
     bad: 'भरोसा इनमें से एक हो सकता है: {{list}}',
   },
+  common: {
+    needsMux2: 'इसके लिए मशीन पर mux 2.0 या नया वर्शन चाहिए।',
+  },
 };

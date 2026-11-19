@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { RefreshControl, View } from 'react-native';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Redirect, Stack, useLocalSearchParams } from 'expo-router';
+import { ApiError } from '@dashboard/api';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '@/components/Sheet';
 import { Badge, Button, ErrorBox, Field, KeyValues, ListRow, Loading, Notice, Screen, Section, T } from '@/components/ui';
@@ -43,6 +44,11 @@ export default function KeybindingsScreen() {
   };
 
   const chordLabel = (c: MuxKeybindingCommand) => c.EffectiveChord || t('mobile.keys.unbound');
+
+  // mux before 2.0 has no command catalog: edit the raw overrides instead, as the app did before.
+  if (commands.error instanceof ApiError && commands.error.status === 404) {
+    return <Redirect href={{ pathname: '/machines/[machineId]/manage/[resource]', params: { machineId, resource: 'keybindings-overrides' } }} />;
+  }
 
   return (
     <Screen refreshControl={<RefreshControl refreshing={commands.loading && !!commands.data} onRefresh={() => void commands.reload()} />}>

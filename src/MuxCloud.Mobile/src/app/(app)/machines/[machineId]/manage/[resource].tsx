@@ -171,8 +171,8 @@ export default function ResourceScreen() {
         ]}
         hints={config.hints}
         template={config.template}
-        addLabel={t('mobile.manage.addOne.' + config.segment)}
-        emptyLabel={t('mobile.manage.none.' + config.segment)}
+        addLabel={t('mobile.manage.addOne.' + (config.stringsFrom ?? config.segment))}
+        emptyLabel={t('mobile.manage.none.' + (config.stringsFrom ?? config.segment))}
         onSave={save}
         onDelete={
           config.deleteByName
