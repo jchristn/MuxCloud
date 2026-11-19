@@ -162,7 +162,7 @@
     {
       "id": "chat.slashCommands",
       "view": "chat",
-      "feature": "Chat commands (/?, /new, /stats, screen shortcuts)",
+      "feature": "Chat commands with autocomplete (/?, /new, /stats, /cwd, /memory, /undo, /effort, /endpoint, screen shortcuts and aliases)",
       "status": "implemented",
       "screen": "components/ConversationView.tsx"
     },
@@ -189,9 +189,13 @@
     {
       "id": "chat.stats",
       "view": "chat",
-      "feature": "Per-turn timing and token stats",
+      "feature": "Per-turn details and a conversation stats sheet (tokens per turn, TTFT and latency percentiles, Copy JSON)",
       "status": "implemented",
-      "screen": "components/TurnView.tsx"
+      "screen": "components/TurnView.tsx",
+      "api": [
+        "GET /v1.0/api/runs/{id}",
+        "GET /v1.0/api/usage/summary?session="
+      ]
     },
     {
       "id": "chat.newChat",
@@ -204,11 +208,11 @@
       "id": "chat.fileMentions",
       "view": "chat",
       "feature": "@file completion while typing",
-      "status": "not-applicable",
+      "status": "implemented",
       "api": [
         "GET /v1.0/api/files/complete"
       ],
-      "reason": "The mobile composer has no inline completion menu; type the path. The machine still resolves @mentions in sent text."
+      "screen": "components/ConversationView.tsx"
     },
     {
       "id": "sessions.list",
@@ -338,7 +342,7 @@
     {
       "id": "endpoints.import",
       "view": "endpoints",
-      "feature": "Import models from an endpoint",
+      "feature": "Import models from an endpoint (multi-select, marks models already added)",
       "status": "implemented",
       "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
       "api": [
@@ -361,7 +365,7 @@
     {
       "id": "mcp.validate",
       "view": "mcp",
-      "feature": "Test an MCP server connection",
+      "feature": "Test MCP servers: live status for all, failure details with copy, tool names",
       "status": "implemented",
       "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
       "api": [
@@ -477,7 +481,7 @@
     {
       "id": "skills.create",
       "view": "skills",
-      "feature": "Create and delete skills",
+      "feature": "Create skills with the scaffold form (title, id, description, interpreter, mutating), and delete",
       "status": "implemented",
       "screen": "app/(app)/machines/[machineId]/manage/skills.tsx",
       "api": [
@@ -557,7 +561,7 @@
     {
       "id": "usage.history",
       "view": "usage",
-      "feature": "Call history and CSV export",
+      "feature": "Paged, sortable call history and CSV export",
       "status": "implemented",
       "screen": "app/(app)/machines/[machineId]/manage/usage.tsx",
       "api": [
@@ -567,19 +571,23 @@
     {
       "id": "usage.filters",
       "view": "usage",
-      "feature": "Filter by endpoint, model, label, tag",
-      "status": "not-applicable",
-      "reason": "The phone layout keeps the range and dimension pickers; per-endpoint and per-model views are in the breakdown. Fine-grained filters stay on the web dashboard, which is the same page as the local one."
+      "feature": "Filter by endpoint and conversation; tap a bar or heatmap cell to narrow the calls",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/usage.tsx",
+      "api": [
+        "GET /v1.0/api/usage/filters",
+        "GET /v1.0/api/sessions"
+      ]
     },
     {
       "id": "usage.splitChart",
       "view": "usage",
-      "feature": "Stacked tokens-by-dimension chart",
-      "status": "not-applicable",
+      "feature": "Stacked chart split by model, endpoint, or provider; bars or lines; chart CSV export",
+      "status": "implemented",
       "api": [
         "GET /v1.0/api/usage/timeseries/split"
       ],
-      "reason": "Replaced on phones by the breakdown list for the same dimension; a stacked chart is unreadable at phone width."
+      "screen": "app/(app)/machines/[machineId]/manage/usage.tsx"
     },
     {
       "id": "usage.pngExport",
@@ -676,6 +684,124 @@
       "feature": "Copy the local server URL and API key",
       "status": "not-applicable",
       "reason": "The machine is reached through Mux Cloud, not its local URL; the API key stays masked exactly as the local dashboard masks it."
+    },
+    {
+      "id": "usage.percentiles",
+      "view": "usage",
+      "feature": "Latency, TTFT, streaming, and throughput percentiles",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/usage.tsx",
+      "api": [
+        "GET /v1.0/api/usage/summary"
+      ]
+    },
+    {
+      "id": "endpoints.validate",
+      "view": "endpoints",
+      "feature": "Test an endpoint by loading its model, with the full error",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
+      "api": [
+        "POST /v1.0/api/model/load"
+      ]
+    },
+    {
+      "id": "endpoints.duplicate",
+      "view": "endpoints",
+      "feature": "Duplicate an endpoint",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx"
+    },
+    {
+      "id": "chat.copy",
+      "view": "chat",
+      "feature": "Copy replies and code blocks; syntax highlighting; collapsible details; expandable tool cards",
+      "status": "implemented",
+      "screen": "components/TurnView.tsx"
+    },
+    {
+      "id": "chat.modelStatus",
+      "view": "chat",
+      "feature": "Model ready or unreachable indicator and context usage",
+      "status": "implemented",
+      "screen": "components/ConversationView.tsx",
+      "api": [
+        "POST /v1.0/api/model/load",
+        "GET /v1.0/api/endpoints/detail"
+      ]
+    },
+    {
+      "id": "chat.planReview",
+      "view": "chat",
+      "feature": "Plan review: run, run and auto-accept edits, keep planning with feedback",
+      "status": "implemented",
+      "screen": "components/ConversationView.tsx"
+    },
+    {
+      "id": "chat.taskPlan",
+      "view": "chat",
+      "feature": "Task plan card",
+      "status": "implemented",
+      "screen": "components/ChatSheets.tsx",
+      "api": [
+        "GET /v1.0/api/runs/{id}"
+      ]
+    },
+    {
+      "id": "chat.undoRedo",
+      "view": "chat",
+      "feature": "Undo and redo a turn's file changes",
+      "status": "implemented",
+      "screen": "components/ConversationView.tsx",
+      "api": [
+        "GET /v1.0/api/checkpoints",
+        "POST /v1.0/api/checkpoints/undo",
+        "POST /v1.0/api/checkpoints/redo"
+      ]
+    },
+    {
+      "id": "chat.memory",
+      "view": "chat",
+      "feature": "# and #global quick memory; memory screen",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/memory.tsx",
+      "api": [
+        "GET /v1.0/api/memory",
+        "POST /v1.0/api/memory",
+        "DELETE /v1.0/api/memory"
+      ]
+    },
+    {
+      "id": "chat.worktrees",
+      "view": "chat",
+      "feature": "Worktrees: list, prune, remove",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/worktrees.tsx",
+      "api": [
+        "GET /v1.0/api/worktrees",
+        "POST /v1.0/api/worktrees/prune",
+        "DELETE /v1.0/api/worktrees"
+      ]
+    },
+    {
+      "id": "chat.instructions",
+      "view": "chat",
+      "feature": "Project instruction files",
+      "status": "implemented",
+      "screen": "components/ChatSheets.tsx",
+      "api": [
+        "GET /v1.0/api/context/instructions"
+      ]
+    },
+    {
+      "id": "sessions.status",
+      "view": "sessions",
+      "feature": "Running, needs-you, failed, and unread indicators",
+      "status": "implemented",
+      "screen": "components/ConversationList.tsx",
+      "api": [
+        "GET /v1.0/api/runs"
+      ]
     }
   ]
 }
