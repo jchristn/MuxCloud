@@ -422,6 +422,8 @@ export default function Usage() {
   );
 }
 
+const MAX_BAR_WIDTH = 40;
+
 /**
  * The timeline chart: stacked bars or one line per series, oldest bucket on the left in every layout direction (time
  * axes do not mirror). Bars share the width; when they cannot fit, the chart scrolls and opens at the latest bucket.
@@ -447,8 +449,12 @@ function UsageChart({
   const scroll = useRef<ScrollViewInstance>(null);
   const [width, setWidth] = useState(0);
   const n = chart.starts.length;
-  const gap = n > 60 ? 1 : 3;
-  const barWidth = width > 0 ? Math.max(3, Math.min(16, Math.floor((width - gap * (n - 1)) / n))) : 10;
+  // Bars share the full width (so tablets are not left with an empty band on the right). A bar is never wider than
+  // MAX_BAR_WIDTH; when that cap applies, the gaps grow instead so the chart still spans edge to edge.
+  const baseGap = n > 60 ? 1 : 3;
+  const fit = width > 0 && n > 0 ? (width - baseGap * (n - 1)) / n : 10;
+  const barWidth = Math.max(3, Math.min(MAX_BAR_WIDTH, fit));
+  const gap = width > 0 && n > 1 && fit > MAX_BAR_WIDTH ? (width - n * barWidth) / (n - 1) : baseGap;
   const innerWidth = Math.max(width, n * barWidth + gap * (n - 1));
   const max = Math.max(0, ...(kind === 'bars' ? chart.totals : chart.series.flatMap((s) => s.values)));
   const color = (c: string) => (single ? p.accent : c);
