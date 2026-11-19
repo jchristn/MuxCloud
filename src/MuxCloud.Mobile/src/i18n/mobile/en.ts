@@ -36,6 +36,7 @@ export const en = {
   chat: {
     placeholder: 'Message mux',
     send: 'Send',
+    hideKeyboard: 'Hide keyboard',
     stop: 'Stop',
     thinking: 'Thinking...', emptyReply: 'The model finished without writing a reply.', stopped: 'Stopped.', toolStatus: { ok: 'Finished', fail: 'Failed', running: 'Running', canceled: 'Canceled' }, emptyTitle: 'Start the conversation', emptyBody: 'mux works on {{machine}} in {{folder}}. Ask a question, or describe a change to make.', defaultFolder: 'the folder mux started in',
     replying: 'mux is replying',

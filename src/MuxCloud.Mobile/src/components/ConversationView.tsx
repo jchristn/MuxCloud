@@ -1,9 +1,20 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { I18nManager, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, TextInput, View, type ScrollViewInstance } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { ApiError } from '@dashboard/api';
-import { startChatStream, type ChatStreamEvent } from '@/relay/chatStream';
-import type { SseHandle } from '@/lib/sseTransport';
+import { useCallback, useEffect, useRef, useState } from "react";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import {
+  I18nManager,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  TextInput,
+  View,
+  type ScrollViewInstance,
+} from "react-native";
+import { useTranslation } from "react-i18next";
+import { ApiError } from "@dashboard/api";
+import { startChatStream, type ChatStreamEvent } from "@/relay/chatStream";
+import type { SseHandle } from "@/lib/sseTransport";
 import {
   applyChatEvent,
   applyRunFrame,
@@ -14,19 +25,19 @@ import {
   turnsFromDetail,
   type PendingApproval,
   type Turn,
-} from '@/lib/transcript';
-import { folderName } from '@/lib/sessions';
-import { createMachineSocket } from '@/state/accountEvents';
-import { useAuth } from '@/state/AuthContext';
-import { useMachineApi } from '@/state/useMachineApi';
-import type { MuxEndpointSummary, MuxSessionDetail } from '@/types/mux';
-import { useTheme } from '@/theme/ThemeContext';
-import { font, radius, spacing } from '@/theme/palette';
-import { ApprovalCard } from './ApprovalCard';
-import { ConnectionBanner } from './ConnectionBanner';
-import { Sheet } from './Sheet';
-import { TurnView } from './TurnView';
-import { Button, ErrorBox, ListRow, Loading, Notice, T, ToggleRow } from './ui';
+} from "@/lib/transcript";
+import { folderName } from "@/lib/sessions";
+import { createMachineSocket } from "@/state/accountEvents";
+import { useAuth } from "@/state/AuthContext";
+import { useMachineApi } from "@/state/useMachineApi";
+import type { MuxEndpointSummary, MuxSessionDetail } from "@/types/mux";
+import { useTheme } from "@/theme/ThemeContext";
+import { font, radius, spacing } from "@/theme/palette";
+import { ApprovalCard } from "./ApprovalCard";
+import { ConnectionBanner } from "./ConnectionBanner";
+import { Sheet } from "./Sheet";
+import { TurnView } from "./TurnView";
+import { Button, ErrorBox, ListRow, Loading, Notice, T, ToggleRow } from "./ui";
 
 export interface ConversationViewProps {
   machineId: string;
@@ -46,7 +57,7 @@ export interface ConversationViewProps {
 }
 
 let turnSeq = 0;
-const nextKey = () => 'live' + ++turnSeq;
+const nextKey = () => "live" + ++turnSeq;
 
 /**
  * A conversation on a machine, with full parity with the local mux dashboard's chat: transcript, streaming replies
@@ -54,7 +65,16 @@ const nextKey = () => 'live' + ++turnSeq;
  * mode, endpoint switching, chat slash commands and skills, and live mirroring of runs started on any other surface.
  */
 export function ConversationView(props: ConversationViewProps) {
-  const { machineId, machineName, online, initialEndpoint, workingDirectory, onSessionCreated, onOpenScreen, onNewConversation } = props;
+  const {
+    machineId,
+    machineName,
+    online,
+    initialEndpoint,
+    workingDirectory,
+    onSessionCreated,
+    onOpenScreen,
+    onNewConversation,
+  } = props;
   const p = useTheme();
   const { t } = useTranslation();
   const { auth } = useAuth();
@@ -64,18 +84,21 @@ export function ConversationView(props: ConversationViewProps) {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [loading, setLoading] = useState(!!props.sessionId);
   const [error, setError] = useState<unknown>(null);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [runId, setRunId] = useState<string | null>(null);
   const [approvals, setApprovals] = useState<PendingApproval[]>([]);
   const [endpoints, setEndpoints] = useState<MuxEndpointSummary[]>([]);
-  const [endpoint, setEndpoint] = useState<string>(initialEndpoint ?? '');
+  const [endpoint, setEndpoint] = useState<string>(initialEndpoint ?? "");
   const [planMode, setPlanMode] = useState(false);
   // Auto-approve applies to this conversation only, and is offered only when the machine lets this caller approve
   // tools (a machine with remote approval off, or an older mux without the capabilities route, hides it).
   const [autoApprove, setAutoApprove] = useState(false);
   const [canAutoApprove, setCanAutoApprove] = useState(false);
-  const [plan, setPlan] = useState<{ text: string; executionPrompt: string } | null>(null);
+  const [plan, setPlan] = useState<{
+    text: string;
+    executionPrompt: string;
+  } | null>(null);
   const [pickEndpoint, setPickEndpoint] = useState(false);
   const [mirroring, setMirroring] = useState(false);
   const stream = useRef<SseHandle | null>(null);
@@ -88,6 +111,21 @@ export function ConversationView(props: ConversationViewProps) {
   /** Set when the user taps Stop, so the end of the run is acknowledged in the transcript. */
   const stopRequested = useRef(false);
   const scroll = useRef<ScrollViewInstance>(null);
+  const [keyboardShown, setKeyboardShown] = useState(false);
+  useEffect(() => {
+    const show = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      () => setKeyboardShown(true),
+    );
+    const hide = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      () => setKeyboardShown(false),
+    );
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
 
   const [propSession, setPropSession] = useState(props.sessionId);
   if (props.sessionId !== propSession) {
@@ -128,7 +166,13 @@ export function ConversationView(props: ConversationViewProps) {
       .endpoints()
       .then((r) => {
         setEndpoints(r.Items ?? []);
-        setEndpoint((current) => current || r.Items.find((e) => e.IsDefault)?.Name || r.Items[0]?.Name || '');
+        setEndpoint(
+          (current) =>
+            current ||
+            r.Items.find((e) => e.IsDefault)?.Name ||
+            r.Items[0]?.Name ||
+            "",
+        );
       })
       .catch(() => undefined);
   }, [api, online]);
@@ -148,35 +192,55 @@ export function ConversationView(props: ConversationViewProps) {
       subscription: { sessionId },
       onFrame: (frame) => {
         // Any frame that names the run (approvals, run_started, run_completed) tells Stop what to cancel.
-        if (frame.runId && !stream.current && frame.eventType !== 'run_completed') setRunId(frame.runId);
+        if (
+          frame.runId &&
+          !stream.current &&
+          frame.eventType !== "run_completed"
+        )
+          setRunId(frame.runId);
         const approval = approvalFromFrame(frame, Date.now());
         if (approval) {
           Keyboard.dismiss();
-          setApprovals((list) => (list.some((a) => a.toolCallId === approval.toolCallId) ? list : [...list, approval]));
+          setApprovals((list) =>
+            list.some((a) => a.toolCallId === approval.toolCallId)
+              ? list
+              : [...list, approval],
+          );
           return;
         }
-        if (frame.eventType === 'approval_resolved') {
-          setApprovals((list) => list.filter((a) => a.toolCallId !== frame.toolCallId));
+        if (frame.eventType === "approval_resolved") {
+          setApprovals((list) =>
+            list.filter((a) => a.toolCallId !== frame.toolCallId),
+          );
           return;
         }
-        if (frame.eventType === 'transcript_changed') {
-          if (!stream.current && Date.now() - ownFinishedAt.current > 5000) void loadDetail();
+        if (frame.eventType === "transcript_changed") {
+          if (!stream.current && Date.now() - ownFinishedAt.current > 5000)
+            void loadDetail();
           return;
         }
         // While this screen streams its own turn over SSE, the same run's frames also arrive here: ignore them.
         // Only run_started and run_completed carry a runId, so a mirrored run is tracked from its start.
         if (stream.current) return;
-        if (frame.eventType === 'run_started') {
+        if (frame.eventType === "run_started") {
           const existing = liveTurn.current;
           if (existing && (!frame.runId || frame.runId === liveRunId.current)) {
             // The socket reconnected and mux replays the run from its start: begin the same turn again.
-            existing.content = '';
+            existing.content = "";
             existing.thinking = undefined;
             existing.tools = [];
-            setTurns((list) => list.map((x) => (x.key === existing.key ? { ...existing } : x)));
+            setTurns((list) =>
+              list.map((x) => (x.key === existing.key ? { ...existing } : x)),
+            );
             return;
           }
-          const turn: Turn = { key: nextKey(), role: 'assistant', content: '', tools: [], pending: true };
+          const turn: Turn = {
+            key: nextKey(),
+            role: "assistant",
+            content: "",
+            tools: [],
+            pending: true,
+          };
           liveTurn.current = turn;
           liveRunId.current = frame.runId ?? null;
           setMirroring(true);
@@ -184,7 +248,7 @@ export function ConversationView(props: ConversationViewProps) {
           setTurns((list) => [...list, turn]);
           return;
         }
-        if (frame.eventType === 'run_completed' && !liveTurn.current) {
+        if (frame.eventType === "run_completed" && !liveTurn.current) {
           setMirroring(false);
           setRunId(null);
           setApprovals([]);
@@ -194,11 +258,24 @@ export function ConversationView(props: ConversationViewProps) {
         const live = liveTurn.current;
         if (live) {
           const finished = applyRunFrame(live, frame);
-          setTurns((list) => list.map((x) => (x.key === live.key ? { ...live, tools: [...live.tools] } : x)));
+          setTurns((list) =>
+            list.map((x) =>
+              x.key === live.key ? { ...live, tools: [...live.tools] } : x,
+            ),
+          );
           if (finished) {
             if (stopRequested.current) {
               stopRequested.current = false;
-              setTurns((list) => [...list, { key: nextKey(), role: 'system', content: t('mobile.chat.stopped'), tools: [], displayOnly: true }]);
+              setTurns((list) => [
+                ...list,
+                {
+                  key: nextKey(),
+                  role: "system",
+                  content: t("mobile.chat.stopped"),
+                  tools: [],
+                  displayOnly: true,
+                },
+              ]);
             }
             liveTurn.current = null;
             liveRunId.current = null;
@@ -224,7 +301,9 @@ export function ConversationView(props: ConversationViewProps) {
     void api
       .runs()
       .then((r) => {
-        const active = (r.Items ?? []).find((run) => run.SessionId === sessionId && !run.IsTerminal);
+        const active = (r.Items ?? []).find(
+          (run) => run.SessionId === sessionId && !run.IsTerminal,
+        );
         if (alive && active && !stream.current) {
           setRunId(active.RunId);
           setMirroring(true);
@@ -237,23 +316,38 @@ export function ConversationView(props: ConversationViewProps) {
   }, [api, sessionId, online]);
 
   const decide = useCallback(
-    (approval: PendingApproval, decision: 'y' | 'always' | 'n') => {
-      setApprovals((list) => list.filter((a) => a.toolCallId !== approval.toolCallId));
-      void api.approve(approval.runId, approval.toolCallId, decision).catch((e) => setError(e));
+    (approval: PendingApproval, decision: "y" | "always" | "n") => {
+      setApprovals((list) =>
+        list.filter((a) => a.toolCallId !== approval.toolCallId),
+      );
+      void api
+        .approve(approval.runId, approval.toolCallId, decision)
+        .catch((e) => setError(e));
     },
     [api],
   );
 
   const runTurn = (text: string, options: { planMode: boolean }) => {
-    const user: Turn = { key: nextKey(), role: 'user', content: text, tools: [] };
-    const reply: Turn = { key: nextKey(), role: 'assistant', content: '', tools: [], pending: true };
+    const user: Turn = {
+      key: nextKey(),
+      role: "user",
+      content: text,
+      tools: [],
+    };
+    const reply: Turn = {
+      key: nextKey(),
+      role: "assistant",
+      content: "",
+      tools: [],
+      pending: true,
+    };
     const history = historyForRequest(turns);
     setTurns((list) => [...list, user, reply]);
     setBusy(true);
     setPlan(null);
     setError(null);
     const update = (event: ChatStreamEvent) => {
-      if (event.type === 'run') {
+      if (event.type === "run") {
         setRunId(event.runId);
         if (!sessionId && event.sessionId) {
           setSessionId(event.sessionId);
@@ -261,26 +355,42 @@ export function ConversationView(props: ConversationViewProps) {
         }
         return;
       }
-      if (event.type === 'approval') {
+      if (event.type === "approval") {
         Keyboard.dismiss();
         const a = event.approval;
         setApprovals((list) =>
           list.some((x) => x.toolCallId === a.ToolCallId)
             ? list
-            : [...list, { runId: a.RunId, toolCallId: a.ToolCallId, toolName: a.Name, arguments: a.Arguments, autoApproveSeconds: Math.max(0, a.ToolAutoApproveSeconds), receivedAt: Date.now() }],
+            : [
+                ...list,
+                {
+                  runId: a.RunId,
+                  toolCallId: a.ToolCallId,
+                  toolName: a.Name,
+                  arguments: a.Arguments,
+                  autoApproveSeconds: Math.max(0, a.ToolAutoApproveSeconds),
+                  receivedAt: Date.now(),
+                },
+              ],
         );
         return;
       }
-      if (event.type === 'plan') {
+      if (event.type === "plan") {
         setPlan({ text: event.text, executionPrompt: event.executionPrompt });
         return;
       }
-      if (event.type === 'done' && event.reply.Id && !sessionId) {
+      if (event.type === "done" && event.reply.Id && !sessionId) {
         setSessionId(event.reply.Id);
         onSessionCreated?.(event.reply.Id);
       }
       applyChatEvent(reply, event);
-      setTurns((list) => (event.type === 'canceled' ? list.filter((x) => x.key !== reply.key && x.key !== user.key) : list.map((x) => (x.key === reply.key ? { ...reply, tools: [...reply.tools] } : x))));
+      setTurns((list) =>
+        event.type === "canceled"
+          ? list.filter((x) => x.key !== reply.key && x.key !== user.key)
+          : list.map((x) =>
+              x.key === reply.key ? { ...reply, tools: [...reply.tools] } : x,
+            ),
+      );
     };
     const finish = () => {
       stream.current = null;
@@ -294,9 +404,9 @@ export function ConversationView(props: ConversationViewProps) {
       machineId,
       request: {
         Endpoint: endpoint,
-        Id: sessionId ?? '',
+        Id: sessionId ?? "",
         WorkingDirectory: sessionId ? null : workingDirectory || null,
-        Messages: [...history, { Role: 'user', Content: text }],
+        Messages: [...history, { Role: "user", Content: text }],
         PlanMode: options.planMode,
         AutoApproveTools: autoApprove && canAutoApprove,
       },
@@ -304,13 +414,24 @@ export function ConversationView(props: ConversationViewProps) {
       refresh: () => auth.refresh(),
       onEvent: update,
       onError: (status, code, message) => {
-        applyChatEvent(reply, { type: 'error', message: t('errors.' + code, { defaultValue: message, status, seconds: 0 }) });
-        setTurns((list) => list.map((x) => (x.key === reply.key ? { ...reply } : x)));
+        applyChatEvent(reply, {
+          type: "error",
+          message: t("errors." + code, {
+            defaultValue: message,
+            status,
+            seconds: 0,
+          }),
+        });
+        setTurns((list) =>
+          list.map((x) => (x.key === reply.key ? { ...reply } : x)),
+        );
         finish();
       },
       onDone: () => {
         reply.pending = false;
-        setTurns((list) => list.map((x) => (x.key === reply.key ? { ...reply } : x)));
+        setTurns((list) =>
+          list.map((x) => (x.key === reply.key ? { ...reply } : x)),
+        );
         finish();
       },
     });
@@ -321,28 +442,63 @@ export function ConversationView(props: ConversationViewProps) {
     if (!text || busy) return;
     const slash = parseSlash(text);
     if (slash) {
-      setInput('');
-      if (slash.command === 'new' || slash.command === 'clear') return onNewConversation?.();
-      if (slash.command === '?' || slash.command === 'help') {
-        setTurns((list) => [...list, { key: nextKey(), role: 'assistant', content: t('mobile.chat.help'), tools: [] }]);
+      setInput("");
+      if (slash.command === "new" || slash.command === "clear")
+        return onNewConversation?.();
+      if (slash.command === "?" || slash.command === "help") {
+        setTurns((list) => [
+          ...list,
+          {
+            key: nextKey(),
+            role: "assistant",
+            content: t("mobile.chat.help"),
+            tools: [],
+          },
+        ]);
         return;
       }
-      if (slash.command === 'context' || slash.command === 'stats') {
-        const last = [...turns].reverse().find((x) => x.role === 'assistant' && x.stats);
+      if (slash.command === "context" || slash.command === "stats") {
+        const last = [...turns]
+          .reverse()
+          .find((x) => x.role === "assistant" && x.stats);
         const s = last?.stats;
         const body = s
-          ? t('mobile.chat.statsBody', { model: last?.model ?? '', ttft: s.TtftMs ?? 0, streaming: s.StreamingMs ?? 0, total: s.TotalMs ?? 0, input: s.InputTokens ?? 0, output: s.OutputTokens ?? 0 })
-          : t('mobile.chat.noStats');
-        setTurns((list) => [...list, { key: nextKey(), role: 'assistant', content: body, tools: [] }]);
+          ? t("mobile.chat.statsBody", {
+              model: last?.model ?? "",
+              ttft: s.TtftMs ?? 0,
+              streaming: s.StreamingMs ?? 0,
+              total: s.TotalMs ?? 0,
+              input: s.InputTokens ?? 0,
+              output: s.OutputTokens ?? 0,
+            })
+          : t("mobile.chat.noStats");
+        setTurns((list) => [
+          ...list,
+          { key: nextKey(), role: "assistant", content: body, tools: [] },
+        ]);
         return;
       }
-      if (slash.command === 'mirror') {
-        setTurns((list) => [...list, { key: nextKey(), role: 'system', content: t('mobile.chat.mirrorAlways'), tools: [], displayOnly: true }]);
+      if (slash.command === "mirror") {
+        setTurns((list) => [
+          ...list,
+          {
+            key: nextKey(),
+            role: "system",
+            content: t("mobile.chat.mirrorAlways"),
+            tools: [],
+            displayOnly: true,
+          },
+        ]);
         return;
       }
-      if (SLASH_SCREENS[slash.command]) return onOpenScreen?.(SLASH_SCREENS[slash.command]);
+      if (SLASH_SCREENS[slash.command])
+        return onOpenScreen?.(SLASH_SCREENS[slash.command]);
       try {
-        const expanded = (await api.expandSkill(text)) as { Matched?: boolean; Prompt?: string; Skill?: string };
+        const expanded = (await api.expandSkill(text)) as {
+          Matched?: boolean;
+          Prompt?: string;
+          Skill?: string;
+        };
         if (expanded.Matched && expanded.Prompt) {
           runTurn(expanded.Prompt, { planMode });
           return;
@@ -350,14 +506,23 @@ export function ConversationView(props: ConversationViewProps) {
       } catch {
         // Fall through to the unknown-command notice.
       }
-      setTurns((list) => [...list, { key: nextKey(), role: 'system', content: t('mobile.chat.unknownCommand', { command: text }), tools: [], displayOnly: true }]);
+      setTurns((list) => [
+        ...list,
+        {
+          key: nextKey(),
+          role: "system",
+          content: t("mobile.chat.unknownCommand", { command: text }),
+          tools: [],
+          displayOnly: true,
+        },
+      ]);
       return;
     }
     if (!endpoint) {
-      setError(new Error(t('mobile.chat.noEndpoint')));
+      setError(new Error(t("mobile.chat.noEndpoint")));
       return;
     }
-    setInput('');
+    setInput("");
     runTurn(text, { planMode });
   };
 
@@ -374,8 +539,20 @@ export function ConversationView(props: ConversationViewProps) {
     void api.loadModel(next.Name).catch(() => undefined);
     if (!sessionId || !detail) return;
     // Same as the dashboard: note the switch in the transcript and persist the new endpoint on the conversation.
-    const note = t('mobile.chat.switched', { endpoint: next.Name, model: next.Model });
-    setTurns((list) => [...list, { key: nextKey(), role: 'system', content: note, tools: [], displayOnly: true }]);
+    const note = t("mobile.chat.switched", {
+      endpoint: next.Name,
+      model: next.Model,
+    });
+    setTurns((list) => [
+      ...list,
+      {
+        key: nextKey(),
+        role: "system",
+        content: note,
+        tools: [],
+        displayOnly: true,
+      },
+    ]);
     try {
       await api.saveSession({
         Id: sessionId,
@@ -384,39 +561,76 @@ export function ConversationView(props: ConversationViewProps) {
         Model: next.Model,
         Labels: detail.Labels,
         Tags: detail.Tags,
-        Messages: [...detail.Messages, { Role: 'system', Content: note, DisplayOnly: true }],
+        Messages: [
+          ...detail.Messages,
+          { Role: "system", Content: note, DisplayOnly: true },
+        ],
       });
     } catch (e) {
       setError(e);
     }
   };
 
-  const title = detail?.Title || (sessionId ? t('conversations.untitled') : t('conversations.newConversation'));
+  const title =
+    detail?.Title ||
+    (sessionId
+      ? t("conversations.untitled")
+      : t("conversations.newConversation"));
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: p.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: p.bg }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+    >
       <ScrollView
         ref={scroll}
         style={{ flex: 1 }}
         contentContainerStyle={{ padding: spacing.lg, gap: spacing.lg }}
-        onContentSizeChange={() => scroll.current?.scrollToEnd({ animated: true })}
+        onContentSizeChange={() =>
+          scroll.current?.scrollToEnd({ animated: true })
+        }
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
       >
         <View style={{ gap: spacing.xs }}>
           <T variant="title">{title}</T>
-          <T variant="small" numberOfLines={1}>{[machineName, folderName(detail?.WorkingDirectory || workingDirectory)].filter(Boolean).join(' · ')}</T>
+          <T variant="small" numberOfLines={1}>
+            {[
+              machineName,
+              folderName(detail?.WorkingDirectory || workingDirectory),
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </T>
         </View>
         <ConnectionBanner />
-        {!online ? <Notice tone="warning" text={t('machineDetail.offlineTitle', { name: machineName })} /> : null}
-        {mirroring ? <Notice text={t('mobile.chat.mirroring')} /> : null}
+        {!online ? (
+          <Notice
+            tone="warning"
+            text={t("machineDetail.offlineTitle", { name: machineName })}
+          />
+        ) : null}
+        {mirroring ? <Notice text={t("mobile.chat.mirroring")} /> : null}
         {loading ? <Loading /> : null}
         {!loading && turns.length === 0 ? (
-          <View style={{ paddingVertical: spacing.xxl, gap: spacing.sm, alignItems: 'center' }}>
-            <T variant="title" style={{ textAlign: 'center' }}>
-              {t('mobile.chat.emptyTitle')}
+          <View
+            style={{
+              paddingVertical: spacing.xxl,
+              gap: spacing.sm,
+              alignItems: "center",
+            }}
+          >
+            <T variant="title" style={{ textAlign: "center" }}>
+              {t("mobile.chat.emptyTitle")}
             </T>
-            <T variant="muted" style={{ textAlign: 'center' }}>
-              {t('mobile.chat.emptyBody', { machine: machineName, folder: folderName(workingDirectory) || t('mobile.chat.defaultFolder') })}
+            <T variant="muted" style={{ textAlign: "center" }}>
+              {t("mobile.chat.emptyBody", {
+                machine: machineName,
+                folder:
+                  folderName(workingDirectory) ||
+                  t("mobile.chat.defaultFolder"),
+              })}
             </T>
           </View>
         ) : null}
@@ -424,14 +638,26 @@ export function ConversationView(props: ConversationViewProps) {
           <TurnView key={turn.key} turn={turn} />
         ))}
         {approvals.map((a) => (
-          <ApprovalCard key={a.toolCallId} approval={a} onDecide={(d) => decide(a, d)} />
+          <ApprovalCard
+            key={a.toolCallId}
+            approval={a}
+            onDecide={(d) => decide(a, d)}
+          />
         ))}
         {plan ? (
-          <View style={{ gap: spacing.sm, borderColor: p.accent, borderWidth: 1, borderRadius: radius.lg, padding: spacing.lg }}>
-            <T variant="title">{t('mobile.chat.planTitle')}</T>
+          <View
+            style={{
+              gap: spacing.sm,
+              borderColor: p.accent,
+              borderWidth: 1,
+              borderRadius: radius.lg,
+              padding: spacing.lg,
+            }}
+          >
+            <T variant="title">{t("mobile.chat.planTitle")}</T>
             <T selectable>{plan.text}</T>
             <Button
-              title={t('mobile.chat.runPlan')}
+              title={t("mobile.chat.runPlan")}
               onPress={() => {
                 const prompt = plan.executionPrompt;
                 setPlan(null);
@@ -441,34 +667,64 @@ export function ConversationView(props: ConversationViewProps) {
             />
           </View>
         ) : null}
-        {error ? <ErrorBox error={error} onRetry={() => void loadDetail()} /> : null}
+        {error ? (
+          <ErrorBox error={error} onRetry={() => void loadDetail()} />
+        ) : null}
       </ScrollView>
       {/* The tab bar below already sits on the home indicator, so the composer adds no bottom inset of its own. */}
-      <View style={{ borderTopColor: p.line, borderTopWidth: 1, backgroundColor: p.panel, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, gap: spacing.xs }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
-          <Pressable onPress={() => setPickEndpoint(true)} accessibilityRole="button" accessibilityLabel={t('mobile.chat.endpoint')} style={{ flex: 1, minHeight: 32, justifyContent: 'center' }}>
+      <View
+        style={{
+          borderTopColor: p.line,
+          borderTopWidth: 1,
+          backgroundColor: p.panel,
+          paddingHorizontal: spacing.lg,
+          paddingVertical: spacing.sm,
+          gap: spacing.xs,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.sm,
+          }}
+        >
+          <Pressable
+            onPress={() => setPickEndpoint(true)}
+            accessibilityRole="button"
+            accessibilityLabel={t("mobile.chat.endpoint")}
+            style={{ flex: 1, minHeight: 32, justifyContent: "center" }}
+          >
             <T variant="small" numberOfLines={1} style={{ color: p.accent }}>
-              {t('mobile.chat.endpointValue', { endpoint: endpoint || t('mobile.chat.noEndpointShort') })}
+              {t("mobile.chat.endpointValue", {
+                endpoint: endpoint || t("mobile.chat.noEndpointShort"),
+              })}
             </T>
           </Pressable>
           <Pressable
             onPress={() => setPlanMode((v) => !v)}
             accessibilityRole="switch"
             accessibilityState={{ checked: planMode }}
-            accessibilityHint={t('mobile.chat.planModeHint')}
+            accessibilityHint={t("mobile.chat.planModeHint")}
             hitSlop={{ top: 6, bottom: 6, left: 8, right: 4 }}
             style={{
               minHeight: 32,
               paddingHorizontal: spacing.md,
-              justifyContent: 'center',
+              justifyContent: "center",
               borderRadius: radius.pill,
               borderWidth: 1,
               borderColor: planMode ? p.accent : p.line,
-              backgroundColor: planMode ? p.accentSoft : 'transparent',
+              backgroundColor: planMode ? p.accentSoft : "transparent",
             }}
           >
-            <T variant="small" style={{ color: planMode ? p.accent : p.muted, fontWeight: '600' }}>
-              {t('mobile.chat.planMode')}
+            <T
+              variant="small"
+              style={{
+                color: planMode ? p.accent : p.muted,
+                fontWeight: "600",
+              }}
+            >
+              {t("mobile.chat.planMode")}
             </T>
           </Pressable>
           {canAutoApprove ? (
@@ -477,35 +733,49 @@ export function ConversationView(props: ConversationViewProps) {
               onPress={() => setAutoApprove((v) => !v)}
               accessibilityRole="switch"
               accessibilityState={{ checked: autoApprove }}
-              accessibilityLabel={t('mobile.chat.autoApprove')}
-              accessibilityHint={t('mobile.chat.autoApproveHint')}
+              accessibilityLabel={t("mobile.chat.autoApprove")}
+              accessibilityHint={t("mobile.chat.autoApproveHint")}
               hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
               style={{
                 minHeight: 32,
                 paddingHorizontal: spacing.md,
-                justifyContent: 'center',
+                justifyContent: "center",
                 borderRadius: radius.pill,
                 borderWidth: 1,
                 borderColor: autoApprove ? p.warning : p.line,
-                backgroundColor: autoApprove ? p.warningSoft : 'transparent',
+                backgroundColor: autoApprove ? p.warningSoft : "transparent",
               }}
             >
-              <T variant="small" style={{ color: autoApprove ? p.warning : p.muted, fontWeight: '600' }}>
-                {t('mobile.chat.autoApprove')}
+              <T
+                variant="small"
+                style={{
+                  color: autoApprove ? p.warning : p.muted,
+                  fontWeight: "600",
+                }}
+              >
+                {t("mobile.chat.autoApprove")}
               </T>
             </Pressable>
           ) : null}
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "flex-end",
+            gap: spacing.sm,
+          }}
+        >
           <TextInput
             testID="composer"
             value={input}
             onChangeText={setInput}
-            placeholder={online ? t('mobile.chat.placeholder') : t('errors.MachineOffline')}
+            placeholder={
+              online ? t("mobile.chat.placeholder") : t("errors.MachineOffline")
+            }
             placeholderTextColor={p.muted}
             editable={online}
             multiline
-            accessibilityLabel={t('mobile.chat.placeholder')}
+            accessibilityLabel={t("mobile.chat.placeholder")}
             style={{
               flex: 1,
               minHeight: 44,
@@ -518,24 +788,71 @@ export function ConversationView(props: ConversationViewProps) {
               color: p.text,
               backgroundColor: p.bg,
               fontSize: font.body,
-              textAlign: I18nManager.isRTL ? 'right' : 'left',
+              textAlign: I18nManager.isRTL ? "right" : "left",
             }}
           />
+          {keyboardShown ? (
+            <Pressable
+              testID="hide-keyboard"
+              onPress={() => Keyboard.dismiss()}
+              accessibilityRole="button"
+              accessibilityLabel={t("mobile.chat.hideKeyboard")}
+              hitSlop={6}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: radius.md,
+                borderWidth: 1,
+                borderColor: p.line,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Ionicons name="chevron-down" size={22} color={p.muted} />
+            </Pressable>
+          ) : null}
           {busy || mirroring ? (
-            <Button testID="stop" title={t('mobile.chat.stop')} kind="danger" onPress={stop} />
+            <Button
+              testID="stop"
+              title={t("mobile.chat.stop")}
+              kind="danger"
+              onPress={stop}
+            />
           ) : (
-            <Button testID="send" title={t('mobile.chat.send')} onPress={() => void send()} disabled={!online || !input.trim()} />
+            <Button
+              testID="send"
+              title={t("mobile.chat.send")}
+              onPress={() => void send()}
+              disabled={!online || !input.trim()}
+            />
           )}
         </View>
       </View>
-      <Sheet visible={pickEndpoint} title={t('mobile.chat.endpoint')} onClose={() => setPickEndpoint(false)}>
-        {endpoints.length === 0 ? <T variant="muted">{t('mobile.chat.noEndpoint')}</T> : null}
+      <Sheet
+        visible={pickEndpoint}
+        title={t("mobile.chat.endpoint")}
+        onClose={() => setPickEndpoint(false)}
+      >
+        {endpoints.length === 0 ? (
+          <T variant="muted">{t("mobile.chat.noEndpoint")}</T>
+        ) : null}
         <View style={{ marginHorizontal: -spacing.lg }}>
           {endpoints.map((e) => (
-            <ListRow key={e.Name} title={e.Name} subtitle={[e.AdapterType, e.Model].filter(Boolean).join(' · ')} selected={e.Name === endpoint} onPress={() => void switchEndpoint(e)} />
+            <ListRow
+              key={e.Name}
+              title={e.Name}
+              subtitle={[e.AdapterType, e.Model].filter(Boolean).join(" · ")}
+              selected={e.Name === endpoint}
+              onPress={() => void switchEndpoint(e)}
+            />
           ))}
         </View>
-        <ToggleRow label={t('mobile.chat.planMode')} hint={t('mobile.chat.planModeHint')} value={planMode} onChange={setPlanMode} />
+        <ToggleRow
+          label={t("mobile.chat.planMode")}
+          hint={t("mobile.chat.planModeHint")}
+          value={planMode}
+          onChange={setPlanMode}
+        />
       </Sheet>
     </KeyboardAvoidingView>
   );

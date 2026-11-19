@@ -33,6 +33,7 @@ export const es: MobileCatalog = {
   chat: {
     placeholder: 'Escribe a mux',
     send: 'Enviar',
+    hideKeyboard: 'Ocultar teclado',
     stop: 'Detener',
     thinking: 'Pensando...', emptyReply: 'El modelo terminó sin escribir una respuesta.', stopped: 'Detenido.', toolStatus: { ok: 'Terminada', fail: 'Falló', running: 'En curso', canceled: 'Cancelada' }, emptyTitle: 'Empieza la conversación', emptyBody: 'mux trabaja en {{machine}}, en {{folder}}. Haz una pregunta o describe un cambio.', defaultFolder: 'la carpeta donde se inició mux',
     replying: 'mux está respondiendo',
