@@ -1,4 +1,4 @@
-import type { AppStateStatus } from "react-native";
+import type { AppStateStatus } from 'react-native';
 
 /** What the biometric lock does when the app state changes. */
 export interface LockTransition {
@@ -15,14 +15,8 @@ export interface LockTransition {
  * `active`, so only a real trip to the `background` locks the app and only the return from it prompts again. Without
  * this, every successful unlock re-triggered the prompt.
  */
-export function lockTransition(
-  next: AppStateStatus,
-  locked: boolean,
-  wentBackground: boolean,
-): LockTransition {
-  if (next === "background")
-    return { lock: true, prompt: false, wentBackground: true };
-  if (next === "active" && wentBackground)
-    return { lock: false, prompt: locked, wentBackground: false };
+export function lockTransition(next: AppStateStatus, locked: boolean, wentBackground: boolean): LockTransition {
+  if (next === 'background') return { lock: true, prompt: false, wentBackground: true };
+  if (next === 'active' && wentBackground) return { lock: false, prompt: locked, wentBackground: false };
   return { lock: false, prompt: false, wentBackground };
 }

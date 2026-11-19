@@ -1,20 +1,14 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { AppState, View } from "react-native";
-import * as LocalAuthentication from "expo-local-authentication";
-import { useTranslation } from "react-i18next";
-import { useTheme } from "@/theme/ThemeContext";
-import { spacing } from "@/theme/palette";
-import { lockTransition } from "@/lib/lockPolicy";
-import { Button, T } from "./ui";
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState, View } from 'react-native';
+import * as LocalAuthentication from 'expo-local-authentication';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/theme/ThemeContext';
+import { spacing } from '@/theme/palette';
+import { lockTransition } from '@/lib/lockPolicy';
+import { Button, T } from './ui';
 
 /** Optional biometric lock: when enabled, the app asks for Face ID, Touch ID, or the device passcode on launch and on return from the background. */
-export function LockGate({
-  enabled,
-  children,
-}: {
-  enabled: boolean;
-  children: React.ReactNode;
-}) {
+export function LockGate({ enabled, children }: { enabled: boolean; children: React.ReactNode }) {
   const p = useTheme();
   const { t } = useTranslation();
   const [locked, setLocked] = useState(enabled);
@@ -36,8 +30,8 @@ export function LockGate({
     prompting.current = true;
     try {
       const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: t("mobile.lock.prompt"),
-        cancelLabel: t("common.cancel"),
+        promptMessage: t('mobile.lock.prompt'),
+        cancelLabel: t('common.cancel'),
       });
       if (result.success) {
         lockedRef.current = false;
@@ -51,12 +45,8 @@ export function LockGate({
   useEffect(() => {
     if (!enabled) return;
     void Promise.resolve().then(unlock);
-    const sub = AppState.addEventListener("change", (state) => {
-      const step = lockTransition(
-        state,
-        lockedRef.current,
-        wentBackground.current,
-      );
+    const sub = AppState.addEventListener('change', (state) => {
+      const step = lockTransition(state, lockedRef.current, wentBackground.current);
       wentBackground.current = step.wentBackground;
       if (step.lock) {
         lockedRef.current = true;
@@ -73,14 +63,14 @@ export function LockGate({
       style={{
         flex: 1,
         backgroundColor: p.bg,
-        alignItems: "center",
-        justifyContent: "center",
+        alignItems: 'center',
+        justifyContent: 'center',
         gap: spacing.lg,
         padding: spacing.xl,
       }}
     >
-      <T variant="heading">{t("mobile.lock.title")}</T>
-      <Button title={t("mobile.lock.unlock")} onPress={() => void unlock()} />
+      <T variant="heading">{t('mobile.lock.title')}</T>
+      <Button title={t('mobile.lock.unlock')} onPress={() => void unlock()} />
     </View>
   );
 }
