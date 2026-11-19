@@ -73,6 +73,7 @@ const buildConfig = ({ config }: ConfigContext): ExpoConfig => ({
     adaptiveIcon: {
       backgroundColor: SPLASH_BACKGROUND,
       foregroundImage: "./assets/images/adaptive-foreground.png",
+      backgroundImage: "./assets/images/adaptive-background.png",
     },
     permissions: ["USE_BIOMETRIC", "USE_FINGERPRINT", "POST_NOTIFICATIONS"],
   },
