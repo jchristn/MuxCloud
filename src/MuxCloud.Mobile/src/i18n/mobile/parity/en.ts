@@ -163,6 +163,7 @@ export const enParity = {
     cleared: 'Cleared memories: {{count}}',
   },
   worktrees: {
+    notGit: 'This folder is not in a git repository. Enter a folder inside one to see its worktrees.',
     title: 'Worktrees',
     intro: 'Separate git working copies mux created for parallel work in this repository.',
     folderHint: 'A folder inside the git repository. Leave blank to use the folder mux started in.',

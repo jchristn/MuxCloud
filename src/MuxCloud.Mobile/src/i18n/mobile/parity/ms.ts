@@ -160,6 +160,7 @@ export const msParity: ParityCatalog = {
     cleared: 'Memori dikosongkan: {{count}}',
   },
   worktrees: {
+    notGit: 'Folder ini bukan dalam repositori git. Masukkan folder di dalam repositori untuk melihat worktree-nya.',
     title: 'Worktree',
     intro: 'Salinan kerja git berasingan yang dicipta mux untuk kerja selari dalam repositori ini.',
     folderHint: 'Folder dalam repositori git. Biarkan kosong untuk menggunakan folder tempat mux dimulakan.',

@@ -72,7 +72,12 @@ export default function WorktreesScreen() {
       />
       <Button title={t('mobile.worktrees.prune')} kind="secondary" onPress={() => void prune()} disabled={!list.data} accessibilityHint={t('mobile.worktrees.pruneHint')} />
       {message ? <Notice tone="success" text={message} /> : null}
-      {list.error ? <ErrorBox error={list.error} onRetry={() => void list.reload()} /> : null}
+      {/* 400: the folder is not inside a git repository, which is normal (worktrees only exist in repositories). */}
+      {list.error instanceof ApiError && list.error.status === 400 ? (
+        <Notice text={t('mobile.worktrees.notGit')} />
+      ) : list.error ? (
+        <ErrorBox error={list.error} onRetry={() => void list.reload()} />
+      ) : null}
       {error ? <ErrorBox error={error} /> : null}
       {list.loading && !list.data ? <Loading /> : null}
       {list.data && items.length === 0 ? <Empty title={t('mobile.worktrees.none')} body={t('mobile.worktrees.noneBody')} /> : null}

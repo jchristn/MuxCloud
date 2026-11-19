@@ -160,6 +160,7 @@ export const itParity: ParityCatalog = {
     cleared: 'Memorie svuotate: {{count}}',
   },
   worktrees: {
+    notGit: 'Questa cartella non è in un repository git. Inserisci una cartella al suo interno per vederne i worktree.',
     title: 'Worktree',
     intro: 'Copie di lavoro git separate create da mux per lavorare in parallelo in questo repository.',
     folderHint: 'Una cartella nel repository git. Lascia vuoto per usare la cartella in cui è stato avviato mux.',

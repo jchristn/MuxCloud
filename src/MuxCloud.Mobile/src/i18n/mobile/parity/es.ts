@@ -160,6 +160,7 @@ export const esParity: ParityCatalog = {
     cleared: 'Memorias vaciadas: {{count}}',
   },
   worktrees: {
+    notGit: 'Esta carpeta no está en un repositorio git. Indica una carpeta dentro de uno para ver sus worktrees.',
     title: 'Worktrees',
     intro: 'Copias de trabajo de git separadas que mux creó para trabajar en paralelo en este repositorio.',
     folderHint: 'Una carpeta dentro del repositorio git. Déjala vacía para usar la carpeta donde se inició mux.',

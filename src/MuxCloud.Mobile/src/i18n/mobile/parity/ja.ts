@@ -160,6 +160,7 @@ export const jaParity: ParityCatalog = {
     cleared: '消去したメモリー: {{count}} 件',
   },
   worktrees: {
+    notGit: 'このフォルダーは git リポジトリ内にありません。ワークツリーを見るには、リポジトリ内のフォルダーを入力してください。',
     title: 'ワークツリー',
     intro: 'このリポジトリで並行作業するために mux が作成した、別々の Git 作業コピーです。',
     folderHint: 'Git リポジトリ内のフォルダー。空欄にすると mux を起動したフォルダーを使います。',

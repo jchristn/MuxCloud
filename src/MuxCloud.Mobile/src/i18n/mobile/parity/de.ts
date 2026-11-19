@@ -160,6 +160,7 @@ export const deParity: ParityCatalog = {
     cleared: 'Erinnerungen geleert: {{count}}',
   },
   worktrees: {
+    notGit: 'Dieser Ordner liegt in keinem Git-Repository. Gib einen Ordner in einem Repository an, um seine Worktrees zu sehen.',
     title: 'Worktrees',
     intro: 'Separate Git-Arbeitskopien, die mux für parallele Arbeit in diesem Repository angelegt hat.',
     folderHint: 'Ein Ordner im Git-Repository. Leer lassen, um den Ordner zu nutzen, in dem mux gestartet wurde.',

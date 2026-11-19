@@ -160,6 +160,7 @@ export const zhParity: ParityCatalog = {
     cleared: '已清空记忆：{{count}} 条',
   },
   worktrees: {
+    notGit: '此文件夹不在 git 仓库中。请输入仓库内的文件夹以查看其工作树。',
     title: '工作树',
     intro: 'mux 为在此仓库中并行工作而创建的独立 Git 工作副本。',
     folderHint: 'Git 仓库中的文件夹。留空则使用 mux 启动时所在的文件夹。',
