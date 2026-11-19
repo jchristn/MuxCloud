@@ -5,15 +5,22 @@ import { formatNumber } from '@dashboard/lib';
  * Same output as the dashboard's formatDuration, but values are rounded before formatting: Hermes's Intl.NumberFormat
  * ignores maximumFractionDigits for style "unit" and would print "6.849 s".
  */
+const digitsOf = (text: string): string => (text.match(/\p{Nd}/gu) ?? []).join('');
+
 export function formatDuration(locale: string, ms: number | null | undefined): string {
   if (ms === null || ms === undefined || Number.isNaN(ms)) return '';
   const unit = (value: number, u: string, digits = 0) => {
     const f = Math.pow(10, digits);
     const rounded = Math.round(value * f) / f;
+    const fallback = () =>
+      formatNumber(locale, rounded, { maximumFractionDigits: digits }) + ' ' + ({ millisecond: 'ms', second: 's', minute: 'min', hour: 'h' }[u] ?? u);
     try {
-      return formatNumber(locale, rounded, { style: 'unit', unit: u, unitDisplay: 'short', maximumFractionDigits: digits });
+      const out = formatNumber(locale, rounded, { style: 'unit', unit: u, unitDisplay: 'short', maximumFractionDigits: digits });
+      // iOS's unit formatter rescales minutes and hours to seconds ("1 min" becomes "60s"), so keep its output only
+      // when it shows the number we asked for.
+      return digitsOf(out) === digitsOf(formatNumber(locale, rounded, { maximumFractionDigits: digits })) ? out : fallback();
     } catch {
-      return String(rounded) + ' ' + ({ millisecond: 'ms', second: 's', minute: 'min', hour: 'h' }[u] ?? u);
+      return fallback();
     }
   };
   if (ms < 1000) return unit(ms, 'millisecond', ms < 10 ? 2 : 0);
