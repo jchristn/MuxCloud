@@ -6,10 +6,11 @@ Captured 2026-11-19 from Release builds of the app against a local, throwaway Mu
 Status bars use the standard 9:41 demo values.
 
 The sign-in shots show the app's default server, `https://app.usemux.ai`. The usage shots come from about 30 days of
-synthetic history (3,167 model calls across five models and three endpoints) written to the demo hub's usage store in
+synthetic history (about 3,200 model calls across five models and three endpoints) written to the demo hub's usage store in
 mux's own format.
 
-All screenshots are 24-bit PNG (no alpha), as App Store Connect and Google Play require.
+All screenshots are 24-bit PNG (no alpha), as App Store Connect and Google Play require. The usage charts span the
+full content width (MuxCloud b777fe1).
 
 ## App Store: iPhone 6.9" (`ios-6.9/`, 1320 x 2868, iPhone 18 Pro Max simulator)
 
@@ -24,16 +25,16 @@ All screenshots are 24-bit PNG (no alpha), as App Store Connect and Google Play 
 | `07-manage.png` | Manage menu (settings, prompts, skills, memory, worktrees, usage, and more) |
 | `08-dark-conversation.png` | The conversation from 03 in dark mode |
 
-## App Store: iPad 13" (`ipad-13/`, 2064 x 2752, iPad Pro 13-inch simulator)
+## App Store: iPad 13" (`ipad-13/`, 2752 x 2064 landscape, iPad Pro 13-inch simulator)
 
 | File | Shows |
 |---|---|
 | `01-signin.png` | Sign-in screen, email prefilled, server `https://app.usemux.ai` |
 | `02-machines.png` | Machines list |
-| `03-split-view.png` | Split view: machine and conversation list on the left, the curl conversation on the right |
-| `04-approval.png` | Tool approval card with the three actions |
-| `05-usage.png` | Usage for the last month: totals, tokens split by model, latency, breakdown by model |
-| `06-dark-split-view.png` | Split view in dark mode on `build-box` |
+| `03-split-view.png` | Split view: six conversations on the left, the curl conversation with its code blocks on the right |
+| `04-approval.png` | Tool approval card across the full width with the three actions |
+| `05-usage.png` | Usage for the last month: totals, a full-width chart of tokens split by model, latency |
+| `06-dark-split-view.png` | Split view in dark mode on `build-box`: a spending summary table |
 
 ## Google Play: phone (`android-phone/`, 1080 x 2160, Pixel 9 emulator with the display set to 1080 x 2160)
 
@@ -57,7 +58,7 @@ All screenshots are 24-bit PNG (no alpha), as App Store Connect and Google Play 
 | `02-machines.png` | Machines list |
 | `03-split-view.png` | Split view with the curl conversation |
 | `04-approval.png` | Tool approval card |
-| `05-usage.png` | Usage for the last month, tokens split by model, latency percentiles |
+| `05-usage.png` | Usage for the last month, a full-width chart of tokens split by model, latency percentiles |
 | `06-dark-split-view.png` | Split view in dark mode on `build-box` |
 
 ## Google Play graphics
