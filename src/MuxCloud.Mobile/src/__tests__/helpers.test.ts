@@ -1,5 +1,5 @@
 import { humanize, templateFrom } from '@/lib/forms';
-import { COLLECTIONS, collectionFor } from '@/lib/resources';
+import { COLLECTIONS, collectionFor, SCREENS } from '@/lib/resources';
 import { facetsOf, filterSessions } from '@/lib/sessions';
 import { historyForRequest, parseSlash, SLASH_SCREENS, type Turn } from '@/lib/transcript';
 import { barFractions, eventsToCsv, heatLevel, metricValue } from '@/lib/usage';
@@ -33,7 +33,7 @@ describe('chat helpers', () => {
     expect(parseSlash('hello')).toBeNull();
     expect(SLASH_SCREENS.models).toBe('endpoints');
     for (const segment of new Set(Object.values(SLASH_SCREENS))) {
-      expect(collectionFor(segment) !== undefined || ['usage', 'skills', 'pricing', 'settings'].includes(segment)).toBe(true);
+      expect(collectionFor(segment) !== undefined || (SCREENS as readonly string[]).includes(segment)).toBe(true);
     }
   });
   it('sends finished user and assistant turns plus display-only notes, never pending or failed turns', () => {

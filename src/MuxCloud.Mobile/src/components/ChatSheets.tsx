@@ -3,13 +3,13 @@ import { Pressable, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '@dashboard/lib';
-import { EFFORT_LEVELS } from '@/lib/chatCommands';
+import { EFFORT_LEVELS, TRUST_LEVELS } from '@/lib/chatCommands';
 import { contextPercent, tokensPerTurn } from '@/lib/chatStats';
 import { formatDuration } from '@/lib/duration';
 import type { Turn } from '@/lib/transcript';
 import type { MuxApi } from '@/relay/muxApi';
 import { loadPromptHistory } from '@/storage/chatStore';
-import type { MuxEndpoint, MuxInstructions, MuxRunState, MuxRunTask } from '@/types/mux';
+import type { MuxEndpoint, MuxInstructions, MuxRunState, MuxRunTask, MuxTrust } from '@/types/mux';
 import { useTheme } from '@/theme/ThemeContext';
 import { font, radius, spacing } from '@/theme/palette';
 import { Sheet } from './Sheet';
@@ -330,5 +330,88 @@ export function TaskPlanCard({ tasks, completed, total }: { tasks: MuxRunTask[];
         </View>
       ) : null}
     </View>
+  );
+}
+
+/**
+ * `/trust`: which of the project's checked-in skills mux loads. Skills with commands run code from the repository, so
+ * they load only when the project is trusted. Reset forgets the choice (mux then behaves like Playbooks only).
+ */
+export function TrustSheet({
+  api,
+  workingDirectory,
+  visible,
+  onClose,
+  onSaved,
+}: {
+  api: MuxApi;
+  workingDirectory: string | null;
+  visible: boolean;
+  onClose: () => void;
+  onSaved: (message: string) => void;
+}) {
+  const { t } = useTranslation();
+  const [trust, setTrust] = useState<MuxTrust | null>(null);
+  const [error, setError] = useState<unknown>(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    if (!visible) return;
+    let alive = true;
+    void Promise.resolve().then(() => {
+      if (!alive) return;
+      setTrust(null);
+      setError(null);
+      api
+        .trust(workingDirectory)
+        .then((r) => alive && setTrust(r))
+        .catch((e) => alive && setError(e));
+    });
+    return () => {
+      alive = false;
+    };
+  }, [api, workingDirectory, visible]);
+
+  const pick = async (level: (typeof TRUST_LEVELS)[number]) => {
+    const dir = trust?.WorkingDirectory || workingDirectory;
+    if (!dir) return;
+    setBusy(true);
+    try {
+      const r = await api.setTrust(dir, level);
+      onSaved(t('mobile.trust.set', { folder: r.ProjectRoot || r.WorkingDirectory, level: t('mobile.trust.' + r.Level) }));
+      onClose();
+    } catch (e) {
+      setError(e);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Sheet visible={visible} title={t('mobile.trust.title')} onClose={onClose}>
+      <T variant="muted">{t('mobile.trust.intro')}</T>
+      {error ? <ErrorBox error={error} /> : null}
+      {!trust && !error ? <Loading /> : null}
+      {trust ? (
+        <>
+          <KeyValues
+            rows={[
+              [t('mobile.trust.project'), trust.ProjectRoot || trust.WorkingDirectory],
+              [t('mobile.trust.current'), t('mobile.trust.' + trust.Level)],
+            ]}
+          />
+          <View style={{ marginHorizontal: -spacing.lg }}>
+            {TRUST_LEVELS.map((level) => (
+              <ListRow
+                key={level}
+                title={t('mobile.trust.' + level)}
+                subtitle={t('mobile.trust.' + level + 'Hint')}
+                selected={trust.Level === level}
+                onPress={busy ? undefined : () => void pick(level)}
+              />
+            ))}
+          </View>
+        </>
+      ) : null}
+    </Sheet>
   );
 }

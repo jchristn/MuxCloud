@@ -17,6 +17,8 @@ export interface FieldHint {
   hidden?: boolean;
   /** Treat a string field that may be null as nullable: an empty input saves null. */
   nullable?: boolean;
+  /** A number field that may be null (shown empty when null; clearing it saves null). */
+  numeric?: boolean;
   /** Template for a new element of an array-of-objects field. */
   itemTemplate?: Record<string, unknown>;
 }
@@ -57,8 +59,8 @@ export function ObjectForm({
         if (typeof v === 'boolean') {
           return <ToggleRow key={key} label={label} hint={hint.hint} value={v} onChange={set} disabled={hint.readOnly} />;
         }
-        if (typeof v === 'number') {
-          return <NumberField key={key} label={label} hint={hint.hint} value={v} onChange={set} readOnly={hint.readOnly} />;
+        if (typeof v === 'number' || (hint.numeric && (v === null || v === undefined))) {
+          return <NumberField key={key} label={label} hint={hint.hint} value={v as number | null} onChange={set} readOnly={hint.readOnly} nullable={hint.numeric} />;
         }
         if (Array.isArray(v)) {
           if (v.every((x) => typeof x === 'string' || typeof x === 'number')) {
@@ -134,13 +136,28 @@ export function ObjectForm({
   );
 }
 
-function NumberField({ label, hint, value, onChange, readOnly }: { label: string; hint?: string; value: number; onChange: (v: number) => void; readOnly?: boolean }) {
-  const [text, setText] = useState(String(value));
+function NumberField({
+  label,
+  hint,
+  value,
+  onChange,
+  readOnly,
+  nullable,
+}: {
+  label: string;
+  hint?: string;
+  value: number | null;
+  onChange: (v: number | null) => void;
+  readOnly?: boolean;
+  nullable?: boolean;
+}) {
+  const [text, setText] = useState(value === null ? '' : String(value));
   const [seen, setSeen] = useState(value);
   const { t } = useTranslation();
   if (value !== seen) {
     setSeen(value);
-    if (Number(text) !== value) setText(String(value));
+    if (value === null) setText('');
+    else if (Number(text) !== value) setText(String(value));
   }
   const invalid = text.trim() !== '' && Number.isNaN(Number(text));
   return (
@@ -154,7 +171,8 @@ function NumberField({ label, hint, value, onChange, readOnly }: { label: string
       onChangeText={(next) => {
         setText(next);
         const n = Number(next);
-        if (next.trim() !== '' && !Number.isNaN(n)) onChange(n);
+        if (next.trim() === '' && nullable) onChange(null);
+        else if (next.trim() !== '' && !Number.isNaN(n)) onChange(n);
       }}
     />
   );

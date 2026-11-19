@@ -19,7 +19,7 @@ interface Waiting {
 }
 
 /**
- * Every run waiting for a tool approval, across machines. The machine list reports counts live; this screen asks each
+ * Every run waiting for a tool approval or an answer to an ask_user question, across machines. The machine list reports counts live; this screen asks each
  * of those machines for its runs and lists the ones awaiting approval. Opening one shows the prompt in its conversation.
  */
 export default function Approvals() {
@@ -71,7 +71,8 @@ export default function Approvals() {
                 <T variant="title" style={{ flex: 1 }}>
                   {w.machineName}
                 </T>
-                <Badge tone="warning" label={t('machines.statusApproval')} />
+                {w.run.PendingQuestionCount ? <Badge tone="info" label={t('mobile.approvals.question')} /> : null}
+                {w.run.PendingQuestionCount && !w.run.PendingApprovalCount ? null : <Badge tone="warning" label={t('machines.statusApproval')} />}
               </View>
               <T variant="small">{[w.run.EndpointName, w.run.Model, formatRelativeTime(i18n.language, w.run.StartedUtc)].filter(Boolean).join(' · ')}</T>
             </Card>

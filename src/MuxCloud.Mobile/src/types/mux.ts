@@ -76,6 +76,8 @@ export interface MuxChatRequest {
   PlanMode?: boolean;
   /** Run tools that would prompt without asking; the machine honors it only when this caller may approve tools. */
   AutoApproveTools?: boolean;
+  /** Stream `ask_user` questions and wait for answers (mux 2.0.0 and later). */
+  AskUser?: boolean;
 }
 
 /** GET /v1.0/api/chat/capabilities: what this caller may do about tool approvals (mux 2.0.0 and later). */
@@ -111,6 +113,11 @@ export interface MuxToolEvent {
   Name: string;
   Status: 'running' | 'ok' | 'fail' | string;
   ElapsedMs?: number;
+  /** Raw JSON arguments, on the `running` event (mux 2.0.0 and later). */
+  Arguments?: string | null;
+  /** The tool's output on the finished event, cut to 8000 characters (`ResultTruncated`). */
+  Result?: string | null;
+  ResultTruncated?: boolean;
 }
 
 export interface MuxRunSummary {
@@ -122,6 +129,9 @@ export interface MuxRunSummary {
   IsTerminal: boolean;
   StartedUtc: string;
   CompletedUtc?: string | null;
+  PendingApprovalCount?: number;
+  /** ask_user questions waiting for an answer; the run reads `awaiting_approval` while any is pending. */
+  PendingQuestionCount?: number;
 }
 
 export interface MuxRunCancelReply {
@@ -450,4 +460,114 @@ export interface MuxUsageEventsPage {
   TotalCount: number;
   PageNumber: number;
   PageSize: number;
+}
+
+/** An `ask_user` question: from the chat stream (PascalCase) or a run frame (camelCase), normalized. */
+export interface MuxQuestion {
+  runId: string;
+  questionId: string;
+  sessionId?: string;
+  question: string;
+  options: { label: string; description?: string }[];
+  multiSelect: boolean;
+  allowOther: boolean;
+  allowSkip: boolean;
+  timeoutSeconds: number;
+  receivedAt: number;
+}
+
+/** `POST /chat/answer` body. */
+export interface MuxAnswer {
+  RunId: string;
+  QuestionId: string;
+  Answers: string[];
+  Other?: string | null;
+  Skip: boolean;
+}
+
+/** The `attachments` chat event: what `@path` mentions attached to the prompt. */
+export interface MuxAttachments {
+  Attached: { Path: string; Kind: 'file' | 'directory' | string; Bytes?: number; Lines?: number; Inlined?: boolean }[];
+  Skipped: { Path: string; Reason: string }[];
+  Notes: string[];
+  TotalBytes: number;
+}
+
+/** The `compacted` chat event and the `POST /sessions/{id}/compact` result. */
+export interface MuxCompaction {
+  Compacted?: boolean;
+  Message?: string;
+  Endpoint?: string;
+  MessagesBefore: number;
+  MessagesAfter: number;
+  EstimatedTokensBefore: number;
+  EstimatedTokensAfter: number;
+  ContextWindow?: number;
+  SummaryCreated?: boolean;
+  Strategy?: string;
+  Reason?: string;
+}
+
+/** `GET /processes` item: a background process a tool started. */
+export interface MuxProcess {
+  Id: string;
+  Name?: string | null;
+  Command: string;
+  WorkingDirectory?: string | null;
+  ProcessId?: number | null;
+  StartedUtc: string;
+  ExitedUtc?: string | null;
+  Running: boolean;
+  ExitCode?: number | null;
+  StoppedByUser?: boolean;
+  OutputChars?: number;
+  UnreadChars?: number;
+}
+
+/** `GET /processes/{id}/output`. */
+export interface MuxProcessOutput {
+  Id: string;
+  Command: string;
+  Text: string;
+  Running: boolean;
+  ExitCode?: number | null;
+}
+
+export type MuxTrustLevel = 'all' | 'playbooks' | 'ignore' | 'unknown';
+
+/** `GET`/`PUT /trust`. */
+export interface MuxTrust {
+  WorkingDirectory: string;
+  ProjectRoot?: string | null;
+  Level: MuxTrustLevel;
+}
+
+export interface MuxSearchProvider {
+  Name: string;
+  ProviderType: string;
+  Endpoint?: string | null;
+  /** Write-only: blank keeps the stored key. */
+  ApiKey?: string | null;
+  ApiKeySet?: boolean;
+  Enabled: boolean;
+  IsDefault: boolean;
+  TimeoutMs?: number;
+}
+
+/** `GET`/`PUT /search`: web search providers. */
+export interface MuxSearchSettings {
+  Enabled: boolean;
+  AllowFallback: boolean;
+  Providers: MuxSearchProvider[];
+  ProviderTypes?: string[];
+}
+
+/** `GET /keybindings/commands` item. */
+export interface MuxKeybindingCommand {
+  CommandId: string;
+  Title: string;
+  Category: string;
+  DefaultChord?: string | null;
+  EffectiveChord?: string | null;
+  Overridden: boolean;
 }

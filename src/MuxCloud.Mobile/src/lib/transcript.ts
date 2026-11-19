@@ -1,5 +1,5 @@
 import type { ChatStreamEvent } from '@/relay/chatStream';
-import type { MuxChatMessage, MuxChatStats, MuxSessionDetail, MuxWsFrame } from '@/types/mux';
+import type { MuxAttachments, MuxChatMessage, MuxChatStats, MuxSessionDetail, MuxWsFrame } from '@/types/mux';
 
 /** A tool call shown inside an assistant turn. */
 export interface ToolLine {
@@ -29,6 +29,10 @@ export interface Turn {
   runId?: string;
   /** Local-only rich content rendered instead of `content` (the clickable help card). */
   card?: 'help';
+  /** On a user turn: what its `@path` mentions attached (the `attachments` chat event). */
+  attachments?: MuxAttachments;
+  /** The text mux saved, when it differs from what is shown (a prompt with its mentioned files appended). */
+  sentContent?: string;
 }
 
 /** A pending tool approval, from the SSE `approval` event or a WebSocket `approval_requested` frame. */
@@ -62,10 +66,15 @@ export function turnsFromDetail(detail: MuxSessionDetail | null): Turn[] {
       }
       return;
     }
+    // mux saves a user prompt with its @mentioned files appended; show the prompt and an attachments line instead,
+    // and keep the full text so the next turn's history still carries the files.
+    const mention = role === 'user' ? splitMentionBlock(m.Content ?? '') : null;
     turns.push({
       key: 'm' + index,
       role: role === 'user' || role === 'system' ? role : 'assistant',
-      content: m.Content ?? '',
+      content: mention ? mention.text : (m.Content ?? ''),
+      sentContent: mention ? m.Content : undefined,
+      attachments: mention?.attachments,
       thinking: m.Reasoning ?? undefined,
       tools: (m.ToolCalls ?? []).map((c) => ({ id: c.Id, name: c.Name, status: 'ok', arguments: c.Arguments })),
       model: m.Model ?? undefined,
@@ -87,11 +96,22 @@ export function applyChatEvent(turn: Turn, event: ChatStreamEvent): Turn {
       break;
     case 'tool': {
       const existing = turn.tools.find((t) => t.id === event.tool.Id);
+      // mux 2.0.0 sends the arguments on the running event and the (possibly truncated) result on the finished one.
+      const result = event.tool.Result ? event.tool.Result + (event.tool.ResultTruncated ? '\n...' : '') : undefined;
       if (existing) {
         existing.status = event.tool.Status;
         existing.elapsedMs = event.tool.ElapsedMs;
+        if (event.tool.Arguments) existing.arguments = event.tool.Arguments;
+        if (result !== undefined) existing.result = result;
       } else {
-        turn.tools.push({ id: event.tool.Id, name: event.tool.Name, status: event.tool.Status, elapsedMs: event.tool.ElapsedMs });
+        turn.tools.push({
+          id: event.tool.Id,
+          name: event.tool.Name,
+          status: event.tool.Status,
+          elapsedMs: event.tool.ElapsedMs,
+          arguments: event.tool.Arguments ?? undefined,
+          result,
+        });
       }
       break;
     }
@@ -181,7 +201,22 @@ export function secondsRemaining(approval: PendingApproval, now: number): number
 export function historyForRequest(turns: Turn[]): { Role: string; Content: string; DisplayOnly?: boolean }[] {
   return turns
     .filter((t) => !t.pending && !t.error && (t.role === 'user' || t.role === 'assistant' || (t.role === 'system' && t.displayOnly)))
-    .map((t) => (t.displayOnly ? { Role: t.role, Content: t.content, DisplayOnly: true } : { Role: t.role, Content: t.content }));
+    .map((t) => (t.displayOnly ? { Role: t.role, Content: t.content, DisplayOnly: true } : { Role: t.role, Content: t.sentContent ?? t.content }));
+}
+
+/**
+ * Splits mux's `<mentioned-files>` block (FileMentionResolver.BuildBlock) off a saved user prompt. Returns null when
+ * the prompt has none; otherwise the prompt text and the attached paths with their line or entry counts.
+ */
+export function splitMentionBlock(content: string): { text: string; attachments: MuxAttachments } | null {
+  const start = content.lastIndexOf('<mentioned-files>');
+  if (start < 0 || !content.trimEnd().endsWith('</mentioned-files>')) return null;
+  const block = content.slice(start);
+  const attached: MuxAttachments['Attached'] = [];
+  for (const m of block.matchAll(/<(file|directory) path="([^"]*)" (?:lines|entries)="(\d+)"/g)) {
+    attached.push({ Path: m[2], Kind: m[1], Lines: m[1] === 'file' ? Number(m[3]) : undefined });
+  }
+  return { text: content.slice(0, start).trimEnd(), attachments: { Attached: attached, Skipped: [], Notes: [], TotalBytes: 0 } };
 }
 
 /** Parse a chat slash command. Built-in commands win over skills with the same name. */
@@ -207,4 +242,6 @@ export const SLASH_SCREENS: Record<string, string> = {
   commands: 'commands',
   keybindings: 'keybindings',
   settings: 'settings',
+  processes: 'processes',
+  search: 'search',
 };

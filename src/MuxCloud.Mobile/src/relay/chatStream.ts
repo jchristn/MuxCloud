@@ -1,7 +1,8 @@
 import { relayPath, type ApiClient } from '@dashboard/api';
 import type { SseEvent } from '@/lib/sse';
 import { streamSse, type SseHandle, type XhrLike } from '@/lib/sseTransport';
-import type { MuxApprovalRequest, MuxChatReply, MuxChatRequest, MuxToolEvent } from '@/types/mux';
+import { questionFrom } from '@/lib/questions';
+import type { MuxApprovalRequest, MuxAttachments, MuxChatReply, MuxChatRequest, MuxCompaction, MuxQuestion, MuxToolEvent } from '@/types/mux';
 
 /** Typed events of `POST /v1.0/api/chat/stream` (mux ChatRoutes.cs). */
 export type ChatStreamEvent =
@@ -12,6 +13,9 @@ export type ChatStreamEvent =
   | { type: 'approval'; approval: MuxApprovalRequest }
   | { type: 'plan'; plan: unknown; text: string; executionPrompt: string }
   | { type: 'done'; reply: MuxChatReply }
+  | { type: 'ask_user'; question: MuxQuestion }
+  | { type: 'attachments'; attachments: MuxAttachments }
+  | { type: 'compacted'; compaction: MuxCompaction }
   | { type: 'canceled' }
   | { type: 'error'; message: string };
 
@@ -39,6 +43,17 @@ export function toChatEvent(event: SseEvent): ChatStreamEvent | null {
       return { type: 'plan', plan: obj.plan, text: String(obj.text ?? ''), executionPrompt: String(obj.executionPrompt ?? '') };
     case 'done':
       return { type: 'done', reply: data as MuxChatReply };
+    case 'ask_user': {
+      const question = questionFrom(data, Date.now());
+      return question ? { type: 'ask_user', question } : null;
+    }
+    case 'attachments':
+      return {
+        type: 'attachments',
+        attachments: { Attached: (obj.Attached as MuxAttachments['Attached']) ?? [], Skipped: (obj.Skipped as MuxAttachments['Skipped']) ?? [], Notes: (obj.Notes as string[]) ?? [], TotalBytes: Number(obj.TotalBytes ?? 0) },
+      };
+    case 'compacted':
+      return { type: 'compacted', compaction: data as MuxCompaction };
     case 'canceled':
       return { type: 'canceled' };
     case 'error':

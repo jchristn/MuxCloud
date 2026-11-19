@@ -45,9 +45,33 @@ export function TurnView({
     );
   }
   if (turn.role === 'user') {
+    const a = turn.attachments;
     return (
-      <View style={{ alignSelf: 'flex-end', maxWidth: '88%', backgroundColor: p.accentSoft, borderRadius: radius.lg, padding: spacing.md }}>
-        <T selectable>{turn.content}</T>
+      <View style={{ alignSelf: 'flex-end', maxWidth: '88%', gap: spacing.xs, alignItems: 'flex-end' }}>
+        <View style={{ backgroundColor: p.accentSoft, borderRadius: radius.lg, padding: spacing.md }}>
+          <T selectable>{turn.content}</T>
+        </View>
+        {a && (a.Attached.length > 0 || a.Skipped.length > 0 || a.Notes.length > 0) ? (
+          <View style={{ gap: 2, alignItems: 'flex-end' }} accessibilityLabel={t('mobile.attach.label')}>
+            {a.Attached.length > 0 ? (
+              <T variant="small" style={{ textAlign: 'right' }}>
+                {t('mobile.attach.attached', {
+                  list: a.Attached.map((x) => x.Path + (x.Kind === 'directory' ? '/' : '') + (x.Lines ? ' (' + t('mobile.attach.lines', { count: x.Lines }) + ')' : '')).join(', '),
+                })}
+              </T>
+            ) : null}
+            {a.Skipped.map((x) => (
+              <T key={x.Path} variant="small" style={{ color: p.warning, textAlign: 'right' }}>
+                {t('mobile.attach.skipped', { path: x.Path, reason: x.Reason })}
+              </T>
+            ))}
+            {a.Notes.map((n) => (
+              <T key={n} variant="small" style={{ textAlign: 'right' }}>
+                {n}
+              </T>
+            ))}
+          </View>
+        ) : null}
       </View>
     );
   }

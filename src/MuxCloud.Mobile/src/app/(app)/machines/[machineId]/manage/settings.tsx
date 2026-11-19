@@ -28,6 +28,17 @@ const HINTS: FieldHints = {
 export default function SettingsScreen() {
   const { machineId } = useLocalSearchParams<{ machineId: string }>();
   const { t } = useTranslation();
+  // Fields mux 2.0.0 added to /settings (older machines simply do not send them).
+  const hints: FieldHints = {
+    ...HINTS,
+    SystemPromptPath: { nullable: true, hint: t('mobile.settingsForm.systemPromptPath') },
+    MaxTokenBudget: { numeric: true, hint: t('mobile.settingsForm.maxTokenBudget') },
+    ContextWindowSafetyMarginPercent: { hint: t('mobile.settingsForm.safetyMargin') },
+    TokenEstimationRatio: { hint: t('mobile.settingsForm.tokenRatio') },
+    SkillRefreshIntervalSeconds: { hint: t('mobile.settingsForm.skillRefresh') },
+    SkillsDirectory: { nullable: true, hint: t('mobile.settingsForm.skillsDirectory') },
+    TelemetryEnabled: { hint: t('mobile.settingsForm.telemetry') },
+  };
   const api = useMachineApi(machineId);
   const settings = useAsync(() => api.settings(), [api]);
   const [draft, setDraft] = useState<Record<string, unknown> | null>(null);
@@ -64,7 +75,7 @@ export default function SettingsScreen() {
       <Notice text={t('mobile.manage.settingsRemote')} />
       {settings.loading && !draft ? <Loading /> : null}
       {settings.error ? <ErrorBox error={settings.error} onRetry={() => void settings.reload()} /> : null}
-      {draft ? <ObjectForm value={draft} onChange={setDraft} hints={HINTS} /> : null}
+      {draft ? <ObjectForm value={draft} onChange={setDraft} hints={hints} /> : null}
       {error ? <ErrorBox error={error} /> : null}
       {saved ? <Notice tone="success" text={t('mobile.manage.saved')} /> : null}
       {draft ? <Button title={busy ? t('common.saving') : t('common.save')} busy={busy} onPress={() => void save()} /> : null}

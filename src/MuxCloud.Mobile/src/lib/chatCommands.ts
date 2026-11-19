@@ -59,6 +59,9 @@ export const CHAT_COMMANDS: { command: string; args?: string }[] = [
   { command: 'instructions' },
   { command: 'memory', args: '[show|delete <name>|clear]' },
   { command: 'worktrees' },
+  { command: 'compact' },
+  { command: 'trust', args: '[all|playbooks|ignore|reset]' },
+  { command: 'processes' },
   { command: 'undo' },
   { command: 'redo' },
   { command: 'label', args: '[a, b]' },
@@ -69,6 +72,7 @@ export const CHAT_COMMANDS: { command: string; args?: string }[] = [
   { command: 'usage' },
   { command: 'endpoints' },
   { command: 'mcp' },
+  { command: 'search' },
   { command: 'prompts' },
   { command: 'skills' },
   { command: 'subagents' },
@@ -107,6 +111,9 @@ export const EFFORT_LEVELS = ['off', 'none', 'minimal', 'low', 'medium', 'high',
 
 const MEMORY_ACTIONS = ['show', 'delete', 'clear'];
 
+/** `/trust` levels: trust everything in the project, only its playbooks, ignore it, or forget the choice. */
+export const TRUST_LEVELS = ['all', 'playbooks', 'ignore', 'reset'] as const;
+
 export interface Suggestion {
   /** Text shown in the suggestion chip. */
   label: string;
@@ -123,7 +130,8 @@ export function slashSuggestions(input: string, extra: { endpoints?: string[]; s
   const space = input.indexOf(' ');
   if (space < 0) {
     const prefix = input.slice(1).toLowerCase();
-    const names = [...CHAT_COMMANDS.map((c) => c.command), ...Object.keys(COMMAND_ALIASES).filter((a) => a !== '?'), ...(extra.skills ?? [])];
+    // Skills rank above aliases: an alias is just another spelling of a command that is already listed.
+    const names = [...CHAT_COMMANDS.map((c) => c.command), ...(extra.skills ?? []), ...Object.keys(COMMAND_ALIASES).filter((a) => a !== '?')];
     const seen = new Set<string>();
     const out: Suggestion[] = [];
     for (const name of names) {
@@ -147,6 +155,7 @@ export function slashSuggestions(input: string, extra: { endpoints?: string[]; s
   if (command === 'endpoint') return pick(extra.endpoints ?? []);
   if (command === 'effort') return pick([...EFFORT_LEVELS]);
   if (command === 'memory') return pick(MEMORY_ACTIONS);
+  if (command === 'trust') return pick([...TRUST_LEVELS]);
   return [];
 }
 

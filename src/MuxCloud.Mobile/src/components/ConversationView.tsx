@@ -29,19 +29,22 @@ import {
   parseQuickMemory,
   parseTags,
   slashSuggestions,
+  TRUST_LEVELS,
   type Suggestion,
 } from '@/lib/chatCommands';
+import { addQuestion, questionFrom } from '@/lib/questions';
 import { contextPercent } from '@/lib/chatStats';
 import { markSeen, rememberPrompt } from '@/storage/chatStore';
 import { usePrefs } from '@/state/PrefsContext';
 import { createMachineSocket } from '@/state/accountEvents';
 import { useAuth } from '@/state/AuthContext';
 import { useMachineApi } from '@/state/useMachineApi';
-import type { MuxCheckpointStatus, MuxEndpoint, MuxEndpointSummary, MuxRunTask, MuxSessionDetail } from '@/types/mux';
+import type { MuxCheckpointStatus, MuxEndpoint, MuxEndpointSummary, MuxQuestion, MuxRunTask, MuxSessionDetail, MuxTrustLevel } from '@/types/mux';
 import { useTheme } from '@/theme/ThemeContext';
 import { font, radius, spacing } from '@/theme/palette';
 import { ApprovalCard } from './ApprovalCard';
-import { EffortSheet, HistorySheet, InstructionsSheet, StatsSheet, TaskPlanCard, TurnInfoSheet } from './ChatSheets';
+import { AskUserSheet, type QuestionAnswer } from './AskUserSheet';
+import { EffortSheet, HistorySheet, InstructionsSheet, StatsSheet, TaskPlanCard, TrustSheet, TurnInfoSheet } from './ChatSheets';
 import { ConnectionBanner } from './ConnectionBanner';
 import { Sheet } from './Sheet';
 import { TurnView } from './TurnView';
@@ -87,6 +90,10 @@ export function ConversationView(props: ConversationViewProps) {
   const [busy, setBusy] = useState(false);
   const [runId, setRunId] = useState<string | null>(null);
   const [approvals, setApprovals] = useState<PendingApproval[]>([]);
+  // ask_user questions waiting for an answer (this screen's own turn, or a mirrored run); the first one is shown.
+  const [questions, setQuestions] = useState<MuxQuestion[]>([]);
+  const [questionHidden, setQuestionHidden] = useState(false);
+  const [trustOpen, setTrustOpen] = useState(false);
   const [endpoints, setEndpoints] = useState<MuxEndpointSummary[]>([]);
   const [endpoint, setEndpoint] = useState<string>(initialEndpoint ?? '');
   const [planMode, setPlanMode] = useState(false);
@@ -308,6 +315,20 @@ export function ConversationView(props: ConversationViewProps) {
           setApprovals((list) => (list.some((a) => a.toolCallId === approval.toolCallId) ? list : [...list, approval]));
           return;
         }
+        if (frame.eventType === 'ask_user') {
+          const q = questionFrom(frame, Date.now());
+          if (q) {
+            Keyboard.dismiss();
+            setQuestionHidden(false);
+            setQuestions((list) => addQuestion(list, q));
+          }
+          return;
+        }
+        if (frame.eventType === 'ask_user_resolved') {
+          const id = (frame as unknown as { questionId?: string }).questionId;
+          setQuestions((list) => list.filter((q) => q.questionId !== id));
+          return;
+        }
         if (frame.eventType === 'approval_resolved') {
           setApprovals((list) => list.filter((a) => a.toolCallId !== frame.toolCallId));
           return;
@@ -320,6 +341,12 @@ export function ConversationView(props: ConversationViewProps) {
         }
         if (frame.eventType === 'transcript_changed') {
           if (!stream.current && Date.now() - ownFinishedAt.current > 5000) void loadDetail();
+          // Right after this screen's own turn, the change is usually the AI-generated title: take just the title.
+          else if (!stream.current && sessionId)
+            void api
+              .session(sessionId)
+              .then((d) => setDetail((current) => (current ? { ...current, Title: d.Title } : d)))
+              .catch(() => undefined);
           return;
         }
         // While this screen streams its own turn over SSE, the same run's frames also arrive here: ignore them.
@@ -386,7 +413,7 @@ export function ConversationView(props: ConversationViewProps) {
     });
     socket.start();
     return () => socket.stop();
-  }, [auth, machineId, sessionId, online, loadDetail, t]);
+  }, [auth, machineId, sessionId, online, loadDetail, t, api]);
 
   useEffect(() => () => stream.current?.abort(), []);
 
@@ -417,6 +444,18 @@ export function ConversationView(props: ConversationViewProps) {
     },
     [api],
   );
+
+  /** Sends an ask_user answer; 404 means it was already answered elsewhere or timed out, so it just goes away. */
+  const answerQuestion = async (q: MuxQuestion, a: QuestionAnswer) => {
+    try {
+      await api.answerQuestion({ RunId: q.runId, QuestionId: q.questionId, Answers: a.answers, Other: a.other || null, Skip: a.skip });
+      setQuestions((list) => list.filter((x) => x.questionId !== q.questionId));
+    } catch (e) {
+      setQuestions((list) => list.filter((x) => x.questionId !== q.questionId));
+      if (e instanceof ApiError && e.status === 404) note(t('mobile.ask.gone'));
+      else setError(e);
+    }
+  };
 
   const runTurn = (text: string, options: { planMode: boolean; autoApprove?: boolean }) => {
     const user: Turn = {
@@ -475,6 +514,33 @@ export function ConversationView(props: ConversationViewProps) {
         setPlan({ text: event.text, executionPrompt: event.executionPrompt });
         return;
       }
+      if (event.type === 'ask_user') {
+        Keyboard.dismiss();
+        setQuestionHidden(false);
+        setQuestions((list) => addQuestion(list, event.question));
+        return;
+      }
+      if (event.type === 'attachments') {
+        user.attachments = event.attachments;
+        setTurns((list) => list.map((x) => (x.key === user.key ? { ...user } : x)));
+        return;
+      }
+      if (event.type === 'compacted') {
+        const c = event.compaction;
+        const notice: Turn = {
+          key: nextKey(),
+          role: 'system',
+          content: t('mobile.compact.auto', { before: c.MessagesBefore, after: c.MessagesAfter, tokensBefore: c.EstimatedTokensBefore, tokensAfter: c.EstimatedTokensAfter }),
+          tools: [],
+          displayOnly: true,
+        };
+        // The notice goes before the reply being streamed, where the compaction happened.
+        setTurns((list) => {
+          const at = list.findIndex((x) => x.key === reply.key);
+          return at < 0 ? [...list, notice] : [...list.slice(0, at), notice, ...list.slice(at)];
+        });
+        return;
+      }
       if (event.type === 'done' && event.reply.Id && !sessionId) {
         setSessionId(event.reply.Id);
         onSessionCreated?.(event.reply.Id);
@@ -492,6 +558,7 @@ export function ConversationView(props: ConversationViewProps) {
       setBusy(false);
       setRunId(null);
       setApprovals([]);
+      setQuestions([]);
       refreshCheckpoint();
       if (ownRunId)
         void api
@@ -512,6 +579,7 @@ export function ConversationView(props: ConversationViewProps) {
         Messages: [...history, { Role: 'user', Content: text }],
         PlanMode: options.planMode,
         AutoApproveTools: (options.autoApprove ?? autoApprove) && canAutoApprove,
+        AskUser: true,
       },
       getAccessToken: () => auth.getAccessToken(),
       refresh: () => auth.refresh(),
@@ -691,6 +759,38 @@ export function ConversationView(props: ConversationViewProps) {
       }
       case 'worktrees':
         return onOpenScreen?.('worktrees');
+      case 'compact': {
+        if (!sessionId) return note(t('mobile.chat.saveFirst'));
+        if (busy) return note(t('mobile.compact.busy'));
+        note(t('mobile.compact.running'));
+        try {
+          const r = await api.compact(sessionId, endpoint || undefined);
+          // Reload first (the transcript changed), then add the result, which a reload would otherwise clear.
+          if (r.Compacted) await loadDetail();
+          note(
+            r.Compacted
+              ? t('mobile.compact.done', { before: r.MessagesBefore, after: r.MessagesAfter, tokensBefore: r.EstimatedTokensBefore, tokensAfter: r.EstimatedTokensAfter })
+              : r.Message || t('mobile.compact.nothing'),
+          );
+        } catch (e) {
+          if (e instanceof ApiError && e.status === 409) note(t('mobile.compact.busy'));
+          else setError(e);
+        }
+        return;
+      }
+      case 'trust': {
+        const level = args.trim().toLowerCase();
+        if (!level) return setTrustOpen(true);
+        if (!(TRUST_LEVELS as readonly string[]).includes(level)) return note(t('mobile.trust.bad', { list: TRUST_LEVELS.join(', ') }));
+        if (!folder) return note(t('mobile.chat.noFolder'));
+        try {
+          const r = await api.setTrust(folder, level as MuxTrustLevel | 'reset');
+          note(t('mobile.trust.set', { folder: r.ProjectRoot || r.WorkingDirectory, level: t('mobile.trust.' + r.Level) }));
+        } catch (e) {
+          setError(e);
+        }
+        return;
+      }
       default:
         break;
     }
@@ -871,6 +971,22 @@ export function ConversationView(props: ConversationViewProps) {
         {approvals.map((a) => (
           <ApprovalCard key={a.toolCallId} approval={a} onDecide={(d) => decide(a, d)} />
         ))}
+        {questions.length > 0 && questionHidden ? (
+          <Pressable
+            onPress={() => setQuestionHidden(false)}
+            accessibilityRole="button"
+            style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md, borderWidth: 1, borderColor: p.warning, backgroundColor: p.warningSoft, borderRadius: radius.lg, padding: spacing.md }}
+          >
+            <Ionicons name="help-circle-outline" size={24} color={p.warning} />
+            <View style={{ flex: 1 }}>
+              <T style={{ fontWeight: '600' }}>{t('mobile.ask.waiting')}</T>
+              <T variant="small" numberOfLines={2}>
+                {questions[0].question}
+              </T>
+            </View>
+            <T style={{ color: p.accent, fontWeight: '600' }}>{t('mobile.ask.answer')}</T>
+          </Pressable>
+        ) : null}
         {plan ? (
           <View
             style={{
@@ -1187,6 +1303,8 @@ export function ConversationView(props: ConversationViewProps) {
         }}
       />
       <InstructionsSheet api={api} workingDirectory={folder} visible={instructionsOpen} onClose={() => setInstructionsOpen(false)} />
+      <AskUserSheet question={questions[0] ?? null} visible={questions.length > 0 && !questionHidden} onClose={() => setQuestionHidden(true)} onAnswer={answerQuestion} />
+      <TrustSheet api={api} workingDirectory={folder} visible={trustOpen} onClose={() => setTrustOpen(false)} onSaved={(message) => note(message)} />
     </KeyboardAvoidingView>
   );
 }

@@ -89,7 +89,7 @@
     {
       "id": "chat.tools",
       "view": "chat",
-      "feature": "Tool call progress and timing",
+      "feature": "Tool cards with live arguments while running, then the result",
       "status": "implemented",
       "screen": "components/TurnView.tsx"
     },
@@ -437,10 +437,11 @@
     {
       "id": "keybindings.edit",
       "view": "keybindings",
-      "feature": "Keybindings for the terminal UI",
+      "feature": "Keybindings: every command with its default and current chord, edit as text, unbind, reset",
       "status": "implemented",
-      "screen": "app/(app)/machines/[machineId]/manage/[resource].tsx",
+      "screen": "app/(app)/machines/[machineId]/manage/keybindings.tsx",
       "api": [
+        "GET /v1.0/api/keybindings/commands",
         "GET /v1.0/api/keybindings",
         "PUT /v1.0/api/keybindings"
       ]
@@ -620,7 +621,7 @@
     {
       "id": "settings.form",
       "view": "settings",
-      "feature": "Every mux setting, including REST and Mux Cloud",
+      "feature": "Every mux setting, including REST, Mux Cloud, and the 2.0 fields (system prompt path, token budget, safety margin, token ratio, skill refresh, skills folder, telemetry)",
       "status": "implemented",
       "screen": "app/(app)/machines/[machineId]/manage/settings.tsx",
       "api": [
@@ -801,6 +802,77 @@
       "screen": "components/ConversationList.tsx",
       "api": [
         "GET /v1.0/api/runs"
+      ]
+    },
+    {
+      "id": "chat.askUser",
+      "view": "chat",
+      "feature": "ask_user questions: options, multi-select, Other, Skip, timeout; also for mirrored runs and in the approvals inbox",
+      "status": "implemented",
+      "screen": "components/AskUserSheet.tsx",
+      "api": [
+        "POST /v1.0/api/chat/stream (AskUser)",
+        "POST /v1.0/api/chat/answer"
+      ]
+    },
+    {
+      "id": "chat.compact",
+      "view": "chat",
+      "feature": "/compact and the auto-compaction notice",
+      "status": "implemented",
+      "screen": "components/ConversationView.tsx",
+      "api": [
+        "POST /v1.0/api/sessions/{id}/compact"
+      ]
+    },
+    {
+      "id": "chat.trust",
+      "view": "chat",
+      "feature": "/trust: project skill trust (all, playbooks only, ignore, reset)",
+      "status": "implemented",
+      "screen": "components/ChatSheets.tsx",
+      "api": [
+        "GET /v1.0/api/trust",
+        "PUT /v1.0/api/trust"
+      ]
+    },
+    {
+      "id": "chat.attachments",
+      "view": "chat",
+      "feature": "Attached-files notice under the prompt",
+      "status": "implemented",
+      "screen": "components/TurnView.tsx"
+    },
+    {
+      "id": "chat.aiTitles",
+      "view": "chat",
+      "feature": "AI-generated conversation titles refresh live",
+      "status": "implemented",
+      "screen": "components/ConversationView.tsx"
+    },
+    {
+      "id": "settings.processes",
+      "view": "settings",
+      "feature": "Background processes: list, output, stop, stop all, clear finished",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/processes.tsx",
+      "api": [
+        "GET /v1.0/api/processes",
+        "GET /v1.0/api/processes/{id}/output",
+        "POST /v1.0/api/processes/{id}/stop",
+        "DELETE /v1.0/api/processes"
+      ]
+    },
+    {
+      "id": "settings.search",
+      "view": "settings",
+      "feature": "Web search providers: enable, fallback, add, edit, default, remove",
+      "status": "implemented",
+      "screen": "app/(app)/machines/[machineId]/manage/search.tsx",
+      "api": [
+        "GET /v1.0/api/search",
+        "PUT /v1.0/api/search",
+        "DELETE /v1.0/api/search/providers/{name}"
       ]
     }
   ]

@@ -138,16 +138,6 @@ export const COLLECTIONS: CollectionResource[] = [
     hints: {},
     subtitle: (i) => s(i.Description) || s(i.Command),
   },
-  {
-    segment: 'keybindings',
-    titleKey: 'mobile.manage.keybindings',
-    introKey: 'mobile.manage.keybindingsIntro',
-    path: '/v1.0/api/keybindings',
-    keyField: 'CommandId',
-    template: { CommandId: '', Chord: '' },
-    hints: { Chord: { nullable: true, hint: 'For example ctrl+k or alt+enter. Empty removes the binding.' } },
-    subtitle: (i) => s(i.Chord),
-  },
 ];
 
 export function collectionFor(segment: string): CollectionResource | undefined {
@@ -155,4 +145,4 @@ export function collectionFor(segment: string): CollectionResource | undefined {
 }
 
 /** Bespoke management screens (not generic collections), in menu order. */
-export const SCREENS = ['settings', 'catalog', 'skills', 'memory', 'worktrees', 'usage', 'pricing', 'palettes'] as const;
+export const SCREENS = ['settings', 'catalog', 'skills', 'search', 'keybindings', 'memory', 'worktrees', 'processes', 'usage', 'pricing', 'palettes'] as const;
