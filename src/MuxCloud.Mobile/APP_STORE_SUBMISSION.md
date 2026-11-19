@@ -23,10 +23,10 @@ passwords or keys in this file.
 | Field | Value |
 |---|---|
 | Bundle ID / package | `ai.usemux.app` |
-| App Store name (30 max) | `Mux Cloud` |
+| App Store name (30 max) | `Mux AI` |
 | Home screen name | `Mux` |
 | App Store subtitle (30 max) | `Your coding agent, anywhere` |
-| Google Play title (30 max) | `Mux Cloud: AI coding agent` |
+| Google Play title (30 max) | `Mux AI: coding agent` |
 | Primary category | Developer Tools (App Store); Tools (Google Play) |
 | Secondary category | Productivity (App Store) |
 | Price | Free |
@@ -39,8 +39,9 @@ passwords or keys in this file.
 | Support email | `hello@latticetech.ai` |
 | Google Play contact phone (optional) | [PLACEHOLDER] |
 
-Name check: "Mux" is also the name of a video company (mux.com). Search App Store Connect and Play Console for the
-name before submitting, and keep "Mux Cloud" as the store name if plain "Mux" is taken or contested.
+Name: the store name is **Mux AI** (chosen 2026-11-19). "Mux" alone is also a video company (mux.com), so check
+App Store Connect and Play Console for "Mux AI" before submitting. Mux Cloud remains the name of the service the app
+connects to.
 
 ## 2. Store copy
 
@@ -58,7 +59,7 @@ All copy is plain, no em-dashes, and claims only what the app does today.
 ### 2.3 Full description (App Store and Google Play, 4000 max)
 
 ```
-Mux Cloud puts your mux coding agent in your pocket.
+Mux AI puts your mux coding agent in your pocket.
 
 mux is an open-source AI coding agent that runs on your own computers, with the models you choose. Mux Cloud connects
 those computers to your account so you can keep working from anywhere. This app is the phone and tablet side of it.
@@ -106,12 +107,12 @@ Check the final string is at most 100 characters in App Store Connect; drop `cli
 
 ### 2.5 What's new (first release)
 
-> First release of Mux Cloud for iPhone, iPad, and Android.
+> First release of Mux AI for iPhone, iPad, and Android.
 
 ### 2.6 Review notes (App Store Connect "Notes"; Play Console "App access")
 
 ```
-Mux Cloud is the mobile client for mux, an open-source coding agent that runs on the user's own computer. The app
+Mux AI is the mobile client for mux, an open-source coding agent that runs on the user's own computer. The app
 shows the user's connected computers ("machines") and lets them use mux on them remotely.
 
 A demo account with an always-online demo machine is provided:
