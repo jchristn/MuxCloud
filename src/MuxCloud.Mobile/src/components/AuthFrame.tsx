@@ -1,5 +1,6 @@
 import React from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import { Image, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -19,8 +20,12 @@ export function AuthFrame({ title, subtitle, children, showServer = true }: { ti
   const { t } = useTranslation();
   const { prefs } = usePrefs();
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: p.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.xl, gap: spacing.lg, maxWidth: 520, width: '100%', alignSelf: 'center' }} keyboardShouldPersistTaps="handled">
+    <KeyboardAwareScrollView
+      style={{ flex: 1, backgroundColor: p.bg }}
+      bottomOffset={spacing.xl}
+      contentContainerStyle={{ padding: spacing.xl, paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.xl, gap: spacing.lg, maxWidth: 520, width: '100%', alignSelf: 'center' }}
+      keyboardShouldPersistTaps="handled"
+    >
         <View style={{ alignItems: 'center', gap: spacing.sm }}>
           <Image source={p.dark ? LOGO_DARK : LOGO_LIGHT} style={{ width: 120, height: 72 }} resizeMode="cover" accessibilityIgnoresInvertColors accessibilityLabel="Mux" />
           <T variant="muted">{t('auth.tagline')}</T>
@@ -37,7 +42,6 @@ export function AuthFrame({ title, subtitle, children, showServer = true }: { ti
           </View>
         ) : null}
         {showServer && isInsecureServer(prefs.serverUrl) ? <Notice tone="warning" text={t('mobile.auth.insecure')} /> : null}
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 }

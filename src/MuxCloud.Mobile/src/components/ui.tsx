@@ -16,6 +16,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { errorText } from '@dashboard/lib';
 import { useTheme } from '@/theme/ThemeContext';
 import { font, radius, spacing } from '@/theme/palette';
@@ -81,8 +82,9 @@ export function Screen({
 }) {
   const p = useTheme();
   if (!scroll) return <View style={[{ flex: 1, backgroundColor: p.bg }, contentStyle]}>{children}</View>;
+  // Keyboard-aware: the focused field scrolls above the keyboard on iOS and on edge-to-edge Android.
   return (
-    <ScrollView
+    <KeyboardAwareScrollView
       style={{ flex: 1, backgroundColor: p.bg }}
       contentContainerStyle={[
         { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl, width: '100%', maxWidth: CONTENT_MAX_WIDTH, alignSelf: 'center' },
@@ -90,9 +92,10 @@ export function Screen({
       ]}
       keyboardShouldPersistTaps="handled"
       refreshControl={refreshControl}
+      bottomOffset={spacing.xl}
     >
       {children}
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 }
 

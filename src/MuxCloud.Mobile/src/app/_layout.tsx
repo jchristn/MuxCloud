@@ -4,6 +4,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { I18nextProvider } from 'react-i18next';
 import { LockGate } from '@/components/LockGate';
 import { applyDirection, deviceLocale, initI18n } from '@/i18n/runtime';
@@ -59,9 +60,12 @@ function Root() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <PrefsProvider>
-        <Root />
-      </PrefsProvider>
+      {/* Keyboard frames on both platforms, including edge-to-edge Android where the window no longer resizes. */}
+      <KeyboardProvider>
+        <PrefsProvider>
+          <Root />
+        </PrefsProvider>
+      </KeyboardProvider>
     </SafeAreaProvider>
   );
 }

@@ -1,5 +1,6 @@
 import React from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, View } from 'react-native';
+import { Modal, Pressable, ScrollView, View } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeContext';
@@ -12,8 +13,17 @@ export function Sheet({ visible, title, onClose, children, footer }: { visible: 
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose} supportedOrientations={['portrait', 'landscape']}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      onRequestClose={onClose}
+      supportedOrientations={['portrait', 'landscape']}
+      // Edge-to-edge on Android so the modal window gets the keyboard frames the sheet lifts above.
+      statusBarTranslucent
+      navigationBarTranslucent
+    >
+      <KeyboardAvoidingView behavior="padding" automaticOffset style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}>
         <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel={t('common.close')} />
         <View
           accessibilityViewIsModal

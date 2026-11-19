@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {
   I18nManager,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -115,7 +115,11 @@ export function ConversationView(props: ConversationViewProps) {
   useEffect(() => {
     const show = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-      () => setKeyboardShown(true),
+      () => {
+        setKeyboardShown(true);
+        // Keep the latest reply in view above the composer as the keyboard rises.
+        setTimeout(() => scroll.current?.scrollToEnd({ animated: true }), 120);
+      },
     );
     const hide = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
@@ -578,11 +582,10 @@ export function ConversationView(props: ConversationViewProps) {
       : t("conversations.newConversation"));
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: p.bg }}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-    >
+    // keyboard-controller lifts the composer on both platforms (edge-to-edge Android included). automaticOffset measures
+    // where this view really sits on screen (below the header, above the tab bar, or in the tablet split view), so no
+    // hard-coded offset can drift from the real layout.
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: p.bg }} behavior="padding" automaticOffset>
       <ScrollView
         ref={scroll}
         style={{ flex: 1 }}
