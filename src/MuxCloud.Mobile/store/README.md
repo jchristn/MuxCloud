@@ -10,7 +10,7 @@ synthetic history (about 3,200 model calls across five models and three endpoint
 mux's own format.
 
 All screenshots are 24-bit PNG (no alpha), as App Store Connect and Google Play require. The usage charts span the
-full content width (MuxCloud b777fe1).
+full content width (MuxCloud b777fe1), and on tablets the usage screen uses the whole screen width (MuxCloud 9d5c2f4).
 
 ## App Store: iPhone 6.9" (`ios-6.9/`, 1320 x 2868, iPhone 18 Pro Max simulator)
 
@@ -33,7 +33,7 @@ full content width (MuxCloud b777fe1).
 | `02-machines.png` | Machines list |
 | `03-split-view.png` | Split view: six conversations on the left, the curl conversation with its code blocks on the right |
 | `04-approval.png` | Tool approval card across the full width with the three actions |
-| `05-usage.png` | Usage for the last month: totals, a full-width chart of tokens split by model, latency |
+| `05-usage.png` | Usage for the last month across the full screen width: totals, tokens split by model, latency |
 | `06-dark-split-view.png` | Split view in dark mode on `build-box`: a spending summary table |
 
 ## Google Play: phone (`android-phone/`, 1080 x 2160, Pixel 9 emulator with the display set to 1080 x 2160)
@@ -58,7 +58,7 @@ full content width (MuxCloud b777fe1).
 | `02-machines.png` | Machines list |
 | `03-split-view.png` | Split view with the curl conversation |
 | `04-approval.png` | Tool approval card |
-| `05-usage.png` | Usage for the last month, a full-width chart of tokens split by model, latency percentiles |
+| `05-usage.png` | Usage for the last month across the full screen width: tokens split by model, latency percentiles |
 | `06-dark-split-view.png` | Split view in dark mode on `build-box` |
 
 ## Google Play graphics
