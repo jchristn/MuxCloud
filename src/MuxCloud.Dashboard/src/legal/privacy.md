@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last updated:** [PLACEHOLDER: date]
+**Last updated:** November 19, 2026
 
 **Version:** 1.0
 
@@ -14,9 +14,9 @@
 
 ## 1. Who we are
 
-1.1. This Privacy Policy explains how Lattice AI, LLC, a California limited liability company ("Lattice AI", "we", "us", or "our"), collects, uses, shares, and protects information about you when you use Mux Cloud at app.usemux.ai, the Mux Cloud apps for iPhone, iPad, and Android, and related services (together, the "Service").
+1.1. This Privacy Policy explains how Lattice AI, LLC, a California limited liability company ("Lattice AI", "we", "us", or "our"), collects, uses, shares, and protects information about you when you use Mux Cloud at app.usemux.ai, the Mux AI app for iPhone, iPad, and Android, and related services (together, the "Service").
 
-1.2. You can reach us at hello@latticetech.ai or Lattice AI, LLC, [PLACEHOLDER: mailing address for legal notices].
+1.2. You can reach us at hello@latticetech.ai or Lattice AI, LLC, 2611 Raleigh Way, El Dorado Hills, CA 95762, USA. Lattice AI is the controller of the information described here.
 
 ## 2. Information we collect
 
@@ -37,6 +37,7 @@ When you use a machine through the Service, requests and responses between your 
 ### 2.4 Information collected automatically
 
 - **Sessions.** For each sign-in: the device name your browser or app reports, its user agent, its IP address, and when the session was created, last used, and expires.
+- **Push notification tokens.** If you allow notifications in the mobile app, the token Apple or Google issues for your device, so we can tell you when a run needs you or finishes. Notifications say which machine and conversation; they do not include conversation content. Signing out or turning notifications off removes the token.
 - **Request logs.** For requests to Mux Cloud's own pages and API (not relayed traffic), we keep the method, path, status, timing, IP address, and, for troubleshooting, truncated request and response bodies with credentials, cookies, and tokens removed. These logs are kept for 30 days.
 - **Security and audit records.** Sign-ins and failed sign-ins, password changes, machine enrollments and revocations, and administrative actions.
 - **Cookies.** The web dashboard uses two strictly necessary cookies to keep you signed in. We do not use advertising or analytics cookies.
@@ -49,8 +50,8 @@ We use information to provide and secure the Service: to create and protect your
 
 We do not sell your information. We share it only with:
 
-- **Service providers** that process it for us under contract: hosting and database providers [PLACEHOLDER: hosting provider], and Mailgun, which sends our emails.
-- **Payment processors**, if paid plans launch. [PLACEHOLDER: payment provider.]
+- **Service providers** that process it for us under contract: Amazon Web Services, which hosts the Service and its database in the United States; Mailgun, which sends our emails; and Apple and Google, which deliver push notifications to the mobile app.
+- **Our payment processor, Stripe**, if paid plans launch and you subscribe. Stripe collects your payment details directly; we receive only the billing details we need, such as your plan, billing status, and the last four digits of your card.
 - **Authorities**, when required by law or to protect the rights, safety, or property of our users, the public, or Lattice AI.
 - **A successor**, if Lattice AI is involved in a merger, acquisition, or sale of assets, subject to this policy.
 
@@ -58,8 +59,8 @@ We do not sell your information. We share it only with:
 
 - Account, machine, and session records: while your account exists. Deleting a machine deletes its record and connection history.
 - Request logs: 30 days.
-- Security and audit records: [PLACEHOLDER: retention period, for example 1 year], because they protect your account and are needed to investigate abuse.
-- When you delete your account we delete your account, machine, and session records right away and remove remaining copies from backups within [PLACEHOLDER: backup window, for example 30 days]. We may keep records we are legally required to keep.
+- Security and audit records: 90 days, because they protect your account and are needed to investigate abuse.
+- When you delete your account we delete your account, machine, and session records right away and remove remaining copies from backups within 30 days. We may keep records we are legally required to keep.
 
 ## 6. Security
 
@@ -67,7 +68,20 @@ We use TLS for every connection, store passwords as salted hashes, store machine
 
 ## 7. Your rights and choices
 
-You can view and update your profile, sign out sessions, revoke or remove machines, and delete your account in the dashboard. Depending on where you live you may have rights to access, correct, delete, or port your information, or to object to some processing. To use them, contact hello@latticetech.ai from the email address on your account. We will verify the request before acting on it. [PLACEHOLDER: counsel to confirm state and international privacy law disclosures, such as CCPA and GDPR, and any representative requirements.]
+You can view and update your profile, sign out sessions, revoke or remove machines, and delete your account in the dashboard. Depending on where you live you may have rights to access, correct, delete, or port your information, or to object to some processing. To use them, contact hello@latticetech.ai from the email address on your account. We will verify the request before acting on it and respond within 30 days.
+
+### 7.1 European Economic Area, United Kingdom, and Switzerland
+
+If these laws apply to you, you have the right to access, correct, delete, restrict, or port your information, to object to processing based on our legitimate interests, and to withdraw consent where we rely on it. You can also complain to your local data protection authority. We rely on these legal bases:
+
+- **Contract:** to create and run your account, connect your machines, and relay your traffic.
+- **Legitimate interests:** to secure the Service, prevent abuse, investigate problems, and keep request logs and security records for the periods in section 5.
+- **Legal obligation:** to keep records the law requires and to respond to lawful requests.
+- **Consent:** for push notifications, which you can turn off at any time.
+
+### 7.2 California
+
+We do not sell your personal information or share it for cross-context behavioral advertising, and we do not use or disclose sensitive personal information for purposes other than providing the Service. If California law gives you these rights, you may ask to know what personal information we collected about you in the past 12 months, and to have it corrected or deleted. We will not treat you differently for exercising these rights. You can use an authorized agent; we may ask the agent for proof of authorization and ask you to verify your identity. The categories we collect are identifiers (email, name, IP address, device and push tokens), internet activity on the Service (sessions and request logs), and the machine information in section 2.2, used and shared as described in sections 3 and 4.
 
 ## 8. Children
 
@@ -75,7 +89,7 @@ The Service is not intended for anyone under 18, and we do not knowingly collect
 
 ## 9. International transfers
 
-We operate in the United States. If you use the Service from elsewhere, your information is transferred to and processed in the United States. [PLACEHOLDER: transfer mechanism if serving the EEA or UK.]
+We operate in the United States. If you use the Service from elsewhere, your information is transferred to and processed in the United States, which may not have the same data protection laws as your country. For information from the European Economic Area, the United Kingdom, and Switzerland, our service providers process it under the EU-U.S. Data Privacy Framework (with its UK Extension and the Swiss-U.S. framework) where they are certified, or under the European Commission's Standard Contractual Clauses and the UK Addendum.
 
 ## 10. Changes
 
@@ -83,4 +97,4 @@ We will post changes here and update the date above. If a change is material, we
 
 ## 11. Contact
 
-Lattice AI, LLC, [PLACEHOLDER: mailing address for legal notices]. Email: hello@latticetech.ai.
+Lattice AI, LLC, 2611 Raleigh Way, El Dorado Hills, CA 95762, USA. Email: hello@latticetech.ai.

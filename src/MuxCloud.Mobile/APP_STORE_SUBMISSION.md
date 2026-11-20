@@ -11,8 +11,8 @@ passwords or keys in this file.
 - [x] Expo project `@joel-christner/mux`; Android FCM V1 key and Play submission key stored in Expo.
 - [ ] Apple APNs key added to Expo (after the Team ID).
 - [ ] App record created in App Store Connect for `ai.usemux.app`.
-- [ ] Legal pages final (no `[PLACEHOLDER]` left) at `https://app.usemux.ai/legal/terms`, `/legal/privacy`,
-      `/legal/account-deletion`.
+- [x] Legal pages final (no `[PLACEHOLDER]` left) at `https://app.usemux.ai/legal/terms`, `/legal/privacy`,
+      `/legal/account-deletion` (2026-11-19).
 - [x] Reviewer demo account and an always-online demo machine (section 8). Without a connected machine the app shows an
       empty list, which reviewers reject as incomplete (Apple 2.1 and 4.2, Play "Minimum functionality").
 - [ ] Store screenshots (section 7) and the Google Play feature graphic.
