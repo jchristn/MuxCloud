@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   ActivityIndicator,
   I18nManager,
@@ -187,7 +188,13 @@ export function Button({
   );
 }
 
-/** Labeled text input. */
+/** Width of the show/hide password button inside a secure field (also its minimum hit target). */
+const REVEAL_BUTTON_SIZE = 44;
+
+/**
+ * Labeled text input. A single-line `secureTextEntry` field (passwords, API keys) gets an eye button at its end
+ * edge that shows or hides what was typed, keeping focus and the cursor at the end of the text.
+ */
 export function Field({
   label,
   hint,
@@ -195,10 +202,23 @@ export function Field({
   style,
   multiline,
   grow,
+  secureTextEntry,
   ...input
 }: TextInputProps & { label: string; hint?: string; error?: string | null; /** Starts one line tall and grows with long values (paths). */ grow?: boolean }) {
   const p = useTheme();
+  const { t } = useTranslation();
   const ref = useRef<TextInputInstance>(null);
+  const [revealed, setRevealed] = useState(false);
+  const canReveal = !!secureTextEntry && !multiline && !grow;
+  const toggle = () => {
+    setRevealed((r) => !r);
+    // Android moves the cursor to the start when secureTextEntry changes; put it back at the end.
+    const end = typeof input.value === 'string' ? input.value.length : undefined;
+    if (end !== undefined) {
+      setTimeout(() => ref.current?.setSelection?.(end, end), 0);
+    }
+  };
+  const revealLabel = revealed ? t('common.hidePassword') : t('common.showPassword');
   return (
     <View style={{ gap: spacing.xs }}>
       <Pressable onPress={() => ref.current?.focus()} accessible={false} hitSlop={{ top: 6, bottom: 6 }}>
@@ -206,33 +226,59 @@ export function Field({
           {label}
         </T>
       </Pressable>
-      <TextInput
-        ref={ref}
-        accessibilityLabel={label}
-        placeholderTextColor={p.muted}
-        multiline={multiline || grow}
-        scrollEnabled={grow ? false : undefined}
-        style={[
-          {
-            minHeight: multiline ? 96 : 44,
-            paddingTop: grow ? 12 : undefined,
-            paddingBottom: grow ? 12 : undefined,
-            borderWidth: 1,
-            borderColor: error ? p.danger : p.line,
-            borderRadius: radius.md,
-            paddingHorizontal: spacing.md,
-            paddingVertical: multiline ? spacing.sm : 0,
-            color: p.text,
-            backgroundColor: p.panel,
-            fontSize: font.body,
-            textAlignVertical: multiline ? 'top' : 'center',
-            // TextInput does not follow the layout direction on its own: align typed text with the RTL layout.
-            textAlign: I18nManager.isRTL ? 'right' : 'left',
-          },
-          style,
-        ]}
-        {...input}
-      />
+      <View style={{ justifyContent: 'center' }}>
+        <TextInput
+          ref={ref}
+          accessibilityLabel={label}
+          placeholderTextColor={p.muted}
+          multiline={multiline || grow}
+          scrollEnabled={grow ? false : undefined}
+          secureTextEntry={canReveal ? !revealed : secureTextEntry}
+          style={[
+            {
+              minHeight: multiline ? 96 : 44,
+              paddingTop: grow ? 12 : undefined,
+              paddingBottom: grow ? 12 : undefined,
+              borderWidth: 1,
+              borderColor: error ? p.danger : p.line,
+              borderRadius: radius.md,
+              paddingHorizontal: spacing.md,
+              paddingVertical: multiline ? spacing.sm : 0,
+              color: p.text,
+              backgroundColor: p.panel,
+              fontSize: font.body,
+              textAlignVertical: multiline ? 'top' : 'center',
+              // TextInput does not follow the layout direction on its own: align typed text with the RTL layout.
+              textAlign: I18nManager.isRTL ? 'right' : 'left',
+            },
+            // Keep typed text clear of the eye button.
+            canReveal ? { paddingEnd: REVEAL_BUTTON_SIZE } : null,
+            style,
+          ]}
+          {...input}
+        />
+        {canReveal ? (
+          <Pressable
+            onPress={toggle}
+            accessibilityRole="button"
+            accessibilityLabel={revealLabel}
+            testID={input.testID ? `${input.testID}-reveal` : undefined}
+            style={({ pressed }) => ({
+              position: 'absolute',
+              end: 0,
+              top: 0,
+              bottom: 0,
+              width: REVEAL_BUTTON_SIZE,
+              minHeight: REVEAL_BUTTON_SIZE,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: pressed ? 0.5 : 1,
+            })}
+          >
+            <Ionicons name={revealed ? 'eye-off-outline' : 'eye-outline'} size={20} color={p.muted} />
+          </Pressable>
+        ) : null}
+      </View>
       {error ? <T variant="small" style={{ color: p.danger }}>{error}</T> : hint ? <T variant="small">{hint}</T> : null}
     </View>
   );
