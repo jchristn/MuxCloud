@@ -448,10 +448,10 @@ test.describe('real mux through Mux Cloud', () => {
     await page.getByRole('menuitem', { name: 'Revoke' }).click();
     await page.getByRole('dialog').getByRole('button', { name: 'Revoke' }).click();
     await expect(page.getByText('Machine revoked.')).toBeVisible();
-    await expect.poll(() => cloudStatus(hubA), { timeout: 30_000 }).toContain('Revoked');
+    await expect.poll(() => cloudStatus(hubA), { timeout: 30_000 }).toContain('Removed');
     const before = hubA.log.join('').length;
     await page.waitForTimeout(8_000);
-    expect(cloudStatus(hubA)).toContain('Revoked');
+    expect(cloudStatus(hubA)).toContain('Removed');
     expect(hubA.log.join('').slice(before)).not.toMatch(/Connecting|Reconnecting/);
   });
 });
