@@ -68,15 +68,20 @@ export function T({
 /** Widest a single column of content gets on tablets and large windows: lines stay readable, controls stay grouped. */
 export const CONTENT_MAX_WIDTH = 840;
 
-/** Scrollable screen body with standard padding, centered in a readable column on wide screens. */
+/**
+ * Scrollable screen body with standard padding, centered in a readable column on wide screens. `wide` drops the
+ * column cap so dashboards (usage charts) use the whole width on tablets.
+ */
 export function Screen({
   children,
   scroll = true,
+  wide = false,
   refreshControl,
   contentStyle,
 }: {
   children: React.ReactNode;
   scroll?: boolean;
+  wide?: boolean;
   refreshControl?: React.ReactElement;
   contentStyle?: StyleProp<ViewStyle>;
 }) {
@@ -87,7 +92,7 @@ export function Screen({
     <KeyboardAwareScrollView
       style={{ flex: 1, backgroundColor: p.bg }}
       contentContainerStyle={[
-        { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl, width: '100%', maxWidth: CONTENT_MAX_WIDTH, alignSelf: 'center' },
+        { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl, width: '100%', maxWidth: wide ? undefined : CONTENT_MAX_WIDTH, alignSelf: 'center' },
         contentStyle,
       ]}
       keyboardShouldPersistTaps="handled"

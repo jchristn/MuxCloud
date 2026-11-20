@@ -163,7 +163,7 @@ export default function Usage() {
   const endpoints = options.data?.Endpoints ?? [];
 
   return (
-    <Screen refreshControl={<RefreshControl refreshing={summary.loading && !!summary.data} onRefresh={reload} />}>
+    <Screen wide refreshControl={<RefreshControl refreshing={summary.loading && !!summary.data} onRefresh={reload} />}>
       <Stack.Screen options={{ title: t('mobile.manage.usage') }} />
       {options.data && !options.data.Enabled ? <Notice tone="warning" text={t('mobile.usage.disabled')} /> : null}
       <Segmented
