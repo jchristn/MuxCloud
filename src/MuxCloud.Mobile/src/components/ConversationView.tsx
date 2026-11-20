@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { useHeaderHeight } from 'expo-router/react-navigation';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Alert, I18nManager, Keyboard, Platform, Pressable, ScrollView, TextInput, View, type ScrollViewInstance } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -142,6 +143,7 @@ export function ConversationView(props: ConversationViewProps) {
   /** Set when the user taps Stop, so the end of the run is acknowledged in the transcript. */
   const stopRequested = useRef(false);
   const scroll = useRef<ScrollViewInstance>(null);
+  const headerHeight = useHeaderHeight();
   const [keyboardShown, setKeyboardShown] = useState(false);
   useEffect(() => {
     const show = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => {
@@ -904,10 +906,11 @@ export function ConversationView(props: ConversationViewProps) {
   const title = detail?.Title || (sessionId ? t('conversations.untitled') : t('conversations.newConversation'));
 
   return (
-    // keyboard-controller lifts the composer on both platforms (edge-to-edge Android included). automaticOffset measures
-    // where this view really sits on screen (below the header, above the tab bar, or in the tablet split view), so no
-    // hard-coded offset can drift from the real layout.
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: p.bg }} behavior="padding" automaticOffset>
+    // keyboard-controller lifts the composer above the keyboard on both platforms (edge-to-edge Android included).
+    // This view always sits directly under a stack header (the conversation screen, or the tablet split view's
+    // right pane), so the header height is its distance from the top of the screen. automaticOffset measured that
+    // distance as 0 on Android, which left the composer under the keyboard.
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: p.bg }} behavior="padding" keyboardVerticalOffset={headerHeight}>
       <ScrollView
         ref={scroll}
         style={{ flex: 1 }}
