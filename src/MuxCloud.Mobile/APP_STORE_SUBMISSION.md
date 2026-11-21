@@ -31,7 +31,7 @@ passwords or keys in this file.
 | Bundle ID / package | `ai.usemux.app` |
 | App Store name (30 max) | `Mux Cloud` |
 | Home screen name | `Mux` |
-| App Store subtitle (30 max) | `Your coding agent, anywhere` |
+| App Store subtitle (30 max) | `Requires mux on your computer` |
 | Google Play title (30 max) | `Mux Cloud: coding agent` |
 | Primary category | Developer Tools (App Store); Tools (Google Play) |
 | Secondary category | Productivity (App Store) |
@@ -57,20 +57,29 @@ All copy is plain, no em-dashes, and claims only what the app does today.
 
 ### 2.1 App Store promotional text (170 max; can change without a new build)
 
-> Run mux on your own computers and pick up from your phone. See every machine, continue any conversation, approve
-> tools, and get notified when a run finishes.
+> Requires mux on your own Mac, Windows, or Linux computer. Connect that computer to Mux Cloud, then use it from your phone: conversations, tool approvals, and alerts.
 
 ### 2.2 Short description (Google Play, 80 max)
 
-> Use your mux coding agent from your phone: conversations, approvals, and more.
+> Needs mux on your computer. Use your mux coding agent from your phone.
 
 ### 2.3 Full description (App Store and Google Play, 4000 max)
 
-```
-Mux Cloud puts your mux coding agent in your pocket.
+Every field leads with the requirement: the app is a remote for mux and does nothing without a computer running mux
+(owner's instruction, 2026-11-20). The App Store text says "Face ID or Touch ID lock"; Google Play says "fingerprint or
+face unlock".
 
-mux is an open-source AI coding agent that runs on your own computers, with the models you choose. Mux Cloud connects
-those computers to your account so you can keep working from anywhere. This app is the phone and tablet side of it.
+```
+REQUIRES MUX ON YOUR COMPUTER
+This app does not run an AI agent on your phone. It is a remote for mux, the open-source AI coding agent, and it only works with a Mac, Windows, or Linux computer that has mux installed, is signed in to Mux Cloud, and is turned on. Without that computer the app has nothing to show. Install mux first: https://github.com/jchristn/Mux
+
+HOW TO START
+1. Install mux on your computer (https://github.com/jchristn/Mux).
+2. Create a free Mux Cloud account at app.usemux.ai or in this app.
+3. On the computer, run "mux cloud login" (or use Connect to Mux Cloud in the desktop app, dashboard, or VS Code).
+4. Open this app and sign in with the same account. Your computer appears within seconds.
+
+mux runs on your own computers, with the models you choose. Mux Cloud connects those computers to your account so you can keep working from anywhere. This app is the phone and tablet side of it.
 
 PICK UP WHERE YOU LEFT OFF
 - See all your machines and which are online, busy, or waiting on you.
@@ -90,17 +99,9 @@ EVERYTHING YOU HAVE AT YOUR DESK
 - Plan mode, slash commands, @file mentions, and conversation stats.
 
 YOUR CODE STAYS ON YOUR MACHINES
-Mux Cloud relays your conversations between this app and your computer. It does not store your code or your
-conversations. Each machine decides whether tools can be approved remotely, and you can turn that off on the machine
-at any time.
+Mux Cloud relays your conversations between this app and your computer. It does not store your code or your conversations. Each machine decides whether tools can be approved remotely, and you can turn that off on the machine at any time.
 
-HOW TO START
-1. Install mux on your computer (https://github.com/jchristn/Mux).
-2. Create a free Mux Cloud account at app.usemux.ai or in this app.
-3. On the computer, run "mux cloud login" (or use Connect to Mux Cloud in the desktop app, dashboard, or VS Code).
-4. Open this app and sign in. Your machine appears within seconds.
-
-Also included: Face ID or fingerprint lock, light and dark themes, tablet split view, and 12 languages.
+Also included: Face ID or Touch ID lock, light and dark themes, tablet split view, and 12 languages.
 
 Mux Cloud is made by Lattice AI, LLC. mux is open source under the MIT license.
 ```
@@ -121,7 +122,9 @@ Check the final string is at most 100 characters in App Store Connect; drop `cli
 
 ```
 Mux Cloud is the mobile client for mux, an open-source coding agent that runs on the user's own computer. The app
-shows the user's connected computers ("machines") and lets them use mux on them remotely.
+is a remote: it requires a computer running mux, and the listing says so in its first line. It shows the user's
+connected computers ("machines") and lets them use mux on them remotely. For review, the demo account below is
+connected to a demo computer that stays online, so no computer of your own is needed.
 
 A demo account with an always-online demo machine is provided:
   Email: user@reviewer.com
@@ -142,9 +145,8 @@ https://app.usemux.ai/legal/account-deletion.
 The Terms require users to be 18 or older; the app contains no user-generated social content, no ads, no gambling,
 and no mature themes. It does show text the user's own AI model generates.
 
-- App Store: answer **None** to every content question; "Unrestricted web access": **No**; the result is **4+**.
-  Optionally choose 17+ to align with the Terms' age requirement (recommended, since the Terms say 18+ and model output
-  is not filtered).
+- App Store: answer **None** to every content question; "Unrestricted web access": **No**. Then override to the
+  higher **18+** rating to match the Terms (Apple's tiers are 4+, 9+, 13+, 16+, 18+; there is no 17+).
 - Google Play (IARC): category **Utility, Productivity, Communication, or Other**; violence, sexuality, language,
   controlled substances, gambling: **No**; "Does the app allow users to interact or exchange content": **No** (each
   user sees only their own machines). Target audience: **18 and over**.
