@@ -1,12 +1,12 @@
 # Delete Your Account
 
-**Last updated:** November 19, 2026
+**Last updated:** November 20, 2026
 
 **Version:** 1.0
 
 ## Summary
 
-- You can delete your Mux Cloud account at any time, on the website or in the **Mux AI** app from Lattice AI, LLC. Deletion takes effect right away and cannot be undone.
+- You can delete your Mux Cloud account at any time, on the website or in the **Mux Cloud** app from Lattice AI, LLC. Deletion takes effect right away and cannot be undone.
 - Every connected machine is disconnected and removed, and every signed-in device is signed out.
 - **Your conversations stay on your machines.** Mux Cloud never stored them, so deleting your account does not delete them.
 - A small amount of information is kept for legal and security reasons.
@@ -18,9 +18,9 @@
 3. In the **Danger zone** section, choose **Delete account**.
 4. Enter your password and choose **Delete my account**.
 
-## 2. Delete your account in the Mux AI app (iPhone, iPad, or Android)
+## 2. Delete your account in the Mux Cloud app (iPhone, iPad, or Android)
 
-1. Open the Mux AI app and sign in.
+1. Open the Mux Cloud app and sign in.
 2. Open **Account**.
 3. Tap **Delete account**, enter your password, and confirm.
 

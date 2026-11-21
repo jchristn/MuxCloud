@@ -1,6 +1,6 @@
 # Store screenshots and graphics
 
-Assets for the App Store and Google Play listings of Mux AI (see `../APP_STORE_SUBMISSION.md`, section 7).
+Assets for the App Store and Google Play listings of Mux Cloud (see `../APP_STORE_SUBMISSION.md`, section 7).
 Captured 2026-11-19 from Release builds of the app against a local, throwaway Mux Cloud with three demo machines
 (`studio-mac`, `build-box`, `travel-laptop`) under a demo account. No real account, machine, path, or key appears.
 Status bars use the standard 9:41 demo values.

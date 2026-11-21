@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last updated:** November 19, 2026
+**Last updated:** November 20, 2026
 
 **Version:** 1.0
 
@@ -14,7 +14,7 @@
 
 ## 1. Who we are
 
-1.1. This Privacy Policy explains how Lattice AI, LLC, a California limited liability company ("Lattice AI", "we", "us", or "our"), collects, uses, shares, and protects information about you when you use Mux Cloud at app.usemux.ai, the Mux AI app for iPhone, iPad, and Android, and related services (together, the "Service").
+1.1. This Privacy Policy explains how Lattice AI, LLC, a California limited liability company ("Lattice AI", "we", "us", or "our"), collects, uses, shares, and protects information about you when you use Mux Cloud at app.usemux.ai, the Mux Cloud app for iPhone, iPad, and Android, and related services (together, the "Service").
 
 1.2. You can reach us at hello@latticetech.ai or Lattice AI, LLC, 2611 Raleigh Way, El Dorado Hills, CA 95762, USA. Lattice AI is the controller of the information described here.
 

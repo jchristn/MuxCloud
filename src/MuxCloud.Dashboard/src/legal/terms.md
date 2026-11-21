@@ -1,6 +1,6 @@
 # Terms of Service
 
-**Last updated:** November 19, 2026
+**Last updated:** November 20, 2026
 
 **Version:** 1.0
 
@@ -15,7 +15,7 @@
 
 ## 1. Agreement
 
-1.1. These Terms of Service ("Terms") are an agreement between you and Lattice AI, LLC, a California limited liability company ("Lattice AI", "we", "us", or "our"). Lattice AI operates Mux Cloud, including the web dashboard at app.usemux.ai, the Mux AI app for iPhone, iPad, and Android, the relay that connects them to your machines, and related services (together, the "Service").
+1.1. These Terms of Service ("Terms") are an agreement between you and Lattice AI, LLC, a California limited liability company ("Lattice AI", "we", "us", or "our"). Lattice AI operates Mux Cloud, including the web dashboard at app.usemux.ai, the Mux Cloud app for iPhone, iPad, and Android, the relay that connects them to your machines, and related services (together, the "Service").
 
 1.2. By creating an account or using the Service, you agree to these Terms and to our [Privacy Policy](/legal/privacy), which is part of these Terms.
 
