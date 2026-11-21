@@ -6,16 +6,19 @@ passwords or keys in this file.
 
 ## 0. Before the first submission
 
-- [ ] Apple Developer Program (Lattice AI, organization): enrollment approved; Team ID in `eas.json`.
+- [x] Apple Developer Program (Lattice AI, organization): enrollment approved; Team ID `U34NDPAH3K` in `eas.json`
+      (2026-11-20). App ID `ai.usemux.app` registered; EAS generated the distribution certificate and provisioning profile.
 - [x] Google Play Console (Lattice AI, organization, trader under the EU DSA); app **Mux** created.
 - [x] Expo project `@joel-christner/mux`; Android FCM V1 key and Play submission key stored in Expo.
 - [ ] Apple APNs key added to Expo (after the Team ID).
-- [ ] App record created in App Store Connect for `ai.usemux.app`.
+- [x] App record created in App Store Connect for `ai.usemux.app` (2026-11-20): Apple ID `6837555331` (`ascAppId` in
+      `eas.json`), named **Mux Cloud** (see section 1).
 - [x] Legal pages final (no `[PLACEHOLDER]` left) at `https://app.usemux.ai/legal/terms`, `/legal/privacy`,
       `/legal/account-deletion` (2026-11-19).
 - [x] Reviewer demo account and an always-online demo machine (section 8). Without a connected machine the app shows an
       empty list, which reviewers reject as incomplete (Apple 2.1 and 4.2, Play "Minimum functionality").
-- [ ] Store screenshots (section 7) and the Google Play feature graphic.
+- [x] Store screenshots (section 7) and the Google Play feature graphic, in `store/` (2026-11-19).
+- [ ] App Store Connect API key (Team key `FR2H4FW42J`) uploaded to Expo for `eas submit`.
 - [ ] First Android upload done by hand to internal testing (Google requires it); later uploads use `eas submit`.
 
 ## 1. App information

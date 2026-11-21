@@ -40,9 +40,8 @@
   "submit": {
     "preview": {
       "ios": {
-        "appleId": "REPLACE_WITH_APPLE_ID_EMAIL",
-        "ascAppId": "REPLACE_WITH_APP_STORE_CONNECT_APP_ID",
-        "appleTeamId": "REPLACE_WITH_APPLE_TEAM_ID"
+        "ascAppId": "6837555331",
+        "appleTeamId": "U34NDPAH3K"
       },
       "android": {
         "track": "internal",
@@ -51,9 +50,8 @@
     },
     "production": {
       "ios": {
-        "appleId": "REPLACE_WITH_APPLE_ID_EMAIL",
-        "ascAppId": "REPLACE_WITH_APP_STORE_CONNECT_APP_ID",
-        "appleTeamId": "REPLACE_WITH_APPLE_TEAM_ID"
+        "ascAppId": "6837555331",
+        "appleTeamId": "U34NDPAH3K"
       },
       "android": {
         "track": "production",
